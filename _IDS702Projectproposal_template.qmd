@@ -1,0 +1,421 @@
+---
+title: "Project Proposal"
+author: "Arko Bhattacharya, Eric Ortega Rodriguez, Mu Niu, Nruta Choudhari"
+subtitle: "Due November 17 at 11:59pm"
+format: pdf
+---
+
+#### Load Packages
+
+```{r load-packages, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+```
+
+# Dataset 1 (top choice)
+
+**Data source: [UFC Fight Stats](https://www.kaggle.com/datasets/mdabbert/ultimate-ufc-dataset/data)**
+
+**Brief description:** This data set includes information on fighters, their fights, and key statistics like fight outcomes, fighter attributes (e.g., height, weight), and fight-specific statistics (e.g., strikes landed, submission attempts). Each row represents a single fight, providing detailed insights into each bout's characteristics and outcomes.
+
+**Load the data and provide a `glimpse()`**:
+
+```{r data-1, warning=FALSE, message=FALSE}
+ufc = read_csv('ufc-master.csv', show_col_types = FALSE)
+
+# glimpse on variables of interest
+glimpse(ufc %>% select(BlueReachCms, RedReachCms, BlueAvgSigStrLanded, 
+                       RedAvgSigStrLanded, WeightClass, Winner, 
+                       RedAvgSubAtt, BlueAvgSubAtt,TotalFightTimeSecs))
+```
+
+**Research question 1:** How does the reach of the fighter relate to the total number of strikes landed during a fight?
+
+-   *Outcome Variable (include the name/description and type of variable):* Reach (continuous)
+-   *Independent Variable:* Strikes landed (continuous variable)
+-   *Interaction Term:* Weight class, allowing analysis of the interaction between reach and weight class on striking effectiveness.
+
+**Exploratory Plots:**
+
+1.  Outcome Variables
+
+```{r plots-1, warning = FALSE, echo = FALSE}
+# combine BlueReachCms and RedReachCms into one column
+combined_reach <- c(ufc$BlueReachCms, ufc$RedReachCms)
+
+# plot the distribution of the combined reach
+hist(combined_reach[combined_reach>0], 
+     breaks = 30, 
+     main = "Research Q1: Distribution of Reach", 
+     xlab = "Reach in Cms", 
+     col = "gray", 
+     border = "black")
+```
+
+2.  Relationship of Interest
+
+```{r, warning = FALSE, include = FALSE}
+# check missing
+sum(is.na(ufc$BlueReachCms))
+sum(is.na(ufc$RedReachCms))
+sum(is.na(ufc$BlueAvgSigStrLanded))
+sum(is.na(ufc$RedAvgSigStrLanded))
+sum(is.na(ufc$WeightClass))
+
+# filter out missing data
+filtered_ufc_blue = ufc[!is.na(ufc$BlueAvgSigStrLanded), 
+                        c("BlueReachCms","BlueAvgSigStrLanded","WeightClass")]
+colnames(filtered_ufc_blue) <- c("ReachCms", "AvgSigStrLanded", "WeightClass")
+filtered_ufc_red = ufc[!is.na(ufc$RedAvgSigStrLanded), 
+                       c("RedReachCms","RedAvgSigStrLanded","WeightClass")]
+colnames(filtered_ufc_red) <- c("ReachCms", "AvgSigStrLanded", "WeightClass")
+filtered_ufc = rbind(filtered_ufc_blue, filtered_ufc_red)
+
+# exclude outlier(one observation with 0 cm reach)
+filtered_ufc = filtered_ufc[filtered_ufc$ReachCms > 0,]
+```
+
+```{r, warning = FALSE, echo = FALSE}
+# scatter plot
+ggplot(filtered_ufc, aes(x = ReachCms, y = AvgSigStrLanded, 
+                         color = WeightClass)) + geom_point(alpha = 0.7) +
+  labs(
+    title = "Research Q1: Reach vs Strikes",
+    x = "Reach (cms)",
+    y = "Avg. Significant Strikes Landed"
+  ) +
+  theme_minimal() +
+  theme(legend.title = element_text(face = "bold")) +
+  scale_color_discrete(name = "Weight Class")
+```
+
+**Research question 2:** Is the fight outcome associated with the number of submission attempts made by a fighter?
+
+-   *Outcome Variable (include the name/description and type of variable):* Fight outcome (binary variable: Win or Loss)
+-   *Independent Variable:* Primary fight style (nominal variable)
+
+**Exploratory Plots:**
+
+1.  Outcome Variables:
+
+```{r echo = FALSE}
+ufc_outcome_red = ifelse(ufc$Winner == 'Red', 1, 0)
+ufc_outcome_blue = ifelse(ufc$Winner == 'Blue', 1, 0)
+ufc_outcome = cbind(ufc_outcome_red, ufc_outcome_blue)
+
+hist(ufc_outcome)
+```
+
+2.  Relationship of Interest
+
+```{r, warning = FALSE, echo = FALSE}
+# check missing
+sum(is.na(ufc$Winner))
+sum(is.na(ufc$RedAvgSubAtt))
+sum(is.na(ufc$BlueAvgSubAtt))
+
+# filter rows with no missing values in the needed columns
+ufc_clean <- ufc %>%
+  filter(!is.na(Winner) & !is.na(BlueAvgSubAtt) & !is.na(RedAvgSubAtt))
+
+# split into two rows for each original row and identify winner
+ufc_split <- ufc_clean %>%
+  rowwise() %>%
+  do({
+    data.frame(
+      AvgSubAtt = c("BlueAvgSubAtt", "RedAvgSubAtt"),
+      Win = c(ifelse(.$Winner == "Blue", 1, 0), 
+              ifelse(.$Winner == "Red", 1, 0)),
+      Value = c(.$BlueAvgSubAtt, .$RedAvgSubAtt)
+    )
+  })
+
+# Convert Win to a factor for better plot labeling
+ufc_split$Win <- factor(ufc_split$Win, labels = c("Loss", "Win"))
+
+# show first few rows
+head(ufc_split)
+```
+
+```{r, warning = FALSE, echo = FALSE}
+# plot distribution of submission attempts across fight outcome
+ggplot(ufc_split, aes(x = Value, fill = Win)) +
+  geom_density(alpha = 0.6) +
+  scale_fill_manual(values = c("Loss" = "#F8766D", "Win" = "#00BFC4")) +
+  labs(
+    title = " Research Q2: Distribution of Submission Attempts by Outcome",
+    x = "Number of Submission Attempts",
+    y = "Distribution",
+    fill = "Outcome"
+  ) +
+  theme_minimal(base_size = 14) + # Set base font size
+  theme(
+   plot.title = element_text(hjust = 0.5, size = 10),
+    axis.title.x = element_text(size = 10),
+    axis.title.y = element_text(size = 10),
+    legend.title = element_text(size = 10)
+ )
+```
+
+**Research question 3:** How does the average fight duration compare between fighters who primarily use striking versus grappling techniques?
+
+-   *Outcome variable:* Average fight duration (continuous variable)
+
+-   *Independent Variable:* Primary fight style (nominal variable)
+
+**Exploratory Plots:**
+
+1.  Outcome Variable
+
+```{r, warning = FALSE, echo = FALSE}
+# Filter for men's weight divisions and classify fighting styles
+# Filter the dataset and create the `PrimaryFightStyle` variable
+ufc <- ufc %>%
+  filter(WeightClass %in% c(
+    "Flyweight", "Bantamweight", "Featherweight", "Lightweight", 
+    "Welterweight", "Middleweight", "Light Heavyweight", "Heavyweight"
+  )) %>%
+  mutate(PrimaryFightStyle = case_when(
+    WeightClass %in% c("Flyweight", "Bantamweight", "Featherweight", 
+                       "Lightweight") ~ "Striking",
+    WeightClass %in% c("Welterweight", "Middleweight", "Light Heavyweight", 
+                       "Heavyweight") ~ "Grappling"
+  ))
+
+ggplot(ufc, aes(x = TotalFightTimeSecs / 60)) +
+  geom_histogram(binwidth = 1, fill = "#00BFC4", color = "black", alpha = 0.8) +
+ labs(
+    title = "Research Q3: Distribution of Fight Durations",
+    x = "Fight Duration (minutes)",
+    y = "Count"
+  ) +
+  theme_minimal()
+```
+
+2.  Relationship of Interest
+
+```{r, warning = FALSE, echo = FALSE}
+# Custom colors
+custom_colors <- c("Striking" = "#F8766D", "Grappling" = "#00BFC4")
+
+# Create boxplot
+ggplot(ufc, aes(x = PrimaryFightStyle, y = TotalFightTimeSecs / 60, 
+                fill = PrimaryFightStyle)) +
+  geom_boxplot(alpha = 0.8, outlier.color = "black", outlier.shape = 16) +
+  labs(
+    title = "Research Q3: Comparison of Average Fight Duration 
+    by Fighting Style (Men's Divisions)",
+    x = "Primary Fight Style",
+    y = "Average Fight Duration (minutes)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 10),
+    axis.title.x = element_text(size = 10),
+    axis.title.y = element_text(size = 10),
+    legend.title = element_text(size = 10)
+  ) +
+  scale_fill_manual(values = custom_colors)
+```
+
+\pagebreak
+
+# Dataset 2
+
+**Data source: [Superhero Power Analytics](https://www.kaggle.com/datasets/shreyasur965/super-heroes-dataset?select=superheroes_data.csv)**
+
+**Brief description:** The Superhero data set provides detailed information on 675 superheroes and villains from popular franchises. It contains attributes related to their powers, physical characteristics, and affiliations
+
+**Load the data and provide a `glimpse()`**:
+
+```{r data-2, warning=FALSE}
+superheroes <- read_csv("superheroes_data.csv")
+glimpse(superheroes)
+```
+
+**Research question 1:** How do gender and alignment (good, neutral, evil) interact to influence the power level of superheroes
+
+-   *Outcome variable (include the name/description and type of variable):* Power level (continuous variable)
+-   *Independent Variable:* Gender, alignment
+-   *Interaction term:* Interaction between gender and alignment
+
+**Research question 2:** How do intelligence, strength, and speed influence the likelihood of a superhero being classified as a hero versus a villain?
+
+-   *Outcome variable (include the name/description and type of variable):* Alignment (categorical variable)
+-   *Independent Variable:* Intelligence, strength, speed (continuous)
+-   *Interaction term:* Interaction between intelligence and strength to assess how these two traits impact alignment
+
+**Exploratory Plots:**
+
+```{r plots-2, warning = FALSE, echo = FALSE}
+# RESEARCH QUESTION 1
+# 1. Plot of outcome variable (Power Level)
+superheroes$power <- as.numeric(superheroes$power)
+ggplot(superheroes, aes(x = power)) +
+  geom_histogram(binwidth = 5, fill = "skyblue", color = "black") +
+  labs(
+    title = "Research Q1: Distribution of Power Level",
+    x = "Power Level",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+
+# 2. Exploratory plot of Power Level vs. Gender and Alignment interaction
+ggplot(superheroes, aes(x = gender, y = power, fill = alignment)) +
+  stat_summary(
+    fun = "mean",
+    geom = "bar",
+    position = "dodge",
+    color = "black"
+  ) +
+  labs(
+    title = "Research Q1: Mean Power Level by Gender and Alignment",
+    x = "Gender",
+    y = "Mean Power Level"
+  ) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+```
+
+```{r, warning = FALSE, echo = FALSE}
+# RESEARCH QUESTION 2
+superheroes$intelligence <- as.numeric(superheroes$intelligence)
+superheroes$strength <- as.numeric(superheroes$strength)
+# 1. Plot of outcome variable (Alignment)
+ggplot(superheroes, aes(x = alignment)) +
+  geom_bar(fill = "lightcoral", color = "black") +
+  labs(
+    title = "Research Q2: Distribution of Alignment",
+    x = "Alignment",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+# 2. Exploratory plot of Intelligence, Strength, and Alignment
+ggplot(superheroes, aes(x = intelligence, y = strength, color = alignment)) +
+  geom_point(alpha = 0.7, size = 3) +
+  labs(
+    title = "Research Q2: Intelligence vs. Strength by Alignment",
+    x = "Intelligence",
+    y = "Strength"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("good" = "blue", "bad" = "red", 
+                                "neutral" = "grey"))
+```
+
+\pagebreak
+
+# Dataset 3 (Optional)
+
+**Data source: [Occupational Wages Around the World (OWW) Database](https://www.nber.org/research/data/occupational-wages-around-world-oww-database-0)**
+
+**Brief description:** The Occupational Wages Around the World (OWW) Database is a comprehensive dataset that provides standardized information on occupational wage levels across 161 countries from the early 1980s to the early 2000s. Compiled from the International Labour Organization’s Yearbook of Labour Statistics, the data covers various occupational categories, including clerical workers, agricultural laborers, and production workers, among others. The data set is designed to facilitate cross-country and longitudinal comparisons by adjusting for differences in currency, inflation, and cost of living. It is widely used for studying global labor markets, wage disparities, and economic development trends.
+
+**Load the data and provide a `glimpse()`**:
+
+```{r data-3, warning=FALSE}
+oww <- read_csv("oww3.csv")
+glimpse(oww)
+```
+
+**Research question 1:** How to economic factors and time influence the hourly wage rates across different countries, and does this relationship vary by wage calculation method
+
+-   *Outcome variable (include the name/description and type of variable):* hw3wlus (Hourly wage in US dollars, lexicographically weighted) (continuous variable)
+-   *Independent Variable:* y0 (year), exrt (exchange rate), country
+-   *Interaction Term:* y0 \* exrt
+
+**Research question 2:** How do currency types and conversion factors affect the relative ranking of countries in terms of monthly wage levels
+
+-   *Outcome variable (include the name/description and type of variable): Country ranking based on monthly wages (to be derived from mw3wlus)*
+-   *Independent Variable:* curr (Currency type), conv (Conversion Factor), y0 (Year)
+
+**Exploratory Plots:**
+
+```{r plots-3, warning = FALSE, echo = FALSE}
+country_avg_wage <- oww %>%
+  group_by(country) %>%
+  summarise(avg_hw3wlus = mean(hw3wlus, na.rm = TRUE)) %>%
+  arrange(desc(avg_hw3wlus))
+
+top_countries <- head(country_avg_wage$country, 2)       # Top 2 countries
+medium_countries <- country_avg_wage$country[round(nrow(country_avg_wage)/2):
+                                               (round(nrow(country_avg_wage)/2) 
+                                                + 1)] # Middle 2 countries
+low_countries <- tail(country_avg_wage$country, 2)       # Bottom 2 countries
+
+selected_countries <- c(top_countries, medium_countries, low_countries)
+
+oww_filtered <- oww %>%
+  filter(country %in% selected_countries)
+
+oww_filtered <- oww_filtered %>%
+  mutate(five_year_interval = floor(y0 / 5) * 5)
+
+
+avg_wage_5yr <- oww_filtered %>%
+  group_by(country, five_year_interval) %>%
+  summarise(avg_hw3wlus = mean(hw3wlus, na.rm = TRUE), .groups = "drop")
+
+plot1 <- ggplot(avg_wage_5yr, aes(x = five_year_interval, y = avg_hw3wlus, 
+                                  color = country)) +
+  geom_line(size = 1) +
+  geom_point() +
+  labs(title = "Hourly Wage Trend (5-Year Average) for Selected Countries",
+       x = "5-Year Interval", y = "Average Hourly Wage (US$)",
+       color = "Country") +
+  theme_minimal()
+print(plot1)
+
+plot2 <- ggplot(oww_filtered, aes(x = exrt, y = hw3wlus)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", color = "red") +
+  labs(title = "Exchange Rate vs Hourly Wage",
+       x = "Exchange Rate", y = "Hourly Wage (US$)") +
+  theme_minimal()
+print(plot2)
+
+plot3 <- ggplot(oww_filtered, aes(x = country, y = hw3wlus)) +
+  geom_boxplot(fill = "blue", alpha = 0.7) +
+  labs(title = "Hourly Wage Distribution by Country",
+       x = "Country", y = "Hourly Wage (US$)") +
+  theme_minimal()
+print(plot3)
+
+avg_wage_by_year <- oww_filtered %>%
+  group_by(country, y0) %>%
+  summarise(avg_hw3wlus = mean(hw3wlus, na.rm = TRUE), .groups = "drop")
+
+plot4 <- ggplot(avg_wage_by_year, aes(x = as.factor(y0), y = avg_hw3wlus, 
+                                      fill = country)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Average Hourly Wage by Year for Selected Countries",
+       x = "Year", y = "Average Hourly Wage (US$)",
+       fill = "Country") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom", # Moves the legend to the bottom
+    legend.title = element_text(size = 12), # Adjust legend title size (optional)
+    legend.text = element_text(size = 10)  # Adjust legend text size (optional)
+  )
+print(plot4)
+
+
+```
+
+# 
+
+# Team Charter
+
+#### When will you meet as a team to work on the project components? Will these meetings be held in person or virtually?
+
+⁠We will have weekly meetings - preferably in person but this can be held virtually based on everyone’s availability.
+
+#### What is your group policy on missing team meetings (e.g., how much advance notice should be provided)?
+
+The policy is to notify the rest of the team on the Slack/WhatsApp channel a day in advance. In case of an emergency, no advanced communication needed.
+
+#### How will your team communicate (email, Slack, text messages)? What is your policy on appropriate response time (within a certain number of hours? Nights/weekends?)?
+
+The team will communicate through Slack and WhatsApp. The appropriate response time is a few hours, all days of the week.
