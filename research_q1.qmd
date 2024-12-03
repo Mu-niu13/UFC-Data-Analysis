@@ -1,0 +1,85 @@
+---
+title: "UFC RESEARCH QUESTION 1"
+author: "Mu Niu, Nruta Choudhari"
+subtitle: "Due 5th December, 2024"
+format: pdf
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+**Research Question 1:**
+
+How does the reach of the fighter relate to the total number of strikes
+landed during a fight?
+
+-   Outcome Variable (include the name/description and type of
+    variable): Reach (continuous)
+
+-   Independent Variable: Strikes landed (continuous variable)
+
+-   Interaction Term: Weight class, allowing analysis of the interaction
+    between reach and weight class on striking effectiveness.
+
+Data Cleaning:
+
+```{r}
+# Import the CSV into R
+ufc <- read.csv("ufc-master.csv")
+
+# View the data
+head(ufc)
+```
+
+```{r}
+# checking for nulls
+colSums(is.na(ufc))  # Returns a count of missing values for each column)  # Total number of missing values in the dataset
+```
+
+```{r}
+# check missing
+sum(is.na(ufc$BlueReachCms))
+sum(is.na(ufc$RedReachCms))
+sum(is.na(ufc$BlueAvgSigStrLanded))
+sum(is.na(ufc$RedAvgSigStrLanded))
+sum(is.na(ufc$WeightClass))
+```
+
+```{r}
+filtered_ufc_blue = ufc[!is.na(ufc$BlueAvgSigStrLanded), 
+                        c("BlueReachCms","BlueAvgSigStrLanded","WeightClass")]
+colnames(filtered_ufc_blue) <- c("ReachCms", "AvgSigStrLanded", "WeightClass")
+filtered_ufc_red = ufc[!is.na(ufc$RedAvgSigStrLanded), 
+                       c("RedReachCms","RedAvgSigStrLanded","WeightClass")]
+colnames(filtered_ufc_red) <- c("ReachCms", "AvgSigStrLanded", "WeightClass")
+
+# appending the two data sets
+filtered_ufc = rbind(filtered_ufc_blue, filtered_ufc_red)
+
+# exclude outlier(one observation with 0 cm reach)
+filtered_ufc = filtered_ufc[filtered_ufc$ReachCms > 0,]
+head(filtered_ufc)
+```
+
+Model:
+
+Multiple Linear Regression
+
+Model formulation:
+
+$StrikesLanded = \beta_0 + \beta_1Reach + \beta2WeightClass + \beta_3(Reach*WeightClass) + \epsilon$
+
+```{r}
+filtered_ufc$WeightClass = factor(filtered_ufc$WeightClass)
+
+model = lm(AvgSigStrLanded ~ ReachCms * WeightClass, data = filtered_ufc)
+
+summary(model)
+
+```
+
+```{r}
+par(mfrow = c(2, 2))  # Arrange diagnostic plots in a grid
+plot(model)           # Produces diagnostic plots: Residuals vs. Fitted, Q-Q plot, etc.
+
+```
