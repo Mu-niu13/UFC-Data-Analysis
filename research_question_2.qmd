@@ -1,0 +1,74 @@
+---
+title: "research_question_2"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+                       RedAvgSubAtt, BlueAvgSubAtt,TotalFightTimeSecs))
+```
+
+You can add options to executable code like this
+
+```{r}
+ufc_data = read_csv('ufc-master.csv', show_col_types = FALSE)
+
+# glimpse on variables of interest
+glimpse(ufc %>% select(BlueReachCms, RedReachCms, BlueAvgSigStrLanded, 
+                       RedAvgSigStrLanded, WeightClass, Winner, 
+                       RedAvgSubAtt, BlueAvgSubAtt,TotalFightTimeSecs))
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+```{r}
+ufc_data <- ufc_data %>%
+  mutate(
+    Outcome = ifelse(Winner == "Blue", 1, 0),  # Binary outcome: 1 for Blue win, 0 for Red win
+    TotalSubAttempts = BlueAvgSubAtt + RedAvgSubAtt  # Combine submission attempts
+  ) %>%
+  filter(!is.na(Outcome), !is.na(TotalSubAttempts))  # Remove missing data
+
+# Step 2: Logistic Regression Model
+logistic_model <- glm(Outcome ~ TotalSubAttempts, data = ufc_data, family = binomial)
+
+# Summarize the model
+summary(logistic_model)
+
+# Odds ratio and confidence intervals
+odds_ratio <- exp(coef(logistic_model))
+conf_intervals <- exp(confint(logistic_model))
+print(odds_ratio)
+print(conf_intervals)
+```
+
+```{r}
+
+library(ROCR)
+
+# Step 4: ROC Curve and AUC
+# Generate predictions and prepare for ROC analysis
+prob_predictions <- predict(logistic_model, type = "response")  # Predicted probabilities
+pred <- prediction(prob_predictions, ufc_data$Outcome)          # Create a prediction object
+perf <- performance(pred, "tpr", "fpr")                         # Calculate performance metrics
+
+# Plot the ROC curve
+plot(perf, col = "blue", main = "ROC Curve")
+abline(a = 0, b = 1, col = "red", lty = 2)  # Add a reference line for random guessing
+
+# Calculate and display AUC
+auc <- performance(pred, "auc")@y.values[[1]]
+text(0.6, 0.4, paste("AUC =", round(auc, 2)), col = "blue")
+
+```
