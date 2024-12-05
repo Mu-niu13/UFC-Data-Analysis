@@ -16,7 +16,6 @@ editor: visual
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
-                       RedAvgSubAtt, BlueAvgSubAtt,TotalFightTimeSecs))
 ```
 
 You can add options to executable code like this
@@ -28,54 +27,8 @@ ufc_data = read_csv('ufc-master.csv', show_col_types = FALSE)
 glimpse(ufc %>% select(BlueReachCms, RedReachCms, BlueAvgSigStrLanded, 
                        RedAvgSigStrLanded, WeightClass, Winner, 
                        RedAvgSubAtt, BlueAvgSubAtt,TotalFightTimeSecs))
-```
 
-The `echo: false` option disables the printing of code (only output is displayed).
 
-```{r}
-ufc_data <- ufc_data %>%
-  mutate(
-    Outcome = ifelse(Winner == "Blue", 1, 0),  # Binary outcome: 1 for Blue win, 0 for Red win
-    TotalSubAttempts = BlueAvgSubAtt + RedAvgSubAtt  # Combine submission attempts
-  ) %>%
-  filter(!is.na(Outcome), !is.na(TotalSubAttempts))  # Remove missing data
-
-# Step 2: Logistic Regression Model
-logistic_model <- glm(Outcome ~ TotalSubAttempts, data = ufc_data, family = binomial)
-
-# Summarize the model
-summary(logistic_model)
-
-# Odds ratio and confidence intervals
-odds_ratio <- exp(coef(logistic_model))
-conf_intervals <- exp(confint(logistic_model))
-print(odds_ratio)
-print(conf_intervals)
-```
-
-```{r}
-
-library(ROCR)
-
-# Step 4: ROC Curve and AUC
-# Generate predictions and prepare for ROC analysis
-prob_predictions <- predict(logistic_model, type = "response")  # Predicted probabilities
-pred <- prediction(prob_predictions, ufc_data$Outcome)          # Create a prediction object
-perf <- performance(pred, "tpr", "fpr")                         # Calculate performance metrics
-
-# Plot the ROC curve
-plot(perf, col = "blue", main = "ROC Curve")
-abline(a = 0, b = 1, col = "red", lty = 2)  # Add a reference line for random guessing
-
-# Calculate and display AUC
-auc <- performance(pred, "auc")@y.values[[1]]
-text(0.6, 0.4, paste("AUC =", round(auc, 2)), col = "blue")
-
-```
-
-summary(logistic_model) will show coefficients for TotalRedSubAttempts and TotalBlueSubAttempts. These coefficients tell you how each fighter's submission attempts affect the probability of a Red win (outcome = 1).
-
-```{r}
 # Load necessary libraries
 library(dplyr)
 library(broom)  # For tidy model outputs
@@ -122,5 +75,85 @@ ggplot(tidy_model, aes(x = term, y = OddsRatio)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
+```
+
+### Interpretation of the Output:
+
+1.  **Intercept:**
+
+    -   **Estimate = 0.28667**
+
+    -   This is the log-odds of the outcome when both red and blue fighters have zero submission attempts. It represents the baseline level of the outcome when no submission attempts are made.
+
+2.  **TotalRedSubAttempts (Red Submission Attempts):**
+
+    -   **Estimate = 0.15503, p-value = 0.00018**
+
+    -   This coefficient is positive, which means that as the number of submission attempts by the red fighter increases, the odds of the red fighter winning (compared to the blue fighter) increase. The **p-value** is less than 0.05, indicating that this variable is statistically significant.
+
+    -   **Interpretation**: For every one unit increase in **TotalRedSubAttempts**, the odds of the red fighter winning increase by a factor of **exp(0.15503) ≈ 1.168**. This suggests a moderate positive relationship between the red fighter's submission attempts and winning.
+
+3.  **TotalBlueSubAttempts (Blue Submission Attempts):**
+
+    -   **Estimate = -0.11681, p-value = 0.00393**
+
+    -   This coefficient is negative, meaning that as the number of submission attempts by the blue fighter increases, the odds of the blue fighter winning (compared to the red fighter) decrease. The **p-value** is also less than 0.05, indicating statistical significance.
+
+    -   **Interpretation**: For every one unit increase in **TotalBlueSubAttempts**, the odds of the red fighter winning increase by a factor of **exp(-0.11681) ≈ 0.890**. This suggests that higher submission attempts by the blue fighter are associated with a lower chance of winning for the blue fighter.
+
+### Model Fit:
+
+-   **Null deviance**: 7540.5 on 5534 degrees of freedom.
+
+-   **Residual deviance**: 7519.3 on 5532 degrees of freedom.
+
+-   **AIC (Akaike Information Criterion)**: 7525.3
+
+    -   A decrease in deviance from the null deviance to the residual deviance suggests that the model is improving the fit over a simple intercept-only model. The AIC is used to compare models; lower values indicate a better-fitting model.
+
+### Odds Ratios:
+
+-   The **odds ratios** for the predictors are given by **exp(Estimate)**:
+
+    -   **Red Submission Attempts**: exp⁡(0.15503)≈1.168\exp(0.15503) ≈ 1.168exp(0.15503)≈1.168, meaning that as the number of submission attempts by the red fighter increases, the odds of winning increase by about **16.8%**.
+
+    -   **Blue Submission Attempts**: exp⁡(−0.11681)≈0.890\exp(-0.11681) ≈ 0.890exp(−0.11681)≈0.890, meaning that as the number of submission attempts by the blue fighter increases, the odds of winning decrease by about **11%**.
+
+### Conclusion:
+
+-   There is a positive relationship between the red fighter's submission attempts and the likelihood of winning, while there is a negative relationship between the blue fighter's submission attempts and their likelihood of winning.
+
+-   Both predictors (**TotalRedSubAttempts** and **TotalBlueSubAttempts**) are statistically significant, with p-values below the 0.05 threshold, indicating that submission attempts by both fighters play a significant role in determining the fight outcome.
+
+```{r}
+# Load the required library for ROC analysis
+library(pROC)
+
+# Step 1: Generate predicted probabilities
+pred_probs <- predict(logistic_model, type = "response")
+
+# Step 2: Create ROC curve object
+roc_curve <- roc(ufc_data$Outcome, pred_probs)
+
+# Step 3: Plot the ROC curve
+plot(roc_curve, 
+     main = "ROC Curve for Predicting Fight Outcome",
+     col = "blue", 
+     lwd = 2)
+
+# Step 4: Add AUC (Area Under the Curve) to the plot
+auc(roc_curve)
+
+# Step 5: Optionally, add a diagonal line for random classifier (AUC = 0.5)
+abline(a = 0, b = 1, col = "red", lty = 2)
+
+```
+
+```{r}
+# Calculate AUC for the ROC curve
+auc_value <- auc(roc_curve)
+
+# Print the AUC value
+print(auc_value)
 
 ```
