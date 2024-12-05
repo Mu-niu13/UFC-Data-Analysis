@@ -4,13 +4,13 @@ format: html
 editor: visual
 ---
 
-## Research question 2: 
+## Research question 2:
 
-### Is the fight outcome associated with the number of submission attempts made by a fighter? 
+### Is the fight outcome associated with the number of submission attempts made by a fighter?
 
 -   Outcome Variable (include the name/description and type of variable): Fight outcome (binary variable: Win or Loss)
 
--    Independent Variable: Primary fight style (nominal variable)
+-   Independent Variable: Primary fight style (nominal variable)
 
 ```{r}
 library(tidyverse)
@@ -73,67 +73,54 @@ text(0.6, 0.4, paste("AUC =", round(auc, 2)), col = "blue")
 
 ```
 
+summary(logistic_model) will show coefficients for TotalRedSubAttempts and TotalBlueSubAttempts. These coefficients tell you how each fighter's submission attempts affect the probability of a Red win (outcome = 1).
+
 ```{r}
 # Load necessary libraries
 library(dplyr)
-library(ggplot2)
 library(broom)  # For tidy model outputs
+library(ggplot2)
 
 # Step 1: Data Preparation
 ufc_data <- ufc_data %>%
   mutate(
-    Outcome = ifelse(Winner == "Blue", 1, 0),  # Binary outcome: 1 for Blue win, 0 for Red win
-    TotalSubAttempts = BlueAvgSubAtt + RedAvgSubAtt  # Combine submission attempts
+    Outcome = ifelse(Winner == "Red", 1, 0),  # Binary outcome: 1 for Red win, 0 for Blue win
+    TotalRedSubAttempts = RedAvgSubAtt,        # Red's submission attempts
+    TotalBlueSubAttempts = BlueAvgSubAtt      # Blue's submission attempts
   ) %>%
-  filter(!is.na(Outcome), !is.na(TotalSubAttempts), !is.na(WeightClass))  # Remove missing data
+  filter(!is.na(Outcome), !is.na(TotalRedSubAttempts), !is.na(TotalBlueSubAttempts))  # Remove missing data
 
-# Step 2: Logistic Regression by Weight Class
-results <- ufc_data %>%
-  group_by(WeightClass) %>%
-  summarise(
-    model = list(glm(Outcome ~ TotalSubAttempts, data = cur_data(), family = binomial))
-  ) %>%
-  mutate(
-    summary = lapply(model, summary),
-    tidy_model = lapply(model, tidy)
-  )
+# Step 2: Logistic Regression Model
+logistic_model <- glm(Outcome ~ TotalRedSubAttempts + TotalBlueSubAttempts, 
+                      data = ufc_data, family = binomial)
 
-# Extract and print summary for each weight class
-for (i in seq_along(results$WeightClass)) {
-  cat("\nWeight Class:", results$WeightClass[i], "\n")
-  print(results$summary[[i]])
-}
+# Step 3: Model Summary
+summary(logistic_model)
 
-# Combine tidy outputs for a summarized table
-tidy_results <- bind_rows(
-  lapply(seq_along(results$WeightClass), function(i) {
-    results$tidy_model[[i]] %>%
-      mutate(WeightClass = results$WeightClass[i])
-  })
-)
+# Step 4: Odds Ratios (Exponentiate the coefficients)
+exp(coef(logistic_model))
 
-print(tidy_results)
-
-# Step 3: Visualize Results by Weight Class
-# Odds Ratios
-tidy_results <- tidy_results %>%
-  filter(term == "TotalSubAttempts") %>%
+# Step 5: Visualize the effect of submission attempts on the outcome (with odds ratios and confidence intervals)
+tidy_model <- tidy(logistic_model)
+tidy_model <- tidy_model %>%
   mutate(
     OddsRatio = exp(estimate),
     LowerCI = exp(estimate - 1.96 * std.error),
     UpperCI = exp(estimate + 1.96 * std.error)
   )
 
-ggplot(tidy_results, aes(x = WeightClass, y = OddsRatio)) +
+# Plotting the odds ratios and confidence intervals for submission attempts by Red and Blue fighters
+ggplot(tidy_model, aes(x = term, y = OddsRatio)) +
   geom_point() +
   geom_errorbar(aes(ymin = LowerCI, ymax = UpperCI), width = 0.2) +
   labs(
-    title = "Odds Ratios for Total Submission Attempts by Weight Class",
-    x = "Weight Class",
+    title = "Odds Ratios for Submission Attempts by Red and Blue Fighters",
+    x = "Fighter and Submission Attempts",
     y = "Odds Ratio (with 95% CI)"
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 
 
 ```
