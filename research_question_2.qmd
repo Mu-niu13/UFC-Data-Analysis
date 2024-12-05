@@ -4,13 +4,13 @@ format: html
 editor: visual
 ---
 
-## Quarto
+## Research question 2: 
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+### Is the fight outcome associated with the number of submission attempts made by a fighter? 
 
-## Running Code
+-   Outcome Variable (include the name/description and type of variable): Fight outcome (binary variable: Win or Loss)
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+-    Independent Variable: Primary fight style (nominal variable)
 
 ```{r}
 library(tidyverse)
@@ -70,5 +70,70 @@ abline(a = 0, b = 1, col = "red", lty = 2)  # Add a reference line for random gu
 # Calculate and display AUC
 auc <- performance(pred, "auc")@y.values[[1]]
 text(0.6, 0.4, paste("AUC =", round(auc, 2)), col = "blue")
+
+```
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(ggplot2)
+library(broom)  # For tidy model outputs
+
+# Step 1: Data Preparation
+ufc_data <- ufc_data %>%
+  mutate(
+    Outcome = ifelse(Winner == "Blue", 1, 0),  # Binary outcome: 1 for Blue win, 0 for Red win
+    TotalSubAttempts = BlueAvgSubAtt + RedAvgSubAtt  # Combine submission attempts
+  ) %>%
+  filter(!is.na(Outcome), !is.na(TotalSubAttempts), !is.na(WeightClass))  # Remove missing data
+
+# Step 2: Logistic Regression by Weight Class
+results <- ufc_data %>%
+  group_by(WeightClass) %>%
+  summarise(
+    model = list(glm(Outcome ~ TotalSubAttempts, data = cur_data(), family = binomial))
+  ) %>%
+  mutate(
+    summary = lapply(model, summary),
+    tidy_model = lapply(model, tidy)
+  )
+
+# Extract and print summary for each weight class
+for (i in seq_along(results$WeightClass)) {
+  cat("\nWeight Class:", results$WeightClass[i], "\n")
+  print(results$summary[[i]])
+}
+
+# Combine tidy outputs for a summarized table
+tidy_results <- bind_rows(
+  lapply(seq_along(results$WeightClass), function(i) {
+    results$tidy_model[[i]] %>%
+      mutate(WeightClass = results$WeightClass[i])
+  })
+)
+
+print(tidy_results)
+
+# Step 3: Visualize Results by Weight Class
+# Odds Ratios
+tidy_results <- tidy_results %>%
+  filter(term == "TotalSubAttempts") %>%
+  mutate(
+    OddsRatio = exp(estimate),
+    LowerCI = exp(estimate - 1.96 * std.error),
+    UpperCI = exp(estimate + 1.96 * std.error)
+  )
+
+ggplot(tidy_results, aes(x = WeightClass, y = OddsRatio)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = LowerCI, ymax = UpperCI), width = 0.2) +
+  labs(
+    title = "Odds Ratios for Total Submission Attempts by Weight Class",
+    x = "Weight Class",
+    y = "Odds Ratio (with 95% CI)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 
 ```
