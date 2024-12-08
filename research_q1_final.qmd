@@ -1,0 +1,120 @@
+---
+title: "UFC RESEARCH QUESTION 1"
+author: ""
+subtitle: "Due 8th December, 2024"
+format: pdf
+---
+
+```{r, results = FALSE}
+ufc <- read.csv("ufc-master.csv")
+
+# View the data
+head(ufc)
+```
+
+```{r}
+filtered_ufc_blue = ufc[!is.na(ufc$BlueAvgSigStrLanded), 
+                        c("BlueReachCms","BlueAvgSigStrLanded","WeightClass")]
+colnames(filtered_ufc_blue) <- c("ReachCms", "AvgSigStrLanded", "WeightClass")
+filtered_ufc_red = ufc[!is.na(ufc$RedAvgSigStrLanded), 
+                       c("RedReachCms","RedAvgSigStrLanded","WeightClass")]
+colnames(filtered_ufc_red) <- c("ReachCms", "AvgSigStrLanded", "WeightClass")
+
+# appending the two data sets
+filtered_ufc = rbind(filtered_ufc_blue, filtered_ufc_red)
+
+# exclude outlier(one observation with 0 cm reach)
+filtered_ufc = filtered_ufc[filtered_ufc$ReachCms > 0,]
+filtered_ufc <- filtered_ufc[filtered_ufc$AvgSigStrLanded > 0, ]
+head(filtered_ufc)
+```
+
+```{r}
+# Log-transform the variables
+filtered_ufc$LogAvgSigStrLanded <- log(filtered_ufc$AvgSigStrLanded)
+filtered_ufc$LogReachCms <- log(filtered_ufc$ReachCms)
+
+# Boxplot for log-transformed AvgSigStrLanded
+boxplot(filtered_ufc$LogAvgSigStrLanded, 
+        main = "Boxplot of Log(AvgSigStrLanded)", 
+        ylab = "Log(AvgSigStrLanded)",
+        col = "orange")
+
+```
+
+```{r}
+model_q1 <- lm(LogAvgSigStrLanded ~ LogReachCms * WeightClass, data = filtered_ufc)
+summary(model_q1)
+```
+
+```{r}
+# Load necessary libraries
+library(car)          # For VIF
+library(ggplot2)      # For residual plots
+
+# 1. Check Variance Inflation Factor (VIF) for collinearity
+vif_values <- vif(model_q1)
+print("Variance Inflation Factor (VIF):")
+print(vif_values)
+
+# 2. Residuals vs Fitted Plot for Linearity
+par(mfrow = c(2, 2), mar = c(2, 2, 2, 2))  # Set plotting layout
+plot(model_q1)
+
+# 3. Normal Q-Q Plot for Normality of Residuals
+qqnorm(residuals(model_q1))
+qqline(residuals(model_q1))
+
+# 4. Scale-Location Plot for Homoscedasticity
+plot(model_q1, which = 3)
+
+# 5. Check for influential points using Cook's Distance
+cooksd <- cooks.distance(model_q1)
+plot(cooksd, type = "h", main = "Cook's Distance", ylab = "Cook's Distance")
+
+# Highlight observations with Cook's Distance > threshold
+threshold <- 4 / nrow(filtered_ufc)
+influential <- which(cooksd > threshold)
+abline(h = threshold, col = "red", lty = 2)
+text(x = influential, y = cooksd[influential], labels = names(cooksd[influential]), pos = 4)
+
+# 6. R-squared value
+r_squared <- summary(model_q1)$r.squared
+cat("R-squared:", r_squared, "\n")
+```
+
+```{r}
+# Load necessary library
+library(knitr)
+
+# Create a summary of the model
+model_summary <- summary(model_q1)
+
+# Extract coefficients and format into a data frame
+coef_table <- as.data.frame(model_summary$coefficients)
+colnames(coef_table) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
+
+# Round to 3 decimal places
+coef_table <- round(coef_table, 3)
+
+# Create a kable table
+kable(coef_table, caption = "Regression Coefficients for model_log", format = "markdown")
+```
+
+### Results
+
+#### Research Question 1: Fighter reach vs Total Strikes Landed
+
+A multiple linear regression (MLR) model was used, with the log-transformed average significant strikes landed as the response variable and an interaction term between log-transformed reach and Weight Class as predictors. Log transformation of the response variable was applied to address linearity, and diagnostic plots were used to evaluate model assumptions. Alternative approaches, including Weighted Least Squares (WLS) and Generalized Linear Models (GLM) were explored but showed similar performance to the log-transformed MLR. The MLR model was ultimately selected for its simplicity.
+
+The model revealed some significant relationships. Notably, a negative interaction between reach and certain weight classes, such as Flyweight and Featherweight, was observed, indicating that the relationship between reach and strikes landed varied across weight divisions. Significant main effects were also identified for some weight classes, such as Flyweight and Women's Strawweight. However, the overall model performance was poor, with an adjusted R-squared value of 0.045, suggesting limited explanatory power. The limited explanatory power may indicate that factors beyond reach and weight class, such as fighting style, experience, or strategy, play a more substantial role in determining the number of strikes landed.
+
+Diagnostic evaluations highlighted several issues. Scale-location plots indicated non-constant variance, which was not fully resolved even with WLS. Normal Q-Q plots showed some departures from normality, particularly in the tails. Additionally, high Variance Inflation Factor (VIF) values for interaction terms indicated multicollinearity concerns, further complicating the model's interpretability.
+
+In conclusion, while the analysis identified a modest and significant relationship between reach and strikes anded that varies by weight class, the low R-squared value suggests that other unexamined factors are likely more influential. Despite adjustments, violations of key model assumptions limit the reliability of these findings. Future research should explore additional predictors, nonlinear methods, or more advanced modeling approaches to better capture the complexity of factors affecting fight dynamics.
+
+Conclusion (for q1) 
+
+This study examined how a fighter’s reach relates to the total number of strikes landed, considering weight classes. Using a multiple linear regression (MLR) model with log-transformed variables, we found significant interactions between reach and weight classes like Flyweight and Featherweight, showing that reach impacts different divisions differently. Significant effects were also observed for weight classes such as Flyweight and Women's Strawweight. 
+
+Our approach included evaluating model assumptions and exploring alternatives like weighted least squares and generalized linear models. Future work could include additional factors like skill level or fight strategy and explore advanced modeling techniques to improve insights into combat sports performance. 
