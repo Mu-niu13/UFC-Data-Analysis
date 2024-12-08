@@ -21,9 +21,6 @@ This project will examine the inception to date UFC card performances. The data 
 Our project’s research questions are:  
 
 1.  How does the reach of the fighter relate to the total number of strikes landed during a fight? 
-
-<!-- -->
-
 2.  Is the fight outcome associated with the number of submission attempts made by a fighter? 
 
 These questions are worth exploring because they provide a deeper understanding of UFC performance dynamics. For instance, examining the relationship between a fighter’s reach and the total number of strikes landed can underscore the tactical importance of physical attributes in effective striking. Similarly, analyzing the association between fight outcomes and submission attempts can shed light on the strategic role of grappling in securing victories. 
@@ -47,6 +44,7 @@ To examine the relationship between a fighter’s reach and the total number of 
 ```{r, include= FALSE}
 # reading the data
 ufc <- read.csv("ufc-master.csv")
+
 ```
 
 #### 
@@ -131,6 +129,55 @@ coef_table <- round(coef_table, 3)
 kable(coef_table, caption = "Regression Coefficients for model_log", format = "markdown")
 ```
 
+```{r, fig.width=10, fig.height=8, echo = FALSE}
+# Add a Gender column based on weight division
+ufc_q1$Gender <- ifelse(grepl("Women's", ufc_q1$WeightClass), "Female", "Male")
+
+# Create scatter plot
+ggplot(ufc_q1, aes(x = ReachCms, y = AvgSigStrLanded)) +
+  geom_point(alpha = 0.6, size = 2, aes(color = Gender)) +  # Color by Gender (Male/Female)
+  facet_wrap(~ WeightClass, scales = "free", ncol = 3) +  # Adjust number of columns to avoid squeezing
+  labs(
+    title = "Reach vs. Average Significant Strikes Landed",
+    x = "Reach (cm)",
+    y = "Average Significant Strikes Landed",
+    color = "Gender"
+  ) +
+  theme_minimal() +  # Clean plot theme
+  theme(
+    legend.position = "none",  # Remove the legend
+    strip.text = element_text(size = 10, face = "bold"),  # Bold and larger facet labels
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5),  # Bold and larger title
+    strip.background = element_rect(fill = "lightgray"),  # Light gray background for facet labels
+    plot.margin = margin(1, 1, 1, 1, "cm"),  # Add margins for better spacing
+    panel.spacing = unit(1, "cm")  # Increase spacing between panels
+  )
+```
+
+```{r, fig.width=10, fig.height=8, echo=FALSE}
+# Add a Gender column based on weight division
+ufc_q1$Gender <- ifelse(grepl("Women's", ufc_q1$WeightClass), "Female", "Male")
+
+# Create boxplot
+ggplot(ufc_q1, aes(x = WeightClass, y = AvgSigStrLanded, fill = Gender)) + 
+  geom_boxplot(alpha = 0.6, size = 1) +  # Create boxplots with transparency
+  labs(
+    title = "Reach vs. Average Significant Strikes Landed by Weight Class",
+    x = "Weight Class",
+    y = "Avg Significant Strikes",
+    fill = "Gender"
+  ) +
+  theme_minimal() +  # Clean plot theme
+  theme(
+    legend.position = "none",  # Remove the legend
+    plot.title = element_text(size = 10, face = "bold", hjust = 0.5),  # Bold and larger title
+    strip.text = element_text(size = 8, face = "bold"),  # Bold and larger facet labels
+    plot.margin = margin(1, 1, 1, 1, "cm"),  # Add margins for better spacing
+    panel.spacing = unit(1, "cm"),  # Increase spacing between panels
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+```
+
 A multiple linear regression (MLR) model was used, with the log-transformed average significant strikes landed as the response variable and an interaction term between log-transformed reach and Weight Class as predictors. Log transformation of the response variable was applied to address linearity, and diagnostic plots were used to evaluate model assumptions. Alternative approaches, including Weighted Least Squares (WLS) and Generalized Linear Models (GLM) were explored but showed similar performance to the log-transformed MLR. The MLR model was ultimately selected for its simplicity.
 
 The model revealed some significant relationships. Notably, a negative interaction between reach and certain weight classes, such as Flyweight and Featherweight, was observed, indicating that the relationship between reach and strikes landed varied across weight divisions. Significant main effects were also identified for some weight classes, such as Flyweight and Women's Strawweight. However, the overall model performance was poor, with an adjusted R-squared value of 0.045, suggesting limited explanatory power. The limited explanatory power may indicate that factors beyond reach and weight class, such as fighting style, experience, or strategy, play a more substantial role in determining the number of strikes landed.
@@ -198,7 +245,9 @@ ggplot(tidy_model, aes(x = term, y = OddsRatio)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-This analysis examined the relationship between fighter reach and strikes landed, as well as the impact of submission attempts on fight outcomes. Fighter reach showed a significant relationship with strikes landed (p \< 0.001), with interaction effects indicating that reach had a stronger influence in lighter weight classes, such as Flyweight and Featherweight, compared to heavier divisions. Logistic regression analysis evaluated submission attempts by red and blue fighters, revealing that an increase in red fighter submission attempts was associated with a 16.8% higher likelihood of winning (p = 0.00018), while an increase in blue fighter submission attempts reduced the odds of winning by 11% (p = 0.00393). However, the model’s AUC of 0.5336 indicated minimal predictive power, suggesting that submission attempts alone are insufficient to reliably predict fight outcomes. Despite a decrease in deviance from the null to residual model and an AIC of 7525.3, the model’s overall fit was limited. These findings highlight the importance of reach in striking performance and suggest that future analyses should consider additional factors, such as fighter skill and strategy, to enhance predictive insights.
+The analysis of fighter reach and submission attempts revealed significant insights into the relationship between these variables and fight outcomes. The relationship between fighter reach and strikes landed was statistically significant (p \< 0.001), with interaction effects indicating a stronger influence of reach in lighter weight classes. This suggests that reach is a more crucial factor in determining the number of strikes landed for fighters in lower weight divisions. In contrast, the logistic regression model examining submission attempts as predictors of fight outcomes showed an area under the curve (AUC) of 0.5336, indicating minimal predictive power. This suggests that submission attempts alone were insufficient to reliably predict the fight outcome.
+
+Further interpretation of the logistic regression output showed that red fighter submission attempts had a significant positive impact on the odds of winning. The coefficient for red submission attempts was 0.15503 (p-value = 0.00018), meaning that for every additional submission attempt by the red fighter, the odds of winning increased by approximately 16.8%. Conversely, the coefficient for blue submission attempts was negative (-0.11681, p-value = 0.00393), indicating that as the number of submission attempts by the blue fighter increased, the odds of the red fighter winning increased, with an odds ratio of approximately 0.890. This suggests that higher submission attempts by the blue fighter were associated with a decreased likelihood of blue’s victory. Model fit indicators, such as the decrease in deviance and AIC value (7525.3), suggest that the logistic regression model improved upon a simple intercept-only model.
 
 ```{r, echo=FALSE}
 # Load the required library for ROC analysis
