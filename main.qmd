@@ -41,26 +41,47 @@ To examine the relationship between a fighter’s reach and the total number of 
 
 ### Results
 
-```{r, include= FALSE}
+```{r}
 # reading the data
 ufc <- read.csv("ufc-master.csv")
 
 ```
 
-#### 
+```{r}
+# data cleaning cell
+colSums(is.na(ufc)) 
+
+# removing the data which has way too many missing values
+
+ufc = subset(ufc, select = -c(BMatchWCRank, RMatchWCRank, RWFlyweightRank, RWFeatherweightRank, RWStrawweightRank, RWBantamweightRank, RHeavyweightRank, RLightHeavyweightRank, RMiddleweightRank, RWelterweightRank, RLightweightRank, RFeatherweightRank, RBantamweightRank, RFlyweightRank, RPFPRank, BWFlyweightRank, BWFeatherweightRank, BWStrawweightRank, BWBantamweightRank, BHeavyweightRank, BLightHeavyweightRank, BMiddleweightRank, BWelterweightRank, BLightweightRank, BFeatherweightRank, BBantamweightRank, BFlyweightRank, BPFPRank))
+
+library(dplyr)
+
+# removing all missing value rows from the columns of interest
+ufc_clean <- ufc %>%
+  filter(
+    !is.na(RedAvgSubAtt),
+    !is.na(BlueAvgSubAtt),
+    !is.na(BlueReachCms), 
+    !is.na(RedReachCms), 
+    !is.na(BlueAvgSigStrLanded), 
+    !is.na(RedAvgSigStrLanded),
+    !is.na(TotalFightTimeSecs),
+    !is.na(WeightClass)
+  )
+nrow(ufc_clean)
+```
 
 #### Research Question 1: Fighter Reach vs Total Strikes Landed
 
-```{r, include = FALSE}
-filtered_ufc_blue = ufc[!is.na(ufc$BlueAvgSigStrLanded), 
-                        c("BlueReachCms","BlueAvgSigStrLanded","WeightClass", "BlueHeightCms", "BlueCurrentWinStreak")]
+```{r}
+filtered_ufc_blue <- ufc_clean[c("BlueReachCms","BlueAvgSigStrLanded","WeightClass", "BlueHeightCms", "BlueCurrentWinStreak")]
 colnames(filtered_ufc_blue) <- c("ReachCms", "AvgSigStrLanded", "WeightClass", "Height", "WinStreak")
-filtered_ufc_red = ufc[!is.na(ufc$RedAvgSigStrLanded), 
-                       c("RedReachCms","RedAvgSigStrLanded","WeightClass", "RedHeightCms", "RedCurrentWinStreak")]
+filtered_ufc_red <- ufc_clean[c("RedReachCms","RedAvgSigStrLanded","WeightClass", "RedHeightCms", "RedCurrentWinStreak")]
 colnames(filtered_ufc_red) <- c("ReachCms", "AvgSigStrLanded", "WeightClass", "Height", "WinStreak")
 
 # appending the two data sets
-ufc_q1 = rbind(filtered_ufc_blue, filtered_ufc_red)
+ufc_q1 <- rbind(filtered_ufc_blue, filtered_ufc_red)
 
 # exclude outlier(one observation with 0 cm reach)
 ufc_q1 <- ufc_q1[ufc_q1$ReachCms > 0,]
@@ -70,7 +91,7 @@ ufc_q1 <- ufc_q1[ufc_q1$AvgSigStrLanded > 0, ]
 colSums(is.na(ufc_q1))
 ```
 
-```{r, include = FALSE}
+```{r}
 # Log-transform the variables
 ufc_q1$LogAvgSigStrLanded <- log(ufc_q1$AvgSigStrLanded)
 ufc_q1$LogReachCms <- log(ufc_q1$ReachCms)
@@ -78,7 +99,7 @@ model_q1 <- lm(LogAvgSigStrLanded ~ LogReachCms * WeightClass + Height + WinStre
 summary(model_q1)
 ```
 
-```{r, include = FALSE}
+```{r}
 # Load necessary libraries
 library(car)          # For VIF
 library(ggplot2)      # For residual plots
@@ -114,7 +135,7 @@ r_squared <- summary(model_q1)$r.squared
 cat("R-squared:", r_squared, "\n")
 ```
 
-```{r, echo = FALSE}
+```{r}
 # Load necessary library
 library(knitr)
 
@@ -132,7 +153,7 @@ coef_table <- round(coef_table, 3)
 kable(coef_table, caption = "Regression Coefficients for model_log", format = "markdown")
 ```
 
-```{r, fig.width=10, fig.height=8, echo = FALSE}
+```{r, fig.width=10, fig.height=8}
 # Add a Gender column based on weight division
 ufc_q1$Gender <- ifelse(grepl("Women's", ufc_q1$WeightClass), "Female", "Male")
 
@@ -157,7 +178,7 @@ ggplot(ufc_q1, aes(x = ReachCms, y = AvgSigStrLanded)) +
   )
 ```
 
-```{r, fig.width=10, fig.height=8, echo=FALSE}
+```{r, fig.width=10, fig.height=8}
 # Add a Gender column based on weight division
 ufc_q1$Gender <- ifelse(grepl("Women's", ufc_q1$WeightClass), "Female", "Male")
 
@@ -181,19 +202,17 @@ ggplot(ufc_q1, aes(x = WeightClass, y = AvgSigStrLanded, fill = Gender)) +
   )
 ```
 
-
 A multiple linear regression (MLR) model was used, with the log-transformed average significant strikes landed as the response variable and predictors including log-transformed reach, weight class, height, and win streak. Interaction terms between log-transformed reach and weight classes were also included to capture variations across divisions. Log transformation of the response variable addressed linearity issues, and diagnostic plots were used to evaluate model assumptions. While alternatives such as Weighted Least Squares (WLS) and Generalized Linear Models (GLM) were explored, their performance was similar to the log-transformed MLR, making the MLR the preferred model for its simplicity and interpretability.
 
 The inclusion of confounders like win streak and height improved the model's interpretability and allowed for a better understanding of their roles. The results show that win streak was a significant predictor, indicating that fighters with more consecutive wins tended to land more strikes on average. However, height, while logically connected to reach, was not statistically significant, suggesting that it did not independently contribute to the variability in strikes landed once reach and other variables were included.
 
-
 The model revealed several key findings:
 
-1. Reach and Weight Class Interactions: Significant negative interactions were observed between log-reach and weight classes such as Flyweight ($p < 0.001$) and Featherweight ($p = 0.027$). This indicates that the impact of reach on strikes landed diminishes in these divisions, likely due to the closer proximity and higher speed of fighters in lower weight classes.
+1.  Reach and Weight Class Interactions: Significant negative interactions were observed between log-reach and weight classes such as Flyweight ($p < 0.001$) and Featherweight ($p = 0.027$). This indicates that the impact of reach on strikes landed diminishes in these divisions, likely due to the closer proximity and higher speed of fighters in lower weight classes.
 
-2. Main Effects of Weight Class: Specific weight classes, such as Flyweight ($p < 0.001$) and Women’s Strawweight ($p < 0.001$), had significant effects on strikes landed, emphasizing how division-specific style influence performance.
+2.  Main Effects of Weight Class: Specific weight classes, such as Flyweight ($p < 0.001$) and Women’s Strawweight ($p < 0.001$), had significant effects on strikes landed, emphasizing how division-specific style influence performance.
 
-3. Win Streak: As mentioned, win streak ($p < 0.001$) was a strong predictor, highlighting the role of experience and momentum in determining performance.
+3.  Win Streak: As mentioned, win streak ($p < 0.001$) was a strong predictor, highlighting the role of experience and momentum in determining performance.
 
 Despite these insights, the model's overall explanatory power remained limited, with an adjusted $R^2$ of 0.045, indicating that many unobserved factors likely contribute to strike performance. This highlights the complexity of fight dynamics and the need for a more nuanced approach to modeling.
 
@@ -201,30 +220,27 @@ While model assumptions were generally met, issues such as non-constant variance
 
 In conclusion, this analysis demonstrated that reach, weight class, and win streak are important factors influencing the number of strikes landed, with reach effects varying across divisions. However, the insignificance of height and the limited $R^2$ suggest that additional variables are likely more impactful. Future research should include these variables and explore advanced modeling techniques, such as mixed-effects models or machine learning approaches, to better account for the complexity of combat sports performance.
 
-
-
 #### Research Question 2: Is the fight outcome associated with the number of submission attempts made by a fighter?
 
-```{r, include = FALSE}
+```{r}
 # Load necessary libraries
 library(dplyr)
 library(broom)  # For tidy model outputs
 library(ggplot2)
 ```
 
-```{r, include = FALSE}
+```{r}
 # Step 1: Data Preparation
-ufc <- ufc %>%
+ufc_clean <- ufc_clean %>%
   mutate(
     Outcome = ifelse(Winner == "Red", 1, 0),  # Binary outcome: 1 for Red win, 0 for Blue win
     TotalRedSubAttempts = RedAvgSubAtt,        # Red's submission attempts
     TotalBlueSubAttempts = BlueAvgSubAtt      # Blue's submission attempts
-  ) %>%
-  filter(!is.na(Outcome), !is.na(TotalRedSubAttempts), !is.na(TotalBlueSubAttempts))  # Remove missing data
+  ) 
 
 # Step 2: Logistic Regression Model
 logistic_model <- glm(Outcome ~ TotalRedSubAttempts + TotalBlueSubAttempts, 
-                      data = ufc, family = binomial)
+                      data = ufc_clean, family = binomial)
 
 # Step 3: Model Summary
 summary(logistic_model)
@@ -242,7 +258,7 @@ tidy_model <- tidy_model %>%
   )
 ```
 
-```{r, include=FALSE}
+```{r}
 # Plotting the odds ratios and confidence intervals for submission attempts by Red and Blue fighters
 ggplot(tidy_model, aes(x = term, y = OddsRatio)) +
   geom_point() +
@@ -260,7 +276,7 @@ The analysis of fighter reach and submission attempts revealed significant insig
 
 Further interpretation of the logistic regression output showed that red fighter submission attempts had a significant positive impact on the odds of winning. The coefficient for red submission attempts was 0.15503 (p-value = 0.00018), meaning that for every additional submission attempt by the red fighter, the odds of winning increased by approximately 16.8%. Conversely, the coefficient for blue submission attempts was negative (-0.11681, p-value = 0.00393), indicating that as the number of submission attempts by the blue fighter increased, the odds of the red fighter winning increased, with an odds ratio of approximately 0.890. This suggests that higher submission attempts by the blue fighter were associated with a decreased likelihood of blue’s victory. Model fit indicators, such as the decrease in deviance and AIC value (7525.3), suggest that the logistic regression model improved upon a simple intercept-only model.
 
-```{r, echo=FALSE}
+```{r}
 # Load the required library for ROC analysis
 library(pROC)
 
@@ -268,7 +284,7 @@ library(pROC)
 pred_probs <- predict(logistic_model, type = "response")
 
 # Step 2: Create ROC curve object
-roc_curve <- roc(ufc$Outcome, pred_probs)
+roc_curve <- roc(ufc_clean$Outcome, pred_probs)
 
 # Step 3: Plot the ROC curve
 plot(roc_curve, 
@@ -284,7 +300,7 @@ abline(a = 0, b = 1, col = "red", lty = 2)
 
 ```
 
-```{r, echo=FALSE}
+```{r}
 # Calculate AUC for the ROC curve
 auc_value <- auc(roc_curve)
 
