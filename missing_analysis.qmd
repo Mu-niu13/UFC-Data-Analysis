@@ -1,0 +1,221 @@
+---
+title: "UFC RESEARCH QUESTION 1"
+author: "Mu Niu, Nruta Choudhari"
+subtitle: "Due 5th December, 2024"
+format: pdf
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+#### Main Variables
+
+Research Question 1 - BlueReachCms, BlueAvgSigStrLanded, RedReachCms,
+RedAvgSigStrLanded, WeightClass
+
+Research Question 2 - Outcome, RedAvgSubAtt, BlueAvgSubAtt
+
+```{r}
+library(Hmisc)
+
+# Import the CSV into R
+ufc <- read.csv("ufc-master.csv")
+
+# View the data
+head(ufc)
+```
+
+```{r}
+colSums(is.na(ufc)) 
+```
+
+```{r}
+# removing the data which has way too many missing values
+
+ufc = subset(ufc, select = -c(BMatchWCRank, RMatchWCRank, RWFlyweightRank, RWFeatherweightRank, RWStrawweightRank, RWBantamweightRank, RHeavyweightRank, RLightHeavyweightRank, RMiddleweightRank, RWelterweightRank, RLightweightRank, RFeatherweightRank, RBantamweightRank, RFlyweightRank, RPFPRank, BWFlyweightRank, BWFeatherweightRank, BWStrawweightRank, BWBantamweightRank, BHeavyweightRank, BLightHeavyweightRank, BMiddleweightRank, BWelterweightRank, BLightweightRank, BFeatherweightRank, BBantamweightRank, BFlyweightRank, BPFPRank))
+```
+
+```{r}
+# rechecking
+colSums(is.na(ufc)) 
+```
+
+#### If we remove all the NAs from the data:
+
+```{r}
+library(dplyr)
+ufc_filter_all <- ufc %>%
+  filter(
+    !is.na(RedAvgSubAtt),
+    !is.na(BlueAvgSubAtt),
+    !is.na(BlueReachCms), 
+    !is.na(RedReachCms), 
+    !is.na(BlueAvgSigStrLanded), 
+    !is.na(RedAvgSigStrLanded),
+    !is.na(TotalFightTimeSecs),
+    !is.na(WeightClass)
+  )
+nrow(ufc_filter_all)
+```
+
+### Imputation:
+
+```{r}
+# only plotting the variables that have missing values
+ufc_with_na <- ufc[, colSums(is.na(ufc)) > 0]
+
+# Perform the naclus operation on the filtered dataset
+na_patterns <- naclus(ufc_with_na)
+
+par(mar = c(3, 1, 1, 1) + 0.1, cex = 0.9) # Adjust margins and text size
+
+
+# Plot the missing value patterns for variables with missing values
+naplot(na_patterns, 'na per var')
+```
+
+```{r}
+#par(mar = c(3, 1, 1, 1) + 0.1, cex = 0.9)
+plot(na_patterns)
+```
+
+The columns RKOdds, RSubOdds, BSubOdds, BKOdds, EmptyArena have over 20%
+of the rows missing. If these are not crucial to the analysis or
+confounding columns, we should drop these.
+
+```{r}
+str(ufc_with_na)
+```
+
+```{r}
+str(ufc)
+```
+
+They are all numerical so we can just use one method to impute
+
+#### Imputation
+
+1.  **pmm** (Predictive Mean Matching):
+    -   **For continuous variables**.
+
+    -   It matches the observed values of a variable to imputed values
+        based on predictive modeling.
+2.  **norm** (Normal Linear Regression):
+    -   **For continuous variables**.
+
+    -   Imputes missing values based on a linear regression model
+        assuming a normal distribution.
+3.  **logreg** (Logistic Regression):
+    -   For binary/categorical variables (0/1).
+
+    -   Uses logistic regression for imputation.
+4.  **polyreg** (Multinomial Logistic Regression):
+    -   For categorical variables with more than two levels.
+
+    -   Used when imputing missing values for categorical variables with
+        multiple categories.
+5.  **lda** (Linear Discriminant Analysis):
+    -   **For categorical variables**.
+
+    -   Performs classification based on linear discriminant analysis.
+6.  **rf** (Random Forest):
+    -   **For both continuous and categorical variables**.
+
+    -   Imputes missing values using random forest models. It’s often
+        robust and handles mixed data types well.
+7.  **cart** (Classification and Regression Trees):
+    -   **For continuous and categorical variables**.
+
+    -   Uses decision trees to impute missing values.
+8.  **mean**:
+    -   **For continuous variables**.
+
+    -   Imputes missing values by filling with the mean of observed
+        values.
+9.  **median**:
+    -   **For continuous variables**.
+
+    -   Imputes missing values by filling with the median of observed
+        values.
+
+```{r}
+library(mice)
+library(sjlabelled)
+
+ufc_unlabelled = unlabel(ufc) # making a separate df just in case
+
+ufc_unlabelled <- ufc_unlabelled %>%
+  select(-c(RedFighter, BlueFighter, Location, Date, Country))
+
+ufc.imp <- mice(ufc_unlabelled, m=5, method="pmm", print=FALSE)
+```
+
+```{r}
+ufc.imp$loggedEvents
+```
+
+```{r}
+# Select only numeric columns
+numeric_columns <- ufc_unlabelled %>%
+  select_if(is.numeric)
+
+# Calculate the correlation matrix
+cor_matrix <- cor(numeric_columns, use = "complete.obs")
+print(cor_matrix)
+```
+
+#### Fitting the GLM on the basis of imputed
+
+```{r}
+# Extract all imputed datasets
+ufc.imp_all <- complete(ufc.imp, action = "long")  # action = "long" returns the data in long format
+
+filtered_ufc_blue <- ufc.imp_all %>%
+  filter(!is.na(BlueAvgSigStrLanded)) %>%
+  select(BlueReachCms, BlueAvgSigStrLanded, WeightClass, BlueHeightCms, BlueCurrentWinStreak) %>%
+  rename(ReachCms = BlueReachCms,
+         AvgSigStrLanded = BlueAvgSigStrLanded,
+         Height = BlueHeightCms,
+         WinStreak = BlueCurrentWinStreak)
+
+
+filtered_ufc_red <- ufc.imp_all %>%
+  filter(!is.na(RedAvgSigStrLanded)) %>%
+  select(RedReachCms, RedAvgSigStrLanded, WeightClass, RedHeightCms, RedCurrentWinStreak) %>%
+  rename(ReachCms = RedReachCms,
+         AvgSigStrLanded = RedAvgSigStrLanded,
+         Height = RedHeightCms,
+         WinStreak = RedCurrentWinStreak)
+
+# Combine Blue and Red Fighter data
+ufc_q1 <- bind_rows(filtered_ufc_blue, filtered_ufc_red)
+
+# Exclude outliers (one observation with 0 cm reach)
+ufc_q1 <- ufc_q1 %>%
+  filter(ReachCms > 0, AvgSigStrLanded > 0)
+
+# Check missing values: no missing
+colSums(is.na(ufc_q1))
+```
+
+```{r}
+# Create new columns with log-transformed values in the dataset
+ufc_q1$LogAvgSigStrLanded <- log(ufc_q1$AvgSigStrLanded)
+ufc_q1$LogReachCms <- log(ufc_q1$ReachCms)
+
+# Fit models for each imputed dataset manually
+models <- list()  # Create an empty list to store the models
+
+for (i in 1:5) {
+  # Extract the i-th imputed dataset
+  imputed_data <- complete(ufc_q1, i)
+  
+  # Fit the model on the imputed dataset
+  models[[i]] <- lm(LogAvgSigStrLanded ~ LogReachCms * WeightClass + Height + WinStreak, data = imputed_data)
+}
+
+# Check the models
+models
+```
+
+#### 
