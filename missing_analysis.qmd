@@ -58,7 +58,39 @@ ufc_filter_all <- ufc %>%
 nrow(ufc_filter_all)
 ```
 
+```{r}
+# want to check how many are missing in all categories
+
+library(dplyr)
+library(tidyr)
+
+# Check for missing values in the specified columns and create a summary table
+missing_summary <- ufc %>%
+  mutate(
+    AllMissing = rowSums(is.na(select(., RedAvgSubAtt, BlueAvgSubAtt, BlueReachCms, 
+                                      RedReachCms, BlueAvgSigStrLanded, RedAvgSigStrLanded, 
+                                      TotalFightTimeSecs, WeightClass))) == 8,  # 8 columns to check
+    MissingCount = rowSums(is.na(select(., RedAvgSubAtt, BlueAvgSubAtt, BlueReachCms, 
+                                        RedReachCms, BlueAvgSigStrLanded, RedAvgSigStrLanded, 
+                                        TotalFightTimeSecs, WeightClass)))
+  ) %>%
+  # Create a summary table that counts rows by number of missing values
+  count(MissingCount) %>%
+  arrange(desc(MissingCount))
+
+# View the summary table
+missing_summary
+```
+
+So we don't have any rows where all the 8 columns have missing values.
+
+However, we can drop the rows which have missing values for 3 columns
+and above and impute the rest
+
 ### Imputation:
+
+Here, we are imputing for all the values regardless of how many missing
+value columns are in each row.
 
 ```{r}
 # only plotting the variables that have missing values
@@ -143,6 +175,7 @@ Fitting the GLM on the basis of imputed
 ```{r}
 library(dplyr)
 library(mice)
+library(sjlabelled)
 
 # Function to process individual imputed datasets
 process_imputed_data <- function(data) {
