@@ -138,84 +138,89 @@ They are all numerical so we can just use one method to impute
     -   Imputes missing values by filling with the median of observed
         values.
 
+Fitting the GLM on the basis of imputed
+
 ```{r}
+library(dplyr)
 library(mice)
-library(sjlabelled)
 
-ufc_unlabelled = unlabel(ufc) # making a separate df just in case
+# Function to process individual imputed datasets
+process_imputed_data <- function(data) {
+  # Filter and process Blue Fighter data
+  filtered_blue <- data %>%
+    filter(!is.na(BlueAvgSigStrLanded)) %>%
+    select(BlueReachCms, BlueAvgSigStrLanded, WeightClass, BlueHeightCms, BlueCurrentWinStreak) %>%
+    rename(ReachCms = BlueReachCms,
+           AvgSigStrLanded = BlueAvgSigStrLanded,
+           Height = BlueHeightCms,
+           WinStreak = BlueCurrentWinStreak)
+  
+  # Filter and process Red Fighter data
+  filtered_red <- data %>%
+    filter(!is.na(RedAvgSigStrLanded)) %>%
+    select(RedReachCms, RedAvgSigStrLanded, WeightClass, RedHeightCms, RedCurrentWinStreak) %>%
+    rename(ReachCms = RedReachCms,
+           AvgSigStrLanded = RedAvgSigStrLanded,
+           Height = RedHeightCms,
+           WinStreak = RedCurrentWinStreak)
+  
+  # Combine Blue and Red Fighter data
+  combined_data <- bind_rows(filtered_blue, filtered_red) %>%
+    filter(ReachCms > 0, AvgSigStrLanded > 0)  # Exclude outliers
+  
+  # Add log-transformed columns
+  combined_data <- combined_data %>%
+    mutate(LogAvgSigStrLanded = log(AvgSigStrLanded),
+           LogReachCms = log(ReachCms))
+  
+  # Return the processed dataset
+  return(combined_data)
+}
 
-ufc_unlabelled <- ufc_unlabelled %>%
-  select(-c(RedFighter, BlueFighter, Location, Date, Country))
+# Perform imputation
+ufc_unlabelled <- unlabel(ufc) %>%
+  select(-c(RedFighter, BlueFighter, Location, Date, Country))  # Remove irrelevant columns
 
-ufc.imp <- mice(ufc_unlabelled, m=5, method="pmm", print=FALSE)
-```
+ufc.imp <- mice(ufc_unlabelled, m = 5, method = "pmm", print = FALSE)
 
-```{r}
-ufc.imp$loggedEvents
-```
+# Initialize a list to store processed datasets
+processed_datasets <- list()
 
-```{r}
-# Select only numeric columns
-numeric_columns <- ufc_unlabelled %>%
-  select_if(is.numeric)
+# Process each imputed dataset
+for (i in 1:5) {
+  imputed_data <- complete(ufc.imp, action = i)  # Extract the i-th imputed dataset
+  processed_datasets[[i]] <- process_imputed_data(imputed_data)
+}
 
-# Calculate the correlation matrix
-cor_matrix <- cor(numeric_columns, use = "complete.obs")
-print(cor_matrix)
-```
+# Combine all processed datasets into one
+all_processed <- bind_rows(processed_datasets, .id = "Imputation")
 
-#### Fitting the GLM on the basis of imputed
+# Inspect the result
+head(all_processed)
 
-```{r}
-# Extract all imputed datasets
-ufc.imp_all <- complete(ufc.imp, action = "long")  # action = "long" returns the data in long format
-
-filtered_ufc_blue <- ufc.imp_all %>%
-  filter(!is.na(BlueAvgSigStrLanded)) %>%
-  select(BlueReachCms, BlueAvgSigStrLanded, WeightClass, BlueHeightCms, BlueCurrentWinStreak) %>%
-  rename(ReachCms = BlueReachCms,
-         AvgSigStrLanded = BlueAvgSigStrLanded,
-         Height = BlueHeightCms,
-         WinStreak = BlueCurrentWinStreak)
-
-
-filtered_ufc_red <- ufc.imp_all %>%
-  filter(!is.na(RedAvgSigStrLanded)) %>%
-  select(RedReachCms, RedAvgSigStrLanded, WeightClass, RedHeightCms, RedCurrentWinStreak) %>%
-  rename(ReachCms = RedReachCms,
-         AvgSigStrLanded = RedAvgSigStrLanded,
-         Height = RedHeightCms,
-         WinStreak = RedCurrentWinStreak)
-
-# Combine Blue and Red Fighter data
-ufc_q1 <- bind_rows(filtered_ufc_blue, filtered_ufc_red)
-
-# Exclude outliers (one observation with 0 cm reach)
-ufc_q1 <- ufc_q1 %>%
-  filter(ReachCms > 0, AvgSigStrLanded > 0)
-
-# Check missing values: no missing
-colSums(is.na(ufc_q1))
-```
-
-```{r}
-# Create new columns with log-transformed values in the dataset
-ufc_q1$LogAvgSigStrLanded <- log(ufc_q1$AvgSigStrLanded)
-ufc_q1$LogReachCms <- log(ufc_q1$ReachCms)
-
-# Fit models for each imputed dataset manually
-models <- list()  # Create an empty list to store the models
+# Fit models for each imputed dataset
+models <- list()
 
 for (i in 1:5) {
-  # Extract the i-th imputed dataset
-  imputed_data <- complete(ufc_q1, i)
+  # Extract the i-th imputed and processed dataset
+  imputed_data <- processed_datasets[[i]]
   
-  # Fit the model on the imputed dataset
+  # Fit the linear model on the processed data
   models[[i]] <- lm(LogAvgSigStrLanded ~ LogReachCms * WeightClass + Height + WinStreak, data = imputed_data)
 }
 
-# Check the models
+# Check the fitted models
 models
 ```
+
+```{r}
+# Pool results across imputed datasets
+pooled_model <- pool(models)
+
+# View the summary of the pooled model
+summary(pooled_model)
+```
+
+#### 
 
 #### 
