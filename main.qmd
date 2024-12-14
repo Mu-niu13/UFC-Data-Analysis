@@ -53,11 +53,11 @@ ufc <- read.csv("ufc-master.csv")
 
 ```{r, include = FALSE}
 filtered_ufc_blue = ufc[!is.na(ufc$BlueAvgSigStrLanded), 
-                        c("BlueReachCms","BlueAvgSigStrLanded","WeightClass")]
-colnames(filtered_ufc_blue) <- c("ReachCms", "AvgSigStrLanded", "WeightClass")
+                        c("BlueReachCms","BlueAvgSigStrLanded","WeightClass", "BlueHeightCms", "BlueCurrentWinStreak")]
+colnames(filtered_ufc_blue) <- c("ReachCms", "AvgSigStrLanded", "WeightClass", "Height", "WinStreak")
 filtered_ufc_red = ufc[!is.na(ufc$RedAvgSigStrLanded), 
-                       c("RedReachCms","RedAvgSigStrLanded","WeightClass")]
-colnames(filtered_ufc_red) <- c("ReachCms", "AvgSigStrLanded", "WeightClass")
+                       c("RedReachCms","RedAvgSigStrLanded","WeightClass", "RedHeightCms", "RedCurrentWinStreak")]
+colnames(filtered_ufc_red) <- c("ReachCms", "AvgSigStrLanded", "WeightClass", "Height", "WinStreak")
 
 # appending the two data sets
 ufc_q1 = rbind(filtered_ufc_blue, filtered_ufc_red)
@@ -65,13 +65,16 @@ ufc_q1 = rbind(filtered_ufc_blue, filtered_ufc_red)
 # exclude outlier(one observation with 0 cm reach)
 ufc_q1 <- ufc_q1[ufc_q1$ReachCms > 0,]
 ufc_q1 <- ufc_q1[ufc_q1$AvgSigStrLanded > 0, ]
+
+# check missing value: no missing
+colSums(is.na(ufc_q1))
 ```
 
 ```{r, include = FALSE}
 # Log-transform the variables
 ufc_q1$LogAvgSigStrLanded <- log(ufc_q1$AvgSigStrLanded)
 ufc_q1$LogReachCms <- log(ufc_q1$ReachCms)
-model_q1 <- lm(LogAvgSigStrLanded ~ LogReachCms * WeightClass, data = ufc_q1)
+model_q1 <- lm(LogAvgSigStrLanded ~ LogReachCms * WeightClass + Height + WinStreak, data = ufc_q1)
 summary(model_q1)
 ```
 
@@ -178,19 +181,27 @@ ggplot(ufc_q1, aes(x = WeightClass, y = AvgSigStrLanded, fill = Gender)) +
   )
 ```
 
-A multiple linear regression (MLR) model was used, with the log-transformed average significant strikes landed as the response variable and an interaction term between log-transformed reach and Weight Class as predictors. Log transformation of the response variable was applied to address linearity, and diagnostic plots were used to evaluate model assumptions. Alternative approaches, including Weighted Least Squares (WLS) and Generalized Linear Models (GLM) were explored but showed similar performance to the log-transformed MLR. The MLR model was ultimately selected for its simplicity.
 
-The model revealed some significant relationships. Notably, a negative interaction between reach and certain weight classes, such as Flyweight and Featherweight, was observed, indicating that the relationship between reach and strikes landed varied across weight divisions. Significant main effects were also identified for some weight classes, such as Flyweight and Women's Strawweight. However, the overall model performance was poor, with an adjusted R-squared value of 0.045, suggesting limited explanatory power. The limited explanatory power may indicate that factors beyond reach and weight class, such as fighting style, experience, or strategy, play a more substantial role in determining the number of strikes landed.
+A multiple linear regression (MLR) model was used, with the log-transformed average significant strikes landed as the response variable and predictors including log-transformed reach, weight class, height, and win streak. Interaction terms between log-transformed reach and weight classes were also included to capture variations across divisions. Log transformation of the response variable addressed linearity issues, and diagnostic plots were used to evaluate model assumptions. While alternatives such as Weighted Least Squares (WLS) and Generalized Linear Models (GLM) were explored, their performance was similar to the log-transformed MLR, making the MLR the preferred model for its simplicity and interpretability.
 
-Diagnostic evaluations highlighted several issues. Scale-location plots indicated non-constant variance, which was not fully resolved even with WLS. Normal Q-Q plots showed some departures from normality, particularly in the tails. Additionally, high Variance Inflation Factor (VIF) values for interaction terms indicated multicollinearity concerns, further complicating the model's interpretability.
+The inclusion of confounders like win streak and height improved the model's interpretability and allowed for a better understanding of their roles. The results show that win streak was a significant predictor, indicating that fighters with more consecutive wins tended to land more strikes on average. However, height, while logically connected to reach, was not statistically significant, suggesting that it did not independently contribute to the variability in strikes landed once reach and other variables were included.
 
-In conclusion, while the analysis identified a modest and significant relationship between reach and strikes anded that varies by weight class, the low R-squared value suggests that other unexamined factors are likely more influential. Despite adjustments, violations of key model assumptions limit the reliability of these findings. Future research should explore additional predictors, nonlinear methods, or more advanced modeling approaches to better capture the complexity of factors affecting fight dynamics.
 
-This study examined how a fighter’s reach relates to the total number of strikes landed, considering weight classes. Using a multiple linear regression (MLR) model with log-transformed variables, we found significant interactions between reach and weight classes like Flyweight and Featherweight, showing that reach impacts different divisions differently. Significant effects were also observed for weight classes such as Flyweight and Women's Strawweight. 
+The model revealed several key findings:
 
-Our approach included evaluating model assumptions and exploring alternatives like weighted least squares and generalized linear models. Future work could include additional factors like skill level or fight strategy and explore advanced modeling techniques to improve insights into combat sports performance.
+1. Reach and Weight Class Interactions: Significant negative interactions were observed between log-reach and weight classes such as Flyweight ($p < 0.001$) and Featherweight ($p = 0.027$). This indicates that the impact of reach on strikes landed diminishes in these divisions, likely due to the closer proximity and higher speed of fighters in lower weight classes.
 
- 
+2. Main Effects of Weight Class: Specific weight classes, such as Flyweight ($p < 0.001$) and Women’s Strawweight ($p < 0.001$), had significant effects on strikes landed, emphasizing how division-specific style influence performance.
+
+3. Win Streak: As mentioned, win streak ($p < 0.001$) was a strong predictor, highlighting the role of experience and momentum in determining performance.
+
+Despite these insights, the model's overall explanatory power remained limited, with an adjusted $R^2$ of 0.045, indicating that many unobserved factors likely contribute to strike performance. This highlights the complexity of fight dynamics and the need for a more nuanced approach to modeling.
+
+While model assumptions were generally met, issues such as non-constant variance persisted in scale-location plots, and normality deviations were observed in Q-Q plots. High Variance Inflation Factor (VIF) values for interaction terms suggest multicollinearity, particularly between log-reach and weight class, further complicating the model.
+
+In conclusion, this analysis demonstrated that reach, weight class, and win streak are important factors influencing the number of strikes landed, with reach effects varying across divisions. However, the insignificance of height and the limited $R^2$ suggest that additional variables are likely more impactful. Future research should include these variables and explore advanced modeling techniques, such as mixed-effects models or machine learning approaches, to better account for the complexity of combat sports performance.
+
+
 
 #### Research Question 2: Is the fight outcome associated with the number of submission attempts made by a fighter?
 
