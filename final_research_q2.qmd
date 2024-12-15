@@ -1,6 +1,6 @@
 ---
 title: "Final Research Question 2"
-format: html
+format: pdf
 editor: visual
 ---
 
