@@ -29,7 +29,7 @@ The findings from this analysis offer valuable insights for fighters, coaches, a
 
 #### Data and Preprocessing
 
-The dataset was obtained from Kaggle, a widely recognized platform for sharing datasets and data science resources. Each row of the dataset refers to an individual bout, which refers to an individual match between two fighters. This includes data on fighter attributes such as **height, weight, reach, stance, and age**, as well as fight statistics like **strikes landed, significant strikes, takedowns, submission attempts, and knockdowns**. Additionally, it documents fight outcomes, including the **winner**, **method of victory** (e.g., knockout, submission, decision), the **round in which the fight ended**, and the **total duration of the fight**.
+The dataset was obtained from Kaggle, a widely recognized platform for sharing datasets and data science resources. Each row of the dataset refers to an individual bout, which refers to an individual match between two fighters. This includes data on fighter attributes such as height, weight, reach, stance, and age, as well as fight statistics like strikes landed, significant strikes, takedowns, submission attempts, and knockdowns. Additionally, it documents fight outcomes, including the winner, method of victory (e.g., knockout, submission, decision), the round in which the fight ended, and the total duration of the fight.
 
 The dataset contains 6,478 rows across 118 columns, with several variables containing missing values. During preprocessing, columns with over 6,000 missing values were dropped due to their lack of significance and the infeasibility of imputation. Other columns had a smaller proportion of missing values, and rows with missing values in key variables (e.g., strikes landed, reach, and weight class) were removed. This resulted in a final dataset with 4,895 rows. Most of the missing values were concentrated in performance metrics, such as submission attempts or specific strike statistics.
 
@@ -94,7 +94,7 @@ nrow(ufc_clean)
 
 #### Research Question 1: How does the reach of the fighter relate to the total number of strikes landed during a fight?
 
-To explore the relationship between a fighter's reach and the number of strikes landed, we began by computing summary statistics for key variables: **Reach, Weight Class, Height, Win Streak, and Average Significant Strikes Landed**. Continuous variables are reported as means with standard deviations, while categorical variables are summarized by counts and percentages. These statistics provide as foundation for understanding the data before modelling.
+To explore the relationship between a fighter's reach and the number of strikes landed, we began by computing summary statistics for key variables: Reach, Weight Class, Height, Win Streak, and Average Significant Strikes Landed. Continuous variables are reported as means with standard deviations, while categorical variables are summarized by counts and percentages. These statistics provide as foundation for understanding the data before modelling.
 
 ```{r, include = FALSE}
 filtered_ufc_blue <- ufc_clean[c("BlueReachCms","BlueAvgSigStrLanded","WeightClass", "BlueHeightCms", "BlueCurrentWinStreak")]
@@ -183,7 +183,7 @@ ggplot(significant_coef_data, aes(x = reorder(Variable, -Estimate), y = Estimate
 
 A multiple linear regression (MLR) model was applied to examine the relationship between the average significant strikes landed and key predictors, including log-transformed Reach, log-transformed Height, Win Streak, and the interaction between Win Streak and Weight Class. The log transformations for Reach and Height were performed to address non-linearity and non-constant variance, which were highlighted in diagnostic plots (see Appendix 1).
 
-The adjusted $R^2$ value for the model was **0.068**, suggesting that the predictors explain approximately **6.8%** of the variability in average significant strikes landed.
+The adjusted $R^2$ value for the model was 0.068, suggesting that the predictors explain approximately 6.8% of the variability in average significant strikes landed.
 
 The analysis revealed several significant relationships between the fighters' physical attributes and the number of significant strikes landed. Notably, log-transformed Reach had a significant negative effect on the number of strikes landed ($\beta = -52.68, p < 0.001$), suggesting that reach increases, the average number of strikes landed decreases. The Weight Class variable also showed significant effects across divisions. Fighters in the Featherweight class landed more strikes landed ($\beta = 3.15, p = 0.001$), while Flyweight fighters landed fewer strikes ($\beta = -5.12, p < 001$). On the other hand, Women's Flyweight fighters had a significant negative relationship with strikes landed ($\beta = -14.95, p < 0.001$). In terms of interaction effects, the model included interaction terms between Win Streak and Weight Class, but most of these were not significant. However, there was a marginally significant positive interaction observed for Women's Strawweight ($\beta = 3.88, p = 0.0008$), suggesting that an increasing win streak slightly positively impacts the number of strikes landed in this weight class. Finally, the logarithm of the height variable showed a weak, marginally significant negative relationship with strikes landed ($\beta = -15.59, p = 0.087$), suggesting that taller fighters might land fewer strikes on average, although the effect is not strong. These findings underscore the complex interplay between a fighter's physical characteristics, weight class, and performance outcomes, with reach and weight class being the most influential factors in predicting the number of strikes landed.
 
@@ -438,13 +438,13 @@ kable(odds_ratio_table,
       align = "c", digits = 3, row.names= FALSE)
 ```
 
-The logistic regression model reveals some important findings regarding the factors that influence the outcome of a UFC fight. The odds ratio for **Red Submission Attempts** (OR = 1.548, p \< 0.001) suggests that each additional submission attempt by the red fighter increases the odds of them winning by **54.8%**. This indicates that red fighter submission attempts positively influence their likelihood of victory. Conversely, **Blue Submission Attempts** (OR = 0.709, p \< 0.001) show a negative relationship with the outcome, where each additional submission attempt by the blue fighter decreases the odds of blue winning by **29.1%**. This suggests that higher submission attempts by the blue fighter may be linked to a decreased likelihood of blue winning, which may indicate that submission attempts do not effectively contribute to blue’s success in this context.
+The logistic regression model reveals some important findings regarding the factors that influence the outcome of a UFC fight. The odds ratio for Red Submission Attempts (OR = 1.548, p \< 0.001) suggests that each additional submission attempt by the red fighter increases the odds of them winning by 54.8%. This indicates that red fighter submission attempts positively influence their likelihood of victory. Conversely, Blue Submission Attempts (OR = 0.709, p \< 0.001) show a negative relationship with the outcome, where each additional submission attempt by the blue fighter decreases the odds of blue winning by 29.1%. This suggests that higher submission attempts by the blue fighter may be linked to a decreased likelihood of blue winning, which may indicate that submission attempts do not effectively contribute to blue’s success in this context.
 
-For **Blue Reach** (OR = 0.121, p = 0.006), an increase in blue’s reach reduces the odds of red winning. The odds ratio of 0.121 indicates that each unit increase in blue’s reach significantly lowers the likelihood of red winning, highlighting the importance of reach for blue fighters. In contrast, **Red Reach** (OR = 7.623, p = 0.0063) increases the odds of red winning by a factor of 7.623 for every unit increase in red’s reach, emphasizing the critical role of reach for red fighters in enhancing their chances of victory.
+For Blue Reach (OR = 0.121, p = 0.006), an increase in blue’s reach reduces the odds of red winning. The odds ratio of 0.121 indicates that each unit increase in blue’s reach significantly lowers the likelihood of red winning, highlighting the importance of reach for blue fighters. In contrast, Red Reach (OR = 7.623, p = 0.0063) increases the odds of red winning by a factor of 7.623 for every unit increase in red’s reach, emphasizing the critical role of reach for red fighters in enhancing their chances of victory.
 
-Regarding significant strikes, **LogBlueSigStr** (OR = 0.624, p \< 0.001) shows that for blue fighters, a higher number of significant strikes landed decreases the odds of red winning. This suggests that effective striking by the blue fighter contributes to their chance of winning by reducing red’s odds. Similarly, **LogRedSigStr** (OR = 1.588, p \< 0.001) indicates that for red fighters, a higher number of significant strikes landed increases the odds of red winning by **58.8%**, reinforcing the importance of striking in determining the fight outcome.
+Regarding significant strikes, LogBlueSigStr (OR = 0.624, p \< 0.001) shows that for blue fighters, a higher number of significant strikes landed decreases the odds of red winning. This suggests that effective striking by the blue fighter contributes to their chance of winning by reducing red’s odds. Similarly, LogRedSigStr (OR = 1.588, p \< 0.001) indicates that for red fighters, a higher number of significant strikes landed increases the odds of red winning by 58.8%, reinforcing the importance of striking in determining the fight outcome.
 
-Overall, these findings provide insights into the key factors that influence the fight’s outcome, with **submission attempts, reach, and significant strikes** being significant contributors to the likelihood of winning.
+Overall, these findings provide insights into the key factors that influence the fight’s outcome, with submission attempts, reach, and significant strikes being significant contributors to the likelihood of winning.
 
 ```{r message = FALSE, warning = FALSE, echo = FALSE, fig.width=6, fig.height=4}
 # Convert both Red and Blue Submission Attempts back to the original scale
@@ -477,17 +477,19 @@ ggplot(ufc_q2_filtered, aes(x = actual_LogRedSubAttempts, y = predicted_prob)) +
   )
 ```
 
-This plot visualizes the relationship between submission attempts and the predicted probability of the red fighter winning in a UFC fight, with a focus on both the **red and blue fighters’ submission attempts**. Each point represents an observation, while the red and blue lines represent logistic regression trends for **Red Submission Attempts** and **Blue Submission Attempts**, respectively.
+This plot visualizes the relationship between submission attempts and the predicted probability of the red fighter winning in a UFC fight, with a focus on both the red and blue fighters’ submission attempts. Each point represents an observation, while the red and blue lines represent logistic regression trends for Red Submission Attempts and Blue Submission Attempts, respectively.
 
-The upward trend of the **red line** suggests that as the number of submission attempts by the **red fighter** increases, the predicted probability of the red fighter winning also increases. This aligns with the odds ratio of 1.548, indicating that each additional submission attempt by the red fighter significantly improves their chances of victory.
+The upward trend of the red line suggests that as the number of submission attempts by the red fighter increases, the predicted probability of the red fighter winning also increases. This aligns with the odds ratio of 1.548, indicating that each additional submission attempt by the red fighter significantly improves their chances of victory.
 
-Conversely, the downward slope of the **blue line** reveals a negative relationship for **blue fighter submission attempts**. As the number of submission attempts by the blue fighter increases, the predicted probability of the red fighter winning also increases, suggesting that blue's submission attempts are ineffective or even counterproductive in this context. This trend supports the odds ratio of 0.709, showing that additional submission attempts decrease the odds of the blue fighter winning.
+Conversely, the downward slope of the blue line reveals a negative relationship for blue fighter submission attempts. As the number of submission attempts by the blue fighter increases, the predicted probability of the red fighter winning also increases, suggesting that blue's submission attempts are ineffective or even counterproductive in this context. This trend supports the odds ratio of 0.709, showing that additional submission attempts decrease the odds of the blue fighter winning.
 
 To summarize, this plot highlights a contrasting effect: while submission attempts by the red fighter are positively associated with victory, submission attempts by the blue fighter appear to have the opposite effect. This difference may reflect strategic or performance disparities between the fighters, influencing their likelihood of success.
 
-## Appendix
+## Appendix: Supplementary Materials for UFC Analysis
 
-1.  Linearity Assumption for the initial model for research question 1
+**Appendix 1: Diagnostic Plots for Initial Model (Research Question 1)**
+
+The following diagnostic plots were generated for the initial multiple linear regression (MLR) model used to explore the relationship between reach and strikes landed in Research Question 1. These plots highlight key assumptions of linear regression, including linearity, normality of residuals, and homoscedasticity.
 
 ```{r, warning=FALSE, message = FALSE, echo = FALSE}
 # Extract residuals from the model
@@ -500,7 +502,7 @@ standardized_residuals <- residuals / sd(residuals)
 ggplot(data.frame(standardized_residuals), aes(sample = standardized_residuals)) +
   stat_qq() +
   stat_qq_line(color = 'red', linetype = 'dotted') +
-  labs(title = "Q-Q Plot of Standardized Residuals",
+  labs(title = "Figure A1.1: Q-Q Plot for the Initial Model for Research Question 1",
        x = "Theoretical Quantiles",  # x-axis label
        y = "Standardized Residuals") +  # y-axis label
   theme_minimal() +
@@ -519,6 +521,54 @@ plot(sim_logistic_model)
 
 # Model summary of the step model
 summary(step_model)
+
+library(broom)  # For tidy(), glance()
+library(kableExtra)  # For pretty tables
+
+# Rename the predictors in the coefficients table using case_when
+coefficients_table <- tidy(final_model) %>%
+  mutate(
+    Predictor = case_when(
+      term == "(Intercept)" ~ "Intercept",
+      term == "LogRedSubAttempts" ~ "Log Red Submission Attempts",
+      term == "LogBlueSubAttempts" ~ "Log Blue Submission Attempts",
+      term == "LogBlueReach" ~ "Log Blue Reach",
+      term == "LogRedReach" ~ "Log Red Reach",
+      term == "LogBlueSigStr" ~ "Log Blue Significant Strikes",
+      term == "LogRedSigStr" ~ "Log Red Significant Strikes",
+      TRUE ~ term  # Preserve any terms not explicitly renamed
+    ),
+    p.value = ifelse(p.value < 0.001, "<0.001", round(p.value, 3))  # Format p-values
+  ) %>%
+  select(Predictor, estimate, std.error, statistic, p.value)  # Reorder columns
+
+# Rename columns for presentation
+coefficients_table <- coefficients_table %>%
+  rename(
+    Estimate = estimate,
+    `Std. Error` = std.error,
+    `Z Value` = statistic,
+    `P Value` = p.value
+  )
+
+model_fit_table <- glance(final_model) %>%
+  select(null.deviance, df.null, deviance, df.residual, AIC) %>%
+  rename(
+    `Null Deviance` = null.deviance,
+    `DF Null` = df.null,
+    `Residual Deviance` = deviance,
+    `DF Residual` = df.residual
+  )
+
+# Print coefficients fit statistics table
+kable(coefficients_table, caption = "Logistic Regression Model Coefficients", format = "pipe", digits = 3) %>%
+  kable_styling(full_width = FALSE)
+
+# Print model fit statistics table
+kable(model_fit_table, caption = "Model Fit Statistics", format = "pipe", digits = 3) %>%
+  kable_styling(full_width = FALSE)
+# Render the table
+
 
 par(mfrow=c(2,2), mar = c(2,2,2,2))
 
