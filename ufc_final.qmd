@@ -211,7 +211,7 @@ The initial multiple linear regression model violated the linearity assumption, 
 vif_results = vif(model_q1_clean)
 # Create a data frame from the VIF results
 vif_table <- data.frame(
-  Variable = c("Reach (log transformed", "Win Streak", "Weight Class", "Height (log transformed", "Win Streak * Weight Class"),
+  Variable = c("Reach (log transformed)", "Win Streak", "Weight Class", "Height (log transformed)", "Win Streak * Weight Class"),
   GVIF = vif_results[, 1],  # Raw GVIF values
   Df = vif_results[, 2],     # Degrees of freedom
   GVIF_Adjusted = vif_results[, 1]^(1 / (2 * vif_results[, 2]))  # Adjusted GVIF^(1/(2*Df))
@@ -409,15 +409,6 @@ kable(
   align = "c", 
   digits = 3
 )
-```
-```{r}
-print(vif_results)
-```
-
-```{r}
-vif_results = vif(final_model)
-
-kable(vif_results, caption = "Variance Inflation Factor (VIF)", align = "c", digits = 3)
 ```
 
 ## Appendix
