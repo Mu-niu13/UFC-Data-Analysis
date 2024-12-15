@@ -35,7 +35,13 @@ In UFC, fighters are assigned to either the red corner or the blue corner, which
 
 For the second research question, a new binary variable, Outcome was created to indicate the winner. A value of 1 was assigned if the fighter in the red corner won, and a value of 0 if the fighter in the blue corner won. The model included variables such as submission attempts, significant strikes landed, fight duration, and weight class to account for both physical attributes and performance metrics. These variables ensured a more comprehensive analysis of the factors influencing fight outcomes while addressing potential confounders.
 
-#### Model Fitting and Evaluation
+#### Model Fitting and Evaluation			
+
+To examine the relationship between a fighter’s reach and the total number of strikes landed during a fight, a Multiple Linear Regression (MLR) model was utilized. The model included key predictors such as logarithmic transformation of reach, logarithmic transformation of height, win streak and weight class, with an interaction term between the win streak and weight class to explore potential moderating effects. Outliers and influential points were identified using Cook's distance, and there were removed to improve model robustness. Diagnostics, including residuals vs. fitted plots, were performed to assess linearity and homoscedasticity, while Variance Inflation Factor (VIF) was used to evaluate multicollinearity. Model performance was measured using the R-squared value.
+
+For the second research question, a logistic regression model was employed to predict fight outcomes (binary: win or loss) using submission attempts, reach, significance strikes, fight duration, and weight class as predictors. The model was refined using stepwise selection to identify the most significant predictors, and diagnostics such as Cook's distance, leverage, and deviance residuals were used to detect and remove influential points. The final logistic regression model included key predictors such as logarithmic transformations of submission attemps, logarithmic transformation of reach, logarithmic transformation of significant strikes landed, and logarithmic transformation of fight duration. Model performance was evaluated using the area under the receiver operating characteristic curve (ROC curve), and diagnostic plots were generated to assess the model's fit.
+
+All the analyses were conducted in R.
 
 ### Results
 
@@ -113,6 +119,9 @@ par(mfrow = c(2, 2), mar = c(2,2,2,2))
 plot(model_q1_clean)
 
 vif(model_q1_clean)
+
+r_squared <- summary(model_q1_clean)$r.squared
+cat("R-squared:", r_squared, "\n")
 ```
 
 #### Research Question 2: Is the fight outcome associated with the number of submission attempts made by a fighter?
@@ -204,7 +213,8 @@ print(vif_values)
 par(mfrow = c(2, 2), mar = c(2, 2, 2, 2))  # Set plotting layout
 plot(model_q1)
 
-
+r_squared <- summary(model_q1)$r.squared
+cat("R-squared:", r_squared, "\n")
 ```
 
 2.  Research Question 2
