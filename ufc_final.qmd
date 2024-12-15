@@ -211,7 +211,7 @@ The initial multiple linear regression model violated the linearity assumption, 
 vif_results = vif(model_q1_clean)
 # Create a data frame from the VIF results
 vif_table <- data.frame(
-  Variable = rownames(vif_results),
+  Variable = c("Reach (log transformed", "Win Streak", "Weight Class", "Height (log transformed", "Win Streak * Weight Class"),
   GVIF = vif_results[, 1],  # Raw GVIF values
   Df = vif_results[, 2],     # Degrees of freedom
   GVIF_Adjusted = vif_results[, 1]^(1 / (2 * vif_results[, 2]))  # Adjusted GVIF^(1/(2*Df))
