@@ -348,7 +348,7 @@ library(knitr)      # For kable()
 model_summary <- tidy(final_model)
 
 # Print the table in a clean format
-kable(model_summary, format = "pipe", digits = 3)
+kable(model_summary, caption = "Final Logistic Regression Model Summary", format = "pipe", digits = 3)
 
 ```
 
