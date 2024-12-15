@@ -127,7 +127,7 @@ influential <- which(cooks_d > (4 / nrow(ufc_q1)))
 ufc_q1_clean <- ufc_q1[-influential, ]
 
 model_clean <- lm(AvgSigStrLanded ~ LogReachCms + WeightClass + log(Height) + WinStreak, data = ufc_q1_clean)
-
+summary(model_clean)
 par(mfrow = c(2, 2), mar = c(2,2,2,2))
 plot(model_clean)
 ```
@@ -147,11 +147,11 @@ vif(model_simple)
 vif(model_clean)
 ```
 
-### OPTION : INTERACTION TERM
+### OPTION : INTERACTION TERM - after removing outliers
 
 ```{r}
 model_clean_int <- lm(AvgSigStrLanded ~ LogReachCms + WinStreak * WeightClass + log(Height), data = ufc_q1_clean)
-
+summary(model_clean_int)
 par(mfrow = c(2, 2), mar = c(2,2,2,2))
 plot(model_clean_int)
 
@@ -162,7 +162,7 @@ vif(model_clean_int)
 
 ```{r}
 model_int <- lm(AvgSigStrLanded ~ LogReachCms + WinStreak * WeightClass + log(Height), data = ufc_q1)
-
+summary(model_int)
 par(mfrow = c(2, 2), mar = c(2,2,2,2))
 plot(model_clean_int)
 
