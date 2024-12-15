@@ -369,6 +369,56 @@ ggplot(ufc_q2_filtered, aes(x = actual_LogRedSubAttempts, y = predicted_prob)) +
   )
 ```
 
+```{r}
+vif_results = vif(final_model)
+# Try extracting VIF
+if (length(vif_results) == 0) {
+  stop("The VIF computation returned an empty result. Check your model for singularities or errors.")
+} else if (is.matrix(vif_results)) {
+  # Handle VIF as a matrix (for categorical predictors)
+  vif_table <- data.frame(
+    Variable = rownames(vif_results),
+    GVIF = vif_results[, 1],
+    Df = vif_results[, 2],
+    GVIF_Adjusted = vif_results[, 1]^(1 / (2 * vif_results[, 2]))
+  )
+} else {
+  # Handle VIF as a vector (for numeric-only models)
+  vif_table <- data.frame(
+    Variable = names(vif_results),
+    VIF = vif_results
+  )
+}
+
+# Add descriptive names (optional)
+vif_table$Variable <- c(
+  "Log Red Submission Attempts", 
+  "Log Blue Submission Attempts", 
+  "Log Blue Reach", 
+  "Log Red Reach", 
+  "Log Blue Significant Strikes", 
+  "Log Red Significant Strikes"
+)
+
+# Remove row names
+rownames(vif_table) <- NULL
+
+kable(
+  vif_table, 
+  caption = "Variance Inflation Factor (VIF) and Adjusted GVIF", 
+  align = "c", 
+  digits = 3
+)
+```
+```{r}
+print(vif_results)
+```
+
+```{r}
+vif_results = vif(final_model)
+
+kable(vif_results, caption = "Variance Inflation Factor (VIF)", align = "c", digits = 3)
+```
 
 ## Appendix
 
