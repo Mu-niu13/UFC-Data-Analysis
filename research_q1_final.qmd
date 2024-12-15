@@ -157,3 +157,14 @@ plot(model_clean_int)
 
 vif(model_clean_int)
 ```
+
+### OPTION: INTERACTION TERM WITH THE OG DATA
+
+```{r}
+model_int <- lm(AvgSigStrLanded ~ LogReachCms + WinStreak * WeightClass + log(Height), data = ufc_q1)
+
+par(mfrow = c(2, 2), mar = c(2,2,2,2))
+plot(model_clean_int)
+
+vif(model_int)
+```
