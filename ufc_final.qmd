@@ -340,13 +340,20 @@ summary(final_model)
 We investigated the relationship between submission attempts and fight outcomes using a logistic regression model. The model included both submission attempts (log-transformed for both red and blue fighters), reach, significant strikes, and fight time as predictors of the binary outcome: win (1 for red win, 0 for blue win). We also assessed the potential impact of weight class on the outcome, although it was not a significant predictor in the final model. Throughout the whole modelling process, AIC (Akaike Information Criterion) was used as the metric to confirm model improvement and ensure optimal fit. We began with the creation of a general logistic regression model with multiple variables (AIC: 6606.3), followed by an extended model that incorporated interaction terms to explore potential relationships between predictors (AIC: 6612.1). Stepwise variable selection was performed to yield the best model, using both forward and backward selection techniques (AIC: 6591.77). Finally, influential points were identified and removed to refine the final model, ensuring the results were not skewed by outliers or leverage points (AIC: 6235.7).
 
 ```{r, echo = FALSE, warning=FALSE, message = FALSE}
-
-library(broom)      # For tidy()
-library(knitr)      # For kable()
-
 # Generate a tidy dataframe of the model summary
 model_summary <- tidy(final_model)
 
+model_summary$term <- c("Intercept",
+  "Log Red Submission Attempts", 
+  "Log Blue Submission Attempts", 
+  "Log Blue Reach", 
+  "Log Red Reach", 
+  "Log Blue Significant Strikes", 
+  "Log Red Significant Strikes"
+)
+# Update the p-value column to format values less than 0.001
+model_summary <- model_summary %>%
+  mutate(p.value = ifelse(p.value < 0.001, "<0.001", round(p.value, 3)))
 # Print the table in a clean format
 kable(model_summary, caption = "Final Logistic Regression Model Summary", format = "pipe", digits = 3)
 
