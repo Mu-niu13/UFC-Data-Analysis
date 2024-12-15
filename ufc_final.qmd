@@ -39,9 +39,9 @@ For the second research question, a new binary variable, Outcome was created to 
 
 #### Model Fitting and Evaluation
 
-To examine the relationship between a fighter’s reach and the total number of strikes landed during a fight, a Multiple Linear Regression (MLR) model was utilized. The model included key predictors such as logarithmic transformation of reach, logarithmic transformation of height, win streak and weight class, with an interaction term between the win streak and weight class to explore potential moderating effects. Outliers and influential points were identified using Cook's distance, and there were removed to improve model robustness. Diagnostics, including residuals vs. fitted plots, were performed to assess linearity and homoscedasticity, while Variance Inflation Factor (VIF) was used to evaluate multicollinearity. Model performance was measured using the R-squared value.
+To examine the relationship between a fighter’s reach and the total number of strikes landed during a fight, a Multiple Linear Regression (MLR) model was utilized. The model included key predictors such as logarithmic transformation of reach, logarithmic transformation of height, win streak and weight class, with an interaction term between the win streak and weight class to explore potential moderating effects. Outliers and influential points were identified using Cook's distance, and these were removed to improve model robustness. Diagnostics, including residuals vs. fitted plots, were performed to assess linearity and homoscedasticity, while Variance Inflation Factor (VIF) was used to evaluate multicollinearity. Model performance was measured using the R-squared value.
 
-For the second research question, a logistic regression model was employed to predict fight outcomes (binary: win or loss) using submission attempts, reach, significance strikes, fight duration, and weight class as predictors. The model was refined using stepwise selection to identify the most significant predictors, and diagnostics such as Cook's distance, leverage, and deviance residuals were used to detect and remove influential points. The final logistic regression model included key predictors such as logarithmic transformations of submission attemps, logarithmic transformation of reach, logarithmic transformation of significant strikes landed, and logarithmic transformation of fight duration. Model performance was evaluated using the area under the receiver operating characteristic curve (ROC curve), and diagnostic plots were generated to assess the model's fit.
+For the second research question, a logistic regression model was employed to predict fight outcomes (binary: win or loss) using submission attempts, reach, significance strikes, fight duration, and weight class as predictors. The model was refined using stepwise selection to identify the most significant predictors, and diagnostics such as Cook's distance, leverage, and deviance residuals were used to detect and remove influential points. The final logistic regression model included key predictors such as logarithmic transformations of submission attempts, logarithmic transformation of reach, logarithmic transformation of significant strikes landed, and logarithmic transformation of fight duration. Model performance was evaluated using the area under the receiver operating characteristic curve (ROC curve), and diagnostic plots were generated to assess the model's fit.
 
 All the analyses were conducted in R.
 
@@ -227,8 +227,6 @@ To assess multicollinearity, we calculated the Generalized Variance Inflation Fa
 
 To explore the relationship between the number of submission attempts and the fight outcome, we first computed summary statistics for key variables: Submission Attempts, Weight Class, Reach, Significant Strikes Landed, and Fight Time. The binary fight outcome is represented as 1 for a Red win and 0 for a Blue win. Continuous variables, including submission attempts, reach, significant strikes landed, and fight time, are transformed using logarithmic transformations to account for skewness. These transformations help in better understanding the distribution and potential association with fight outcomes. Summary statistics for these variables provide the necessary foundation for further modeling.
 
-
-
 ```{r warning=FALSE, message = FALSE, echo = FALSE}
 ufc_q2 <- ufc_clean %>%
   mutate(
@@ -266,7 +264,7 @@ summary_table2 <- ufc_q2 %>%
 kable(summary_table2, caption = "Summary Statistics by Weight Class", align = "c")
 ```
 
-```{r warning=FALSE, message = FALSE, echo = FALSE}
+```{r warning=FALSE,include=FALSE}
 sim_logistic_model <- glm(
   Outcome ~ 
     LogRedSubAttempts + 
@@ -281,8 +279,30 @@ sim_logistic_model <- glm(
   family = binomial
 )
 
+summary(sim_logistic_model)
 
-step_model <- step(sim_logistic_model, direction = "both")
+ext_logistic_model <- glm(
+  Outcome ~ 
+    LogRedSubAttempts + 
+    LogBlueSubAttempts + 
+    LogBlueReach + 
+    LogRedReach + 
+    LogBlueSigStr + 
+    LogRedSigStr + 
+    LogFightTime + 
+    WeightClass + 
+    LogRedSubAttempts:LogBlueSubAttempts + 
+    LogRedSubAttempts:LogRedReach + 
+    LogBlueSubAttempts:LogBlueReach + 
+    LogRedSigStr:LogBlueSigStr,
+  data = ufc_q2, 
+  family = binomial
+)
+
+summary(ext_logistic_model)
+
+
+step_model <- step(ext_logistic_model, direction = "both")
 
 # Calculate Cook's distance and leverage
 cooks_distance <- cooks.distance(step_model)
@@ -308,85 +328,28 @@ final_model <- glm(formula = Outcome ~ LogRedSubAttempts + LogBlueSubAttempts +
     LogBlueReach + LogRedReach + LogBlueSigStr + LogRedSigStr, 
     family = binomial, data = ufc_q2_filtered)
 
+
 # Model summary
-# summary(final_model)
+summary(final_model)
 # 
 # par(mfrow=c(2,2), mar = c(2,2,2,2))
 # 
 # plot(final_model)
 ```
 
-We investigated the relationship between submission attempts and fight outcomes using a logistic regression model. The model included both submission attempts (log-transformed for both red and blue fighters), reach, significant strikes, and fight time as predictors of the binary outcome: win (1 for red win, 0 for blue win). We also assessed the potential impact of weight class on the outcome, although it was not a significant predictor in the final model.
-
-The final model (after removing influential points and non-significant variables) provided the following odds ratios (OR) and confidence intervals (CI) for each predictor:
+We investigated the relationship between submission attempts and fight outcomes using a logistic regression model. The model included both submission attempts (log-transformed for both red and blue fighters), reach, significant strikes, and fight time as predictors of the binary outcome: win (1 for red win, 0 for blue win). We also assessed the potential impact of weight class on the outcome, although it was not a significant predictor in the final model. Throughout the whole modelling process, AIC (Akaike Information Criterion) was used as the metric to confirm model improvement and ensure optimal fit. We began with the creation of a general logistic regression model with multiple variables (AIC: 6606.3), followed by an extended model that incorporated interaction terms to explore potential relationships between predictors (AIC: 6612.1). Stepwise variable selection was performed to yield the best model, using both forward and backward selection techniques (AIC: 6591.77). Finally, influential points were identified and removed to refine the final model, ensuring the results were not skewed by outliers or leverage points (AIC: 6235.7).
 
 ```{r, echo = FALSE, warning=FALSE, message = FALSE}
-# Extract coefficients (log-odds) from the model
-coefficients <- summary(final_model)$coefficients
 
-# Calculate Odds Ratios (OR) and 95% Confidence Intervals (CI)
-odds_ratios <- exp(coefficients[, "Estimate"])
-conf_int <- exp(confint(final_model))
+library(broom)      # For tidy()
+library(knitr)      # For kable()
 
-# Clean up column names to remove unwanted characters
-colnames(conf_int) <- c("2.5% CI", "97.5% CI")  # Renaming the columns properly
+# Generate a tidy dataframe of the model summary
+model_summary <- tidy(final_model)
 
-# Create the Odds Ratio table
-odds_ratio_table <- data.frame(
-  Predictor = c("Intercept", "Red Submission Attempts", "Blue Submission Attempts", "Blue Reach", 
-                "Red Reach", "Blue Significant Strikes", "Red Significant Strikes"),
-  Odds_Ratio = round(odds_ratios, 3),
-  `2.5% CI` = round(conf_int[, 1], 3),  # Lower bound of CI
-  `97.5% CI` = round(conf_int[, 2], 3),  # Upper bound of CI
-  P_Value = round(coefficients[, "Pr(>|z|)"], 3)
-)
+# Print the table in a clean format
+kable(model_summary, format = "pipe", digits = 3)
 
-# Modify P-Value column to show <0.001 where applicable
-odds_ratio_table$P_Value <- ifelse(odds_ratio_table$P_Value < 0.001, "<0.001", odds_ratio_table$P_Value)
-
-# Rename columns if needed (for clarity)
-colnames(odds_ratio_table) <- c("Predictor", "Odds Ratio (OR)", "2.5% CI", "97.5% CI", "P-Value")
-
-# Print the table using kable
-kable(odds_ratio_table, 
-      caption = "Odds Ratios and 95% Confidence Intervals for Logistic Regression Model", 
-      align = "c", digits = 3, row.names= FALSE)
-```
-
-The logistic regression model reveals some important findings regarding the factors that influence the outcome of a UFC fight. The odds ratio for Red Submission Attemps (OR = 1.548, p < 0.001) suggests that each additional submission attempt by the red fighter increases the odds of them winning by 54.8%. This indicates that red fighter submission attempts positively influence their likelihood of victory. Conversely, Blue Submission Attempts (OR = 0.709, p < 0.001) show a negative relationship with the outcome, where each additional submission attempt by the blue fighter decreases the odds of blue winning by 29.1%. This suggests that higher submission attempts by the blue fighter may be linked to a decreased likelihood of blue winning, which may indicate that submission attempts do not effectively contribute to blue's success in this context.
-For Blue Reach (OR = 0.121, p = 0.006), an increase in blue's reach reduces the odds of red winning. The odds ratio of 0.121 indicates that each unit increase blue’s reach significantly lowers the likelihood of red winning, highlighting the importance of reach for blue fighters. In contrast, Red Reach (OR = 7.623, p = 0.0063) increases the odds of red winning by a factor of 7.623 for every unit increase in red’s reach, emphasizing the critical role of reach for red fighters in enhancing their chances of victory.
-Regarding significant strikes, LogBlueSigStr (OR = 0.624, p < 0.001) shows that for blue fighters, a higher number of significant strikes landed decreases the odds of red winning. This suggests that effective striking by the blue fighter contributes to their chance of winning by reducing red’s odds. Similarly, LogRedSigStr (OR = 1.588, p < 0.001) indicates that for red fighters, a higher number of significant strikes landed increases the odds of red winning by 58.8%, reinforcing the importance of striking in determining the fight outcome.
-Overall, these findings provide insights into the key factors that influence the fight’s outcome, with submission attempts, reach, and significant strikes being significant contributors to the likelihood of winning.
-
-```{r message = FALSE, warning = FALSE, echo = FALSE, fig.width=6, fig.height=4}
-# Convert both Red and Blue Submission Attempts back to the original scale
-ufc_q2_filtered$actual_LogRedSubAttempts <- exp(ufc_q2_filtered$LogRedSubAttempts) - 1
-ufc_q2_filtered$actual_LogBlueSubAttempts <- exp(ufc_q2_filtered$LogBlueSubAttempts) - 1
-ufc_q2_filtered$predicted_prob <- predict(final_model, newdata = ufc_q2_filtered, type = "response")
-# Plot both Red and Blue Submission Attempts against the predicted probabilities
-ggplot(ufc_q2_filtered, aes(x = actual_LogRedSubAttempts, y = predicted_prob)) +
-    geom_point(aes(color = "Red Submission Attempts"), alpha = 0.1, size = 2) +  # Reduce opacity of red dots
-  geom_smooth(aes(color = "Red Submission Attempts"), method = "loess", size = 1.5) +  # Thicker line for red
-  geom_point(aes(x = actual_LogBlueSubAttempts, color = "Blue Submission Attempts"), alpha = 0.1, size = 2) +  # Reduce opacity of blue dots
-  geom_smooth(aes(x = actual_LogBlueSubAttempts, color = "Blue Submission Attempts"), method = "loess", size = 1.5) +  # Thicker line for blue
-  labs(
-    title = "Predicted Probability of Red Winning vs. Submission Attempts",
-    x = "Submission Attempts",
-    y = "Predicted Probability of Red Winning",
-    color = "Predictor"
-  ) +
-  scale_color_manual(
-    values = c("Red Submission Attempts" = "red", "Blue Submission Attempts" = "blue")
-  ) +  # Adjusted colors for contrast
-  theme_minimal() +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 10),  # Center-align title and increase font size
-    axis.title = element_text(size = 10),
-    axis.text = element_text(size = 9),
-    legend.position = "bottom",  # Move legend to the bottom
-    legend.title = element_text(size = 10),
-    legend.text = element_text(size = 9)
-  )
 ```
 
 ```{r warning=FALSE, message = FALSE, echo = FALSE}
@@ -430,6 +393,90 @@ kable(
   digits = 3
 )
 ```
+
+To assess multicollinearity, we calculated the Variance Inflation Factor (VIF)for each predictor. The results showed that all the predictors fall under the accepted VIF value-threshold, indicating no significant multicollinearity.
+
+The final model provided the following odds ratios (OR) and confidence intervals (CI) for each predictor:
+
+```{r, echo = FALSE, warning=FALSE, message = FALSE}
+# Extract coefficients (log-odds) from the model
+coefficients <- summary(final_model)$coefficients
+
+# Calculate Odds Ratios (OR) and 95% Confidence Intervals (CI)
+odds_ratios <- exp(coefficients[, "Estimate"])
+conf_int <- exp(confint(final_model))
+
+# Clean up column names to remove unwanted characters
+colnames(conf_int) <- c("2.5% CI", "97.5% CI")  # Renaming the columns properly
+
+# Create the Odds Ratio table
+odds_ratio_table <- data.frame(
+  Predictor = c("Intercept", "Red Submission Attempts", "Blue Submission Attempts", "Blue Reach", 
+                "Red Reach", "Blue Significant Strikes", "Red Significant Strikes"),
+  Odds_Ratio = round(odds_ratios, 3),
+  `2.5% CI` = round(conf_int[, 1], 3),  # Lower bound of CI
+  `97.5% CI` = round(conf_int[, 2], 3),  # Upper bound of CI
+  P_Value = round(coefficients[, "Pr(>|z|)"], 3)
+)
+
+# Modify P-Value column to show <0.001 where applicable
+odds_ratio_table$P_Value <- ifelse(odds_ratio_table$P_Value < 0.001, "<0.001", odds_ratio_table$P_Value)
+
+# Rename columns if needed (for clarity)
+colnames(odds_ratio_table) <- c("Predictor", "Odds Ratio (OR)", "2.5% CI", "97.5% CI", "P-Value")
+
+# Print the table using kable
+kable(odds_ratio_table, 
+      caption = "Odds Ratios and 95% Confidence Intervals for Logistic Regression Model", 
+      align = "c", digits = 3, row.names= FALSE)
+```
+
+The logistic regression model reveals some important findings regarding the factors that influence the outcome of a UFC fight. The odds ratio for **Red Submission Attempts** (OR = 1.548, p \< 0.001) suggests that each additional submission attempt by the red fighter increases the odds of them winning by **54.8%**. This indicates that red fighter submission attempts positively influence their likelihood of victory. Conversely, **Blue Submission Attempts** (OR = 0.709, p \< 0.001) show a negative relationship with the outcome, where each additional submission attempt by the blue fighter decreases the odds of blue winning by **29.1%**. This suggests that higher submission attempts by the blue fighter may be linked to a decreased likelihood of blue winning, which may indicate that submission attempts do not effectively contribute to blue’s success in this context.
+
+For **Blue Reach** (OR = 0.121, p = 0.006), an increase in blue’s reach reduces the odds of red winning. The odds ratio of 0.121 indicates that each unit increase in blue’s reach significantly lowers the likelihood of red winning, highlighting the importance of reach for blue fighters. In contrast, **Red Reach** (OR = 7.623, p = 0.0063) increases the odds of red winning by a factor of 7.623 for every unit increase in red’s reach, emphasizing the critical role of reach for red fighters in enhancing their chances of victory.
+
+Regarding significant strikes, **LogBlueSigStr** (OR = 0.624, p \< 0.001) shows that for blue fighters, a higher number of significant strikes landed decreases the odds of red winning. This suggests that effective striking by the blue fighter contributes to their chance of winning by reducing red’s odds. Similarly, **LogRedSigStr** (OR = 1.588, p \< 0.001) indicates that for red fighters, a higher number of significant strikes landed increases the odds of red winning by **58.8%**, reinforcing the importance of striking in determining the fight outcome.
+
+Overall, these findings provide insights into the key factors that influence the fight’s outcome, with **submission attempts, reach, and significant strikes** being significant contributors to the likelihood of winning.
+
+```{r message = FALSE, warning = FALSE, echo = FALSE, fig.width=6, fig.height=4}
+# Convert both Red and Blue Submission Attempts back to the original scale
+ufc_q2_filtered$actual_LogRedSubAttempts <- exp(ufc_q2_filtered$LogRedSubAttempts) - 1
+ufc_q2_filtered$actual_LogBlueSubAttempts <- exp(ufc_q2_filtered$LogBlueSubAttempts) - 1
+ufc_q2_filtered$predicted_prob <- predict(final_model, newdata = ufc_q2_filtered, type = "response")
+# Plot both Red and Blue Submission Attempts against the predicted probabilities
+ggplot(ufc_q2_filtered, aes(x = actual_LogRedSubAttempts, y = predicted_prob)) +
+    geom_point(aes(color = "Red Submission Attempts"), alpha = 0.1, size = 2) +  # Reduce opacity of red dots
+  geom_smooth(aes(color = "Red Submission Attempts"), method = "loess", size = 1.5) +  # Thicker line for red
+  geom_point(aes(x = actual_LogBlueSubAttempts, color = "Blue Submission Attempts"), alpha = 0.1, size = 2) +  # Reduce opacity of blue dots
+  geom_smooth(aes(x = actual_LogBlueSubAttempts, color = "Blue Submission Attempts"), method = "loess", size = 1.5) +  # Thicker line for blue
+  labs(
+    title = "Predicted Probability of Red Winning vs. Submission Attempts",
+    x = "Submission Attempts",
+    y = "Predicted Probability of Red Winning",
+    color = "Predictor"
+  ) +
+  scale_color_manual(
+    values = c("Red Submission Attempts" = "red", "Blue Submission Attempts" = "blue")
+  ) +  # Adjusted colors for contrast
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 10),  # Center-align title and increase font size
+    axis.title = element_text(size = 10),
+    axis.text = element_text(size = 9),
+    legend.position = "bottom",  # Move legend to the bottom
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 9)
+  )
+```
+
+This plot visualizes the relationship between submission attempts and the predicted probability of the red fighter winning in a UFC fight, with a focus on both the **red and blue fighters’ submission attempts**. Each point represents an observation, while the red and blue lines represent logistic regression trends for **Red Submission Attempts** and **Blue Submission Attempts**, respectively.
+
+The upward trend of the **red line** suggests that as the number of submission attempts by the **red fighter** increases, the predicted probability of the red fighter winning also increases. This aligns with the odds ratio of 1.548, indicating that each additional submission attempt by the red fighter significantly improves their chances of victory.
+
+Conversely, the downward slope of the **blue line** reveals a negative relationship for **blue fighter submission attempts**. As the number of submission attempts by the blue fighter increases, the predicted probability of the red fighter winning also increases, suggesting that blue's submission attempts are ineffective or even counterproductive in this context. This trend supports the odds ratio of 0.709, showing that additional submission attempts decrease the odds of the blue fighter winning.
+
+To summarize, this plot highlights a contrasting effect: while submission attempts by the red fighter are positively associated with victory, submission attempts by the blue fighter appear to have the opposite effect. This difference may reflect strategic or performance disparities between the fighters, influencing their likelihood of success.
 
 ## Appendix
 
