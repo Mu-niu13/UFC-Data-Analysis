@@ -22,138 +22,183 @@ You can add options to executable code like this
 
 ```{r}
 ufc_data = read_csv('ufc-master.csv', show_col_types = FALSE)
+```
+
+```{r}
+
 
 # glimpse on variables of interest
-glimpse(ufc %>% select(BlueReachCms, RedReachCms, BlueAvgSigStrLanded, 
+glimpse(ufc_data %>% select(BlueReachCms, RedReachCms, BlueAvgSigStrLanded, 
                        RedAvgSigStrLanded, WeightClass, Winner, 
                        RedAvgSubAtt, BlueAvgSubAtt,TotalFightTimeSecs))
+```
+
+```{r}
+library(dplyr)
+library(broom)  # For tidy model outputs
+library(ggplot2)
+library(tidyr)
+
+# Step 1: Data Preparation
+# Checking the structure of the data
+str(ufc_data)
+
+# Step 2: Exploratory Data Analysis (EDA)
+
+# Check for null values in each column
+missing_values <- ufc_data %>%
+  summarise(across(everything(), ~sum(is.na(.)))) %>%
+  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Missing_Count")
+
+print("Missing values in each column:")
+print(missing_values)
+```
+
+```{r}
+
+summary_stats <- ufc_data %>%
+  summarise(across(where(is.numeric), list(mean = mean, sd = sd, median = median, min = min, max = max), na.rm = TRUE)) %>%
+  pivot_longer(cols = everything(), names_to = c("Variable", ".value"), names_sep = "_")
+
+print("Summary statistics for numerical variables:")
+print(summary_stats)
 
 
-# Load necessary libraries
+```
+
+```{r}
+# Distribution of fight outcomes
+ggplot(ufc_data, aes(x = Winner, fill = Winner)) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Fight Outcomes",
+    x = "Winner",
+    y = "Count",
+    fill = "Winner"
+  ) +
+  theme_minimal()
+
+# Distribution of Total Fight Time
+ggplot(ufc_data, aes(x = TotalFightTimeSecs)) +
+  geom_histogram(binwidth = 100, fill = "blue", alpha = 0.7) +
+  labs(
+    title = "Distribution of Total Fight Time",
+    x = "Total Fight Time (seconds)",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+
+```
+
+```{r}
 library(dplyr)
 library(broom)  # For tidy model outputs
 library(ggplot2)
 
-# Step 1: Data Preparation
+# Step 1: Data Cleaning and Transformation
 ufc_data <- ufc_data %>%
   mutate(
     Outcome = ifelse(Winner == "Red", 1, 0),  # Binary outcome: 1 for Red win, 0 for Blue win
+    WeightClass = as.factor(WeightClass), 
     TotalRedSubAttempts = RedAvgSubAtt,        # Red's submission attempts
-    TotalBlueSubAttempts = BlueAvgSubAtt      # Blue's submission attempts
+    TotalBlueSubAttempts = BlueAvgSubAtt # Convert WeightClass to a factor for glm()
   ) %>%
-  filter(!is.na(Outcome), !is.na(TotalRedSubAttempts), !is.na(TotalBlueSubAttempts))  # Remove missing data
+  filter(
+    !is.na(Outcome), 
+    !is.na(TotalRedSubAttempts), 
+    !is.na(TotalBlueSubAttempts),
+    !is.na(BlueReachCms), 
+    !is.na(RedReachCms), 
+    !is.na(BlueAvgSigStrLanded), 
+    !is.na(RedAvgSigStrLanded),
+    !is.na(TotalFightTimeSecs),
+    !is.na(WeightClass)  # Remove rows with missing data in new variables
+  )
 
-# Step 2: Logistic Regression Model
-logistic_model <- glm(Outcome ~ TotalRedSubAttempts + TotalBlueSubAttempts, 
-                      data = ufc_data, family = binomial)
+dim(ufc_data)
+
+# Step 2: Extended Logistic Regression Model
+logistic_model <- glm(
+  Outcome ~ 
+    TotalRedSubAttempts + TotalBlueSubAttempts +
+    BlueReachCms + RedReachCms +
+    BlueAvgSigStrLanded + RedAvgSigStrLanded +
+    TotalFightTimeSecs + WeightClass,  # WeightClass is now handled as a factor
+  data = ufc_data, 
+  family = binomial
+)
 
 # Step 3: Model Summary
 summary(logistic_model)
 
-# Step 4: Odds Ratios (Exponentiate the coefficients)
-exp(coef(logistic_model))
-
-# Step 5: Visualize the effect of submission attempts on the outcome (with odds ratios and confidence intervals)
-tidy_model <- tidy(logistic_model)
-tidy_model <- tidy_model %>%
-  mutate(
-    OddsRatio = exp(estimate),
-    LowerCI = exp(estimate - 1.96 * std.error),
-    UpperCI = exp(estimate + 1.96 * std.error)
-  )
-
-# Plotting the odds ratios and confidence intervals for submission attempts by Red and Blue fighters
-ggplot(tidy_model, aes(x = term, y = OddsRatio)) +
-  geom_point() +
-  geom_errorbar(aes(ymin = LowerCI, ymax = UpperCI), width = 0.2) +
-  labs(
-    title = "Odds Ratios for Submission Attempts by Red and Blue Fighters",
-    x = "Fighter and Submission Attempts",
-    y = "Odds Ratio (with 95% CI)"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
-```
-
-### Interpretation of the Output:
-
-1.  **Intercept:**
-
-    -   **Estimate = 0.28667**
-
-    -   This is the log-odds of the outcome when both red and blue fighters have zero submission attempts. It represents the baseline level of the outcome when no submission attempts are made.
-
-2.  **TotalRedSubAttempts (Red Submission Attempts):**
-
-    -   **Estimate = 0.15503, p-value = 0.00018**
-
-    -   This coefficient is positive, which means that as the number of submission attempts by the red fighter increases, the odds of the red fighter winning (compared to the blue fighter) increase. The **p-value** is less than 0.05, indicating that this variable is statistically significant.
-
-    -   **Interpretation**: For every one unit increase in **TotalRedSubAttempts**, the odds of the red fighter winning increase by a factor of **exp(0.15503) ≈ 1.168**. This suggests a moderate positive relationship between the red fighter's submission attempts and winning.
-
-3.  **TotalBlueSubAttempts (Blue Submission Attempts):**
-
-    -   **Estimate = -0.11681, p-value = 0.00393**
-
-    -   This coefficient is negative, meaning that as the number of submission attempts by the blue fighter increases, the odds of the blue fighter winning (compared to the red fighter) decrease. The **p-value** is also less than 0.05, indicating statistical significance.
-
-    -   **Interpretation**: For every one unit increase in **TotalBlueSubAttempts**, the odds of the red fighter winning increase by a factor of **exp(-0.11681) ≈ 0.890**. This suggests that higher submission attempts by the blue fighter are associated with a lower chance of winning for the blue fighter.
-
-### Model Fit:
-
--   **Null deviance**: 7540.5 on 5534 degrees of freedom.
-
--   **Residual deviance**: 7519.3 on 5532 degrees of freedom.
-
--   **AIC (Akaike Information Criterion)**: 7525.3
-
-    -   A decrease in deviance from the null deviance to the residual deviance suggests that the model is improving the fit over a simple intercept-only model. The AIC is used to compare models; lower values indicate a better-fitting model.
-
-### Odds Ratios:
-
--   The **odds ratios** for the predictors are given by **exp(Estimate)**:
-
-    -   **Red Submission Attempts**: exp⁡(0.15503)≈1.168\exp(0.15503) ≈ 1.168exp(0.15503)≈1.168, meaning that as the number of submission attempts by the red fighter increases, the odds of winning increase by about **16.8%**.
-
-    -   **Blue Submission Attempts**: exp⁡(−0.11681)≈0.890\exp(-0.11681) ≈ 0.890exp(−0.11681)≈0.890, meaning that as the number of submission attempts by the blue fighter increases, the odds of winning decrease by about **11%**.
-
-### Conclusion:
-
--   There is a positive relationship between the red fighter's submission attempts and the likelihood of winning, while there is a negative relationship between the blue fighter's submission attempts and their likelihood of winning.
-
--   Both predictors (**TotalRedSubAttempts** and **TotalBlueSubAttempts**) are statistically significant, with p-values below the 0.05 threshold, indicating that submission attempts by both fighters play a significant role in determining the fight outcome.
-
-```{r}
-# Load the required library for ROC analysis
-library(pROC)
-
-# Step 1: Generate predicted probabilities
-pred_probs <- predict(logistic_model, type = "response")
-
-# Step 2: Create ROC curve object
-roc_curve <- roc(ufc_data$Outcome, pred_probs)
-
-# Step 3: Plot the ROC curve
-plot(roc_curve, 
-     main = "ROC Curve for Predicting Fight Outcome",
-     col = "blue", 
-     lwd = 2)
-
-# Step 4: Add AUC (Area Under the Curve) to the plot
-auc(roc_curve)
-
-# Step 5: Optionally, add a diagonal line for random classifier (AUC = 0.5)
-abline(a = 0, b = 1, col = "red", lty = 2)
 
 ```
 
 ```{r}
-# Calculate AUC for the ROC curve
-auc_value <- auc(roc_curve)
+deviance_residuals <- residuals(logistic_model, type = "deviance")
+# Plot deviance residuals
+plot(deviance_residuals, 
+     main = "Deviance Residuals for Logistic Regression", 
+     ylab = "Deviance Residuals", 
+     xlab = "Index", 
+     pch = 16, 
+     col = "blue")
 
-# Print the AUC value
-print(auc_value)
 
 ```
+
+```{r}
+ext_logistic_model <- glm(
+  Outcome ~ 
+    TotalRedSubAttempts + TotalBlueSubAttempts +
+    BlueReachCms + RedReachCms +
+    BlueAvgSigStrLanded + RedAvgSigStrLanded +
+    TotalFightTimeSecs + WeightClass +
+    TotalRedSubAttempts * TotalBlueSubAttempts +
+    BlueReachCms * RedReachCms +
+    BlueAvgSigStrLanded * RedAvgSigStrLanded +
+    TotalFightTimeSecs * WeightClass,
+  data = ufc_data, 
+  family = binomial
+)
+
+summary(ext_logistic_model)
+
+deviance_residuals <- residuals(ext_logistic_model, type = "deviance")
+# Plot deviance residuals
+plot(deviance_residuals, 
+     main = "Deviance Residuals for Logistic Regression", 
+     ylab = "Deviance Residuals", 
+     xlab = "Index", 
+     pch = 16, 
+     col = "blue")
+```
+
+```{r}
+# Load required libraries
+library(mgcv)
+library(ggplot2)
+
+# Step 1: Fit the GAM model
+gam_model <- gam(Outcome ~ s(TotalRedSubAttempts) + s(TotalBlueSubAttempts) +
+                 s(BlueReachCms) + s(RedReachCms) +
+                 s(BlueAvgSigStrLanded) + s(RedAvgSigStrLanded) +
+                 TotalFightTimeSecs + WeightClass,
+                 family = binomial, data = ufc_data)
+
+# Step 2: Extract residuals (deviance residuals)
+deviance_residuals <- residuals(gam_model, type = "deviance")
+# Plot deviance residuals
+plot(deviance_residuals, 
+     main = "Deviance Residuals for Logistic Regression", 
+     ylab = "Deviance Residuals", 
+     xlab = "Index", 
+     pch = 16, 
+     col = "blue")
+
+
+```
+
+### 
