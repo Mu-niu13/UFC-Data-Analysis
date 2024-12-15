@@ -1,5 +1,5 @@
 ---
-title: "UFC Analysis"
+title: "UFC Analysis - IDS 702 Final Project"
 author: "Arko Bhattacharya, Eric Ortega Rodriguez, Mu Niu, Nruta Choudhari"
 date: 2024-12-15
 format: pdf
@@ -10,9 +10,30 @@ editor: visual
 
 ### Introduction
 
+The Ultimate Fighting Championship (UFC) is the world's leading mixed martial arts (MMA) promotion, known for bringing together elite fighters from diverse combat sports backgrounds. Founded in 1993, the UFC has grown into a global phenomenon, hosting events worldwide that showcase athletes competing in disciplines such as boxing, wrestling, Muay Thai, Brazilian Jiujitsu, and judo. UFC fights take place in a distinct eight-sided cage, known as the Octagon, where fighters test their skills in striking, grappling, and overall strategy under a unified set of rules. The sport has evolved significantly over the years, introducing standardized weight classes, safety regulations, and scoring systems to ensure competitive fairness and fighter safety.
+
+This project examines UFC performances using data on UFC fights from 2010 to the present (last updated in November, 2024). The data, sourced from Kaggle, includes key fighter metrics, fight outcomes, betting odds, and performance indicators such as strikes landed and submission attempts. By leveraging this dataset, we aim to analyze factors influencing fight outcomes and performances.
+
+Our research questions are:
+
+1.  How does the reach of the fighter relate to the total number of strikes landed during a fight?
+2.  Is the fight outcome associated with the number of submission attempts made by a fighter?
+
+These questions are worth exploring because they provide a deeper understanding of UFC performance dynamics. For instance, examining the relationship between a fighter's reach and the total number of strikes landed can underscore the tactical performance of physical attributes in effective striking. Similarly, analyzing the association between fight outcomes and submission attempts can shed light on the strategic role of grappling in securing victories.
+
+The findings from this analysis offer valuable insights for fighters, coaches, and analysts, helping optimize training strategies, improve fight preparation, and enhance understanding of opponents' strengths and weaknesses.
+
 ### Methods
 
-#### Data Preprocessing
+#### Data and Preprocessing
+
+The dataset was obtained from Kaggle, a widely recognized platform for sharing datasets and data science resources. Each row of the dataset refers to an individual bout, which refers to an individual match between two fighters. This includes data on fighter attributes such as **height, weight, reach, stance, and age**, as well as fight statistics like **strikes landed, significant strikes, takedowns, submission attempts, and knockdowns**. Additionally, it documents fight outcomes, including the **winner**, **method of victory** (e.g., knockout, submission, decision), the **round in which the fight ended**, and the **total duration of the fight**.
+
+The dataset contains 6,478 rows across 118 columns, with several variables containing missing values. During preprocessing, columns with over 6,000 missing values were dropped due to their lack of significance and the infeasibility of imputation. Other columns had a smaller proportion of missing values, and rows with missing values in key variables (e.g., strikes landed, reach, and weight class) were removed. This resulted in a final dataset with 4,895 rows. Most of the missing values were concentrated in performance metrics, such as submission attempts or specific strike statistics.
+
+In UFC, fighters are assigned to either the red corner or the blue corner, which indicates their position in the Octagon and helps differentiate between competitors. For the first research question, the dataset was filtered to include the variables related to reach, weight class, height, strikes landed and current win streak, ensuring that key confounding variables were included. The data for fighters in the red and blue corners were combined into a single dataframe to facilitate analysis.
+
+For the second research question, a new binary variable, Outcome was created to indicate the winner. A value of 1 was assigned if the fighter in the red corner won, and a value of 0 if the fighter in the blue corner won. The model included variables such as submission attempts, significant strikes landed, fight duration, and weight class to account for both physical attributes and performance metrics. These variables ensured a more comprehensive analysis of the factors influencing fight outcomes while addressing potential confounders.
 
 #### Model Fitting and Evaluation
 
@@ -30,6 +51,7 @@ library(knitr)
 ```{r}
 # reading the data
 ufc <- read.csv("ufc-master.csv")
+dim(ufc)
 ```
 
 ```{r}
@@ -61,7 +83,7 @@ ufc_clean <- ufc %>%
 nrow(ufc_clean)
 ```
 
-#### Research Question 1: Fighter Reach vs Total Strikes Landed
+#### Research Question 1: How does the reach of the fighter relate to the total number of strikes landed during a fight?
 
 ```{r}
 filtered_ufc_blue <- ufc_clean[c("BlueReachCms","BlueAvgSigStrLanded","WeightClass", "BlueHeightCms", "BlueCurrentWinStreak")]
