@@ -72,7 +72,7 @@ colSums(is.na(ufc_q1))
 # Log-transform the variables
 ufc_q1$LogAvgSigStrLanded <- log(ufc_q1$AvgSigStrLanded)
 ufc_q1$LogReachCms <- log(ufc_q1$ReachCms)
-model_q1 <- lm(LogAvgSigStrLanded ~ LogReachCms * WeightClass + Height + WinStreak, 
+model_q1 <- lm(AvgSigStrLanded ~ ReachCms + WeightClass + Height + WinStreak, 
                data = ufc_q1)
 summary(model_q1)
 ```
@@ -113,138 +113,20 @@ r_squared <- summary(model_q1)$r.squared
 cat("R-squared:", r_squared, "\n")
 ```
 
-```{r}
-# Load necessary library
-library(knitr)
-
-# Create a summary of the model
-model_summary <- summary(model_q1)
-
-# Extract coefficients and format into a data frame
-coef_table <- as.data.frame(model_summary$coefficients)
-colnames(coef_table) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
-
-# Round to 3 decimal places
-coef_table <- round(coef_table, 3)
-
-# Create a kable table
-kable(coef_table, caption = "Regression Coefficients for model_log", format = "markdown")
-```
-
 Linearity assumption is not being met as the residuals show a curved pattern or non-linearity.
 
-Fixes: polynomial
-
-```{r}
-poly_model = lm(LogAvgSigStrLanded ~ poly(LogReachCms, 2) + WeightClass + poly(Height,2) + WinStreak, data = ufc_q1)
-```
-
-```{r}
-# 1. Check Variance Inflation Factor (VIF) for collinearity
-vif_values <- vif(poly_model)
-print("Variance Inflation Factor (VIF):")
-print(vif_values)
-
-# 2. Residuals vs Fitted Plot for Linearity
-par(mfrow = c(2, 2), mar = c(2, 2, 2, 2))  # Set plotting layout
-plot(model_q1)
-
-# 3. Normal Q-Q Plot for Normality of Residuals
-qqnorm(residuals(poly_model))
-qqline(residuals(poly_model))
-
-# 4. Scale-Location Plot for Homoscedasticity
-plot(poly_model, which = 3)
-
-# 5. Check for influential points using Cook's Distance
-cooksd <- cooks.distance(poly_model)
-plot(cooksd, type = "h", main = "Cook's Distance", ylab = "Cook's Distance")
-
-# Highlight observations with Cook's Distance > threshold
-threshold <- 4 / nrow(ufc_clean)
-influential <- which(cooksd > threshold)
-abline(h = threshold, col = "red", lty = 2)
-text(x = influential, y = cooksd[influential], labels = names(cooksd[influential]), pos = 4)
-
-# 6. R-squared value
-r_squared <- summary(poly_model)$r.squared
-cat("R-squared:", r_squared, "\n")
-```
-
-Does not work
-
-```{r}
-# Fit the model
-model <- lm(LogAvgSigStrLanded ~ LogReachCms * WeightClass + Height + WinStreak, data = ufc_q1)
-
-# Calculate residuals
-residuals <- residuals(model)
-
-# Inspect the residuals
-head(residuals)
-
-# Plot residuals vs fitted values
-plot(fitted(model), residuals, xlab = "Fitted Values", ylab = "Residuals", main = "Residuals vs Fitted")
-abline(h = 0, col = "red", lwd = 2)
-
-# Calculate weights (inverse variance of residuals)
-weights <- 1 / (residuals^2)
-
-# Fit a weighted least squares model
-wls_model <- lm(LogAvgSigStrLanded ~ LogReachCms * WeightClass + Height + WinStreak, data = ufc_q1, weights = weights)
-```
-
-```{r}
-# Diagnostic plots for WLS model
-par(mfrow = c(2, 2), mar = c(2, 2, 2, 2))
-plot(wls_model)
-```
-
-GLS\
-
-```{r}
-library(nlme)
-gls_model <- gls(AvgSigStrLanded ~ poly(ReachCms,3) * WeightClass + poly(Height,8) + WinStreak, data = ufc_q1, correlation = corAR1())
-
-summary(gls_model)
-
-```
-
-```{r}
-# Diagnostic plots
-par(mfrow = c(2, 2), mar=c(2,2,2,2))
-
-# 1. Residuals vs Fitted
-plot(fitted(gls_model), residuals(gls_model), 
-     xlab = "Fitted Values", ylab = "Residuals", 
-     main = "Residuals vs Fitted")
-abline(h = 0, col = "red", lwd = 2)
-
-# 2. Absolute Residuals vs Fitted
-plot(fitted(gls_model), abs(residuals(gls_model)), 
-     xlab = "Fitted Values", ylab = "Absolute Residuals", 
-     main = "Absolute Residuals vs Fitted")
-abline(h = 0, col = "red", lwd = 2)
-
-# 3. Q-Q Plot of Residuals
-qqnorm(residuals(gls_model), main = "Q-Q Plot of Residuals")
-qqline(residuals(gls_model), col = "red", lwd = 2)
-
-# 4. Residuals vs Index
-plot(residuals(gls_model), type = "l", 
-     xlab = "Observation Index", ylab = "Residuals", 
-     main = "Residuals vs Observation Index")
-abline(h = 0, col = "red", lwd = 2)
-```
+Polynomial does not work
 
 Removing influential points
 
+### OPTION: REMOVING INFLUENTIAL POINTS AND TAKING LOG
+
 ```{r}
-cooks_d <- cooks.distance(model)
+cooks_d <- cooks.distance(model_q1)
 influential <- which(cooks_d > (4 / nrow(ufc_q1)))
 ufc_q1_clean <- ufc_q1[-influential, ]
 
-model_clean <- lm(LogAvgSigStrLanded ~ LogReachCms * WeightClass + Height + WinStreak, data = ufc_q1_clean)
+model_clean <- lm(AvgSigStrLanded ~ LogReachCms + WeightClass + log(Height) + WinStreak, data = ufc_q1_clean)
 
 par(mfrow = c(2, 2), mar = c(2,2,2,2))
 plot(model_clean)
@@ -254,46 +136,6 @@ This proved somewhat helpful.
 
 Linearity is still an issue.
 
-```{r}
-model_poly <- lm(LogAvgSigStrLanded ~ poly(LogReachCms, 2) * WeightClass + poly(log(Height),2) + WinStreak, data = ufc_q1_clean)
-
-par(mfrow = c(2, 2), mar = c(2,2,2,2))
-plot(model_poly)
-```
-
-```{r}
-model_trans <- lm(AvgSigStrLanded ~ sqrt(ReachCms) * WeightClass + sqrt(Height) + WinStreak, data = ufc_q1_clean)
-
-par(mfrow = c(2, 2), mar = c(2,2,2,2))
-plot(model_trans)
-```
-
-```{r}
-model_interaction <- lm(LogAvgSigStrLanded ~ LogReachCms * WeightClass * Height + WinStreak, 
-                        data = ufc_q1_clean)
-summary(model_interaction)
-
-
-par(mfrow = c(2, 2), mar = c(2,2,2,2))
-plot(model_interaction)
-```
-
-```{r}
-library(randomForest)
-model_rf <- randomForest(LogAvgSigStrLanded ~ LogReachCms + WeightClass + Height + WinStreak, 
-                         data = ufc_q1_clean)
-print(model_rf)
-```
-
-```{r}
-library(mgcv)
-model_gam <- gam(LogAvgSigStrLanded ~ s(LogReachCms) + LogReachCms*WeightClass + s(Height) + WeightClass + s(WinStreak) + s(LogReachCms, Height), data = ufc_q1_clean)
-
-summary(model_gam)
-plot(model_gam, pages = 1, residuals = TRUE)
-gam.check(model_gam)
-```
-
 Addressing the high VIF in the original model:
 
 ```{r}
@@ -302,42 +144,16 @@ vif(model_simple)
 ```
 
 ```{r}
+vif(model_clean)
+```
+
+### OPTION : INTERACTION TERM
+
+```{r}
+model_clean_int <- lm(AvgSigStrLanded ~ LogReachCms + WinStreak * WeightClass + log(Height), data = ufc_q1_clean)
+
 par(mfrow = c(2, 2), mar = c(2,2,2,2))
-plot(model_simple)
-```
+plot(model_clean_int)
 
-```{r}
-# Obtain absolute residuals
-model_res <- resid(model_simple)
-weights <- 1 / abs(model_res)^2  # Inverse of squared residuals as weights
-
-# Refit the model with weights
-model_wls <- lm(LogAvgSigStrLanded ~ LogReachCms + WeightClass + Height + WinStreak,
-                data = ufc_q1, weights = weights)
-
-# Check diagnostics again
-par(mfrow = c(2, 2), mar=c(2,2,2,2))
-plot(model_wls)
-summary(model_wls)
-```
-
-```{r}
-# Step 5: Identify and remove influential points using Cook's distance
-cooks_d <- cooks.distance(model_wls)
-influential <- which(cooks_d > (4 / nrow(ufc_q1)))
-ufc_q1_clean <- ufc_q1[-influential, ]  # Remove influential points
-
-# Step 6: Recalculate weights based on cleaned data
-model_res_clean <- resid(lm(LogAvgSigStrLanded ~ LogReachCms + WeightClass + Height + WinStreak, 
-                            data = ufc_q1_clean))
-weights_clean <- 1 / abs(model_res_clean)^2
-
-# Step 7: Fit WLS model again with recalculated weights
-model_wls2 <- lm(LogAvgSigStrLanded ~ LogReachCms + WeightClass + Height + WinStreak,
-                 data = ufc_q1_clean, weights = weights_clean)
-
-# Step 8: Check diagnostics for the cleaned WLS model
-par(mfrow = c(2, 2), mar = c(2, 2, 2, 2))
-plot(model_wls2)
-summary(model_wls2)
+vif(model_clean_int)
 ```
