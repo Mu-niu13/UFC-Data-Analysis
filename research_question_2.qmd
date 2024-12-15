@@ -202,3 +202,119 @@ plot(deviance_residuals,
 ```
 
 ### 
+
+The results of the logistic regression model (no interaction terms) indicate the following about the predictors and their relationship with the outcome variable (whether the "Red" corner wins):
+
+### **Model Interpretation:**
+
+1.  **Intercept**:
+
+    -   The intercept represents the log-odds of a "Red" win when all predictors are at their baseline (zero).
+
+    -   Here, the intercept (0.3069) is not statistically significant (p = 0.56195), meaning it doesn't meaningfully contribute to predicting the outcome in this context.
+
+2.  **Predictors**:
+
+    -   **TotalRedSubAttempts**:
+
+        -   Coefficient: 0.1711
+
+        -   Interpretation: A one-unit increase in Red's average submission attempts increases the log-odds of a Red win by 0.171.
+
+        -   p=0.000229p = 0.000229p=0.000229: Highly significant (**p \< 0.001**), so this is a strong predictor.
+
+    -   **TotalBlueSubAttempts**:
+
+        -   Coefficient: -0.1265
+
+        -   Interpretation: A one-unit increase in Blue's average submission attempts decreases the log-odds of a Red win by 0.127.
+
+        -   p=0.00451p = 0.00451p=0.00451: Significant (**p \< 0.01**), indicating it's a meaningful predictor.
+
+    -   **BlueReachCms**:
+
+        -   Coefficient: -0.0117
+
+        -   Interpretation: A one-centimeter increase in Blue's reach decreases the log-odds of a Red win by 0.0117.
+
+        -   p=0.00202p = 0.00202p=0.00202: Significant (**p \< 0.01**).
+
+    -   **RedReachCms**:
+
+        -   Coefficient: 0.0116
+
+        -   Interpretation: A one-centimeter increase in Red's reach increases the log-odds of a Red win by 0.0116.
+
+        -   p=0.00207p = 0.00207p=0.00207: Significant (**p \< 0.01**).
+
+    -   **BlueAvgSigStrLanded**:
+
+        -   Coefficient: -0.0079
+
+        -   Interpretation: Each additional significant strike landed by Blue decreases the log-odds of a Red win by 0.0079.
+
+        -   p=1.19×10−5p = 1.19 \times 10^{-5}p=1.19×10−5: Highly significant (**p \< 0.001**).
+
+    -   **RedAvgSigStrLanded**:
+
+        -   Coefficient: 0.0081
+
+        -   Interpretation: Each additional significant strike landed by Red increases the log-odds of a Red win by 0.0081.
+
+        -   p=2.67×10−5p = 2.67 \times 10^{-5}p=2.67×10−5: Highly significant (**p \< 0.001**).
+
+### **Model Fit:**
+
+-   **Null Deviance**: 6674.5
+
+    -   Indicates how well the outcome is predicted by a model with only the intercept.
+
+-   **Residual Deviance**: 6621.4
+
+    -   Represents how well the model fits with all predictors included. A lower deviance indicates better fit.
+
+-   **AIC**: 6635.4
+
+    -   Used to compare this model to others. Lower AIC values indicate better model performance.
+
+The decrease in deviance from the null model to the full model suggests the predictors improve the model significantly.
+
+The results directly address the research question by demonstrating an **association between fight outcomes and the number of submission attempts made by fighters**. Here's how the findings contribute to answering the question:
+
+### **Outcome Variable**
+
+-   **Fight Outcome (Outcome)**:
+
+    -   Binary variable coded as `1` (Red wins) and `0` (Blue wins).
+
+    -   The logistic regression model predicts the probability of a "Red win" based on various predictors, including the number of submission attempts.
+
+### **Key Findings Relevant to the Research Question**
+
+1.  **Association with Red's Submission Attempts**:
+
+    -   **Estimate**: 0.17110.17110.1711
+
+    -   **p-value**: 0.0002290.0002290.000229 (**p \< 0.001**)
+
+    -   **Interpretation**: For each additional submission attempt made by the Red fighter, the log-odds of a Red win increase significantly by 0.17110.17110.1711. This is a positive and statistically significant relationship.
+
+2.  **Association with Blue's Submission Attempts**:
+
+    -   **Estimate**: −0.1265-0.1265−0.1265
+
+    -   **p-value**: 0.004510.004510.00451 (**p \< 0.01**)
+
+    -   **Interpretation**: For each additional submission attempt made by the Blue fighter, the log-odds of a Red win decrease significantly by 0.12650.12650.1265. This is a negative and statistically significant relationship, reflecting the competitive nature of the sport where Blue's success reduces Red's chances.
+
+### **Conclusion for the Research Question**:
+
+-   **Yes**, fight outcomes are significantly associated with the number of submission attempts made by a fighter.
+
+-   Submission attempts **by the Red fighter** positively influence their chances of winning, while **submission attempts by the Blue fighter** negatively impact Red's chances (i.e., they improve Blue's chances).
+
+### **Implications for Research**:
+
+-   Submission attempts are a critical factor in predicting fight outcomes, suggesting they are a meaningful metric to include in future studies on fighter performance.
+
+-   Further investigation could explore whether the **success rate of submission attempts** or specific submission techniques provide additional predictive power.
