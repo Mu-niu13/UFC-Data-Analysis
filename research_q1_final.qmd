@@ -90,32 +90,26 @@ print(vif_values)
 # 2. Residuals vs Fitted Plot for Linearity
 par(mfrow = c(2, 2), mar = c(2, 2, 2, 2))  # Set plotting layout
 plot(model_q1)
-
-# 3. Normal Q-Q Plot for Normality of Residuals
-qqnorm(residuals(model_q1))
-qqline(residuals(model_q1))
-
-# 4. Scale-Location Plot for Homoscedasticity
-plot(model_q1, which = 3)
-
-# 5. Check for influential points using Cook's Distance
-cooksd <- cooks.distance(model_q1)
-plot(cooksd, type = "h", main = "Cook's Distance", ylab = "Cook's Distance")
-
-# Highlight observations with Cook's Distance > threshold
-threshold <- 4 / nrow(ufc_clean)
-influential <- which(cooksd > threshold)
-abline(h = threshold, col = "red", lty = 2)
-text(x = influential, y = cooksd[influential], labels = names(cooksd[influential]), pos = 4)
-
-# 6. R-squared value
-r_squared <- summary(model_q1)$r.squared
-cat("R-squared:", r_squared, "\n")
 ```
 
 Linearity assumption is not being met as the residuals show a curved pattern or non-linearity.
 
 Polynomial does not work
+
+```{r}
+model_q1_int <- lm(AvgSigStrLanded ~ ReachCms + WeightClass*WinStreak + Height, 
+               data = ufc_q1)
+summary(model_q1_int)
+
+# 1. Check Variance Inflation Factor (VIF) for collinearity
+vif_values <- vif(model_q1)
+print("Variance Inflation Factor (VIF):")
+print(vif_values)
+
+# 2. Residuals vs Fitted Plot for Linearity
+par(mfrow = c(2, 2), mar = c(2, 2, 2, 2))  # Set plotting layout
+plot(model_q1)
+```
 
 Removing influential points
 
@@ -139,18 +133,17 @@ Linearity is still an issue.
 Addressing the high VIF in the original model:
 
 ```{r}
-model_simple <- lm(LogAvgSigStrLanded ~ LogReachCms + WeightClass + log(Height) + WinStreak, data = ufc_q1)
-vif(model_simple)
-```
-
-```{r}
 vif(model_clean)
 ```
 
 ### OPTION : INTERACTION TERM - after removing outliers
 
 ```{r}
-model_clean_int <- lm(AvgSigStrLanded ~ LogReachCms + WinStreak * WeightClass + log(Height), data = ufc_q1_clean)
+cooks_d_int <- cooks.distance(model_q1_int)
+influential_int <- which(cooks_d_int > (4 / nrow(ufc_q1)))
+ufc_q1_int_clean <- ufc_q1[-influential_int, ]
+
+model_clean_int <- lm(AvgSigStrLanded ~ LogReachCms + WinStreak * WeightClass + log(Height), data = ufc_q1_int_clean)
 summary(model_clean_int)
 par(mfrow = c(2, 2), mar = c(2,2,2,2))
 plot(model_clean_int)
