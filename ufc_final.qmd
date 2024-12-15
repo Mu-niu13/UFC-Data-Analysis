@@ -8,12 +8,6 @@ editor: visual
 
 ## Abstract
 
-Understanding the impact of physical attributes, such as reach, and tactical strategies, such as submission attempts, is critical for improving performance and outcomes in mixed martial arts (MMA). This study examined the relationship between fighter reach and the total number of strikes landed during a fight. Additionally, it investigated the role of submission attempts in predicting fight outcomes, using a dataset of fights from the Ultimate Fighting Championship (UFC), the leading global MMA promotion. The dataset included UFC fights from March 2010 to the most recent event in 2024.
-
-Linear regression with log-transformed variables revealed significant interactions between reach and weight classes, such as Flyweight and Featherweight, highlighting that reach impacts striking performance differently across divisions. Main effects were also observed for weight classes like Flyweight and Women’s Strawweight. Logistic regression showed that submission attempts significantly influenced fight outcomes, with red corner attempts positively associated with winning odds and blue corner attempts negatively associated. Both predictors had p-values below 0.05. Model diagnostics, including residual analysis and multicollinearity checks, confirmed the validity of the findings.
-
-These results underscore the tactical importance of physical attributes and strategic maneuvers in UFC fights, providing insights to optimize training and fight preparation. Future research could explore additional predictors, such as fighter skill level and strategy, or advanced modeling techniques to deepen understanding of combat sports performance.
-
 ## Introduction
 
 The Ultimate Fighting Championship (UFC) is the world's leading mixed martial arts (MMA) promotion, known for bringing together elite fighters from diverse combat sports backgrounds. Founded in 1993, the UFC has grown into a global phenomenon, hosting events worldwide that showcase athletes competing in disciplines such as boxing, wrestling, Muay Thai, Brazilian Jiujitsu, and judo. UFC fights take place in a distinct eight-sided cage, known as the Octagon, where fighters test their skills in striking, grappling, and overall strategy under a unified set of rules. The sport has evolved significantly over the years, introducing standardized weight classes, safety regulations, and scoring systems to ensure competitive fairness and fighter safety.
@@ -521,7 +515,7 @@ The progression shows how variables were added or removed during the stepwise se
 
 ```{r warning=FALSE, message = FALSE, echo = FALSE}
 # Model summary of the initial simple logistic model
-summary(sim_logistic_model)
+
 
 par(mfrow=c(2,2), mar = c(2,2,2,2))
 
@@ -534,7 +528,7 @@ library(broom)  # For tidy(), glance()
 library(kableExtra)  # For pretty tables
 
 # Rename the predictors in the coefficients table using case_when
-coefficients_table <- tidy(final_model) %>%
+coefficients_table_sim <- tidy(sim_logistic_model) %>%
   mutate(
     Predictor = case_when(
       term == "(Intercept)" ~ "Intercept",
@@ -544,6 +538,7 @@ coefficients_table <- tidy(final_model) %>%
       term == "LogRedReach" ~ "Log Red Reach",
       term == "LogBlueSigStr" ~ "Log Blue Significant Strikes",
       term == "LogRedSigStr" ~ "Log Red Significant Strikes",
+      term == "LogFightTime" ~ "Log Fight Time",
       TRUE ~ term  # Preserve any terms not explicitly renamed
     ),
     p.value = ifelse(p.value < 0.001, "<0.001", round(p.value, 3))  # Format p-values
@@ -551,7 +546,7 @@ coefficients_table <- tidy(final_model) %>%
   select(Predictor, estimate, std.error, statistic, p.value)  # Reorder columns
 
 # Rename columns for presentation
-coefficients_table <- coefficients_table %>%
+coefficients_table_sim <- coefficients_table_sim %>%
   rename(
     Estimate = estimate,
     `Std. Error` = std.error,
@@ -559,7 +554,7 @@ coefficients_table <- coefficients_table %>%
     `P Value` = p.value
   )
 
-model_fit_table <- glance(final_model) %>%
+model_fit_table_sim <- glance(sim_logistic_model) %>%
   select(null.deviance, df.null, deviance, df.residual, AIC) %>%
   rename(
     `Null Deviance` = null.deviance,
@@ -569,11 +564,11 @@ model_fit_table <- glance(final_model) %>%
   )
 
 # Print coefficients fit statistics table
-kable(coefficients_table, caption = "Logistic Regression Model Coefficients", format = "pipe", digits = 3) %>%
+kable(coefficients_table_sim, caption = "Logistic Regression Model Coefficients", format = "pipe", digits = 3) %>%
   kable_styling(full_width = FALSE)
 
 # Print model fit statistics table
-kable(model_fit_table, caption = "Model Fit Statistics", format = "pipe", digits = 3) %>%
+kable(model_fit_table_sim, caption = "Model Fit Statistics", format = "pipe", digits = 3) %>%
   kable_styling(full_width = FALSE)
 # Render the table
 
