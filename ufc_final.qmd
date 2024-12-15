@@ -8,6 +8,8 @@ editor: visual
 
 ## Abstract
 
+Understanding the impact of physical attributes, such as reach, and tactical strategies, such as submission attempts, is critical for improving performance and outcomes in mixed martial arts (MMA). This study will examine the relationship between fighter reach and the total number of strikes landed during a fight. In addition to this, we will also examine the role of submission attempts in predicting fight outcomes, using a dataset of fights from the Ultimate Fighting Championship (UFC), the leading global MMA promotion. The dataset analyzed includes UFC fights from March 2010 to the most recent event in 2024. Linear regression with log-transformed variables revealed significant interactions between reach and weight classes, such as Flyweight and Featherweight, highlighting that reach impacts striking performance differently across divisions. Main effects were also observed for weight classes like Flyweight and Women’s Strawweight. Logistic regression showed that submission attempts significantly influenced fight outcomes, with red corner attempts positively associated with winning odds and blue corner attempts negatively associated. Both predictors had p-values below 0.05. Model diagnostics, including residual analysis and multicollinearity checks, confirmed the validity of the findings. These results underscore the tactical importance of physical attributes and strategic maneuvers in UFC fights, providing insights to optimize training and fight preparation. Future research could explore additional predictors, such as fighter skill level and strategy, or advanced modeling techniques to deepen understanding of combat sports performance. 
+
 ## Introduction
 
 The Ultimate Fighting Championship (UFC) is the world's leading mixed martial arts (MMA) promotion, known for bringing together elite fighters from diverse combat sports backgrounds. Founded in 1993, the UFC has grown into a global phenomenon, hosting events worldwide that showcase athletes competing in disciplines such as boxing, wrestling, Muay Thai, Brazilian Jiujitsu, and judo. UFC fights take place in a distinct eight-sided cage, known as the Octagon, where fighters test their skills in striking, grappling, and overall strategy under a unified set of rules. The sport has evolved significantly over the years, introducing standardized weight classes, safety regulations, and scoring systems to ensure competitive fairness and fighter safety.
@@ -139,6 +141,46 @@ r_squared <- summary(model_q1_clean)$r.squared
 cat("R-squared:", r_squared, "\n")
 ```
 
+```{r, echo = FALSE}
+# Extract coefficients from the model and their p-values
+coef_data <- as.data.frame(summary(model_q1_clean)$coefficients)
+coef_data$Variable <- rownames(coef_data)
+
+# Rename variables for clarity (same as before)
+coef_data$Variable[coef_data$Variable == "log(ReachCms)"] <- "Reach (log-transformed)"
+coef_data$Variable[coef_data$Variable == "WinStreak"] <- "Win Streak"
+coef_data$Variable[coef_data$Variable == "WeightClassCatch Weight"] <- "Catch Weight"
+coef_data$Variable[coef_data$Variable == "WeightClassFeatherweight"] <- "Featherweight"
+coef_data$Variable[coef_data$Variable == "WeightClassFlyweight"] <- "Flyweight"
+coef_data$Variable[coef_data$Variable == "WeightClassHeavyweight"] <- "Heavyweight"
+coef_data$Variable[coef_data$Variable == "WeightClassLight Heavyweight"] <- "Light Heavyweight"
+coef_data$Variable[coef_data$Variable == "WeightClassLightweight"] <- "Lightweight"
+coef_data$Variable[coef_data$Variable == "WeightClassMiddleweight"] <- "Middleweight"
+coef_data$Variable[coef_data$Variable == "WeightClassWelterweight"] <- "Welterweight"
+coef_data$Variable[coef_data$Variable == "WeightClassWomen's Bantamweight"] <- "Women's Bantamweight"
+coef_data$Variable[coef_data$Variable == "WeightClassWomen's Featherweight"] <- "Women's Featherweight"
+coef_data$Variable[coef_data$Variable == "WeightClassWomen's Flyweight"] <- "Women's Flyweight"
+coef_data$Variable[coef_data$Variable == "WeightClassWomen's Strawweight"] <- "Women's Strawweight"
+coef_data$Variable[coef_data$Variable == "log(Height)"] <- "Height (log-transformed)"
+coef_data$Variable[coef_data$Variable == "WinStreak:WeightClassWomen's Strawweight"] <- "Win Streak * Women's Strawweight"
+
+# Filter for only significant variables (p-value < 0.05)
+significant_coef_data <- coef_data[coef_data$`Pr(>|t|)` < 0.05, ]
+
+# Remove the intercept term for clarity
+significant_coef_data <- significant_coef_data[-1, ]
+
+# Bar plot of significant coefficients
+ggplot(significant_coef_data, aes(x = reorder(Variable, -Estimate), y = Estimate)) +
+  geom_bar(stat = "identity", fill = "lightblue") +
+  coord_flip() +
+  labs(title = "Impact of Significant Variables on Strikes Landed",
+       x = "Variables",
+       y = "Coefficient Value") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 8), axis.text.y = element_text(size = 8), plot.title = element_text(size =10, face = "bold"), axis.title.x = element_text(size = 9), axis.title.y = element_text(size = 9))
+```
+
 A multiple linear regression (MLR) model was applied to examine the relationship between the average significant strikes landed and key predictors, including log-transformed Reach, log-transformed Height, Win Streak, and the interaction between Win Streak and Weight Class. The log transformations for Reach and Height were performed to address non-linearity and non-constant variance, which were highlighted in diagnostic plots (see Appendix 1).
 
 The adjusted $R^2$ value for the model was **0.068**, suggesting that the predictors explain approximately **6.8%** of the variability in average significant strikes landed.
@@ -257,21 +299,24 @@ plot(final_model)
 
 ## Appendix
 
-1.  Research Question 1
+1.  Linearity Assumption for the initial model for research question 1
 
-```{r}
-summary(model_q1)
-# 1. Check Variance Inflation Factor (VIF) for collinearity
-vif_values <- vif(model_q1)
-print("Variance Inflation Factor (VIF):")
-print(vif_values)
+```{r, echo = FALSE}
+# Extract residuals from the model
+residuals <- residuals(model_q1)
 
-# 2. Residuals vs Fitted Plot for Linearity
-par(mfrow = c(2, 2), mar = c(2, 2, 2, 2))  # Set plotting layout
-plot(model_q1)
+# Standardize residuals
+standardized_residuals <- residuals / sd(residuals)
 
-r_squared <- summary(model_q1)$r.squared
-cat("R-squared:", r_squared, "\n")
+# Create a Q-Q plot using ggplot2
+ggplot(data.frame(standardized_residuals), aes(sample = standardized_residuals)) +
+  stat_qq() +
+  stat_qq_line(color = 'red', linetype = 'dotted') +
+  labs(title = "Q-Q Plot of Standardized Residuals",
+       x = "Theoretical Quantiles",  # x-axis label
+       y = "Standardized Residuals") +  # y-axis label
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12))
 ```
 
 2.  Research Question 2
