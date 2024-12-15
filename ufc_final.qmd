@@ -53,6 +53,7 @@ library(ggplot2)      # For residual plots
 library(broom)
 library(knitr)
 library(tableone)
+library(kableExtra)  # For pretty tables
 ```
 
 ```{r, include = FALSE}
@@ -521,12 +522,6 @@ par(mfrow=c(2,2), mar = c(2,2,2,2))
 
 plot(sim_logistic_model)
 
-# Model summary of the step model
-summary(step_model)
-
-library(broom)  # For tidy(), glance()
-library(kableExtra)  # For pretty tables
-
 # Rename the predictors in the coefficients table using case_when
 coefficients_table_sim <- tidy(sim_logistic_model) %>%
   mutate(
@@ -564,13 +559,57 @@ model_fit_table_sim <- glance(sim_logistic_model) %>%
   )
 
 # Print coefficients fit statistics table
-kable(coefficients_table_sim, caption = "Logistic Regression Model Coefficients", format = "pipe", digits = 3) %>%
+kable(coefficients_table_sim, caption = "Logistic Regression Model Coefficients - Simple Logistic Model", format = "pipe", digits = 3) %>%
   kable_styling(full_width = FALSE)
 
 # Print model fit statistics table
-kable(model_fit_table_sim, caption = "Model Fit Statistics", format = "pipe", digits = 3) %>%
+kable(model_fit_table_sim, caption = "Model Fit Statistics - Simple Logistic Model", format = "pipe", digits = 3) %>%
   kable_styling(full_width = FALSE)
-# Render the table
+
+
+# Rename the predictors in the coefficients table using case_when
+coefficients_table_step <- tidy(step_model) %>%
+  mutate(
+    Predictor = case_when(
+      term == "(Intercept)" ~ "Intercept",
+      term == "LogRedSubAttempts" ~ "Log Red Submission Attempts",
+      term == "LogBlueSubAttempts" ~ "Log Blue Submission Attempts",
+      term == "LogBlueReach" ~ "Log Blue Reach",
+      term == "LogRedReach" ~ "Log Red Reach",
+      term == "LogBlueSigStr" ~ "Log Blue Significant Strikes",
+      term == "LogRedSigStr" ~ "Log Red Significant Strikes",
+      TRUE ~ term  # Preserve any terms not explicitly renamed
+    ),
+    p.value = ifelse(p.value < 0.001, "<0.001", round(p.value, 3))  # Format p-values
+  ) %>%
+  select(Predictor, estimate, std.error, statistic, p.value)  # Reorder columns
+
+# Rename columns for presentation
+coefficients_table_step <- coefficients_table_step %>%
+  rename(
+    #Estimate = estimate,
+    `Std. Error` = std.error,
+    `Z Value` = statistic,
+    `P Value` = p.value
+  )
+
+model_fit_table_step <- glance(step_model) %>%
+  select(null.deviance, df.null, deviance, df.residual, AIC) %>%
+  rename(
+    `Null Deviance` = null.deviance,
+    `DF Null` = df.null,
+    `Residual Deviance` = deviance,
+    `DF Residual` = df.residual
+  )
+
+# Print coefficients fit statistics table
+kable(coefficients_table_step, caption = "Logistic Regression Model Coefficients - Step Model", format = "pipe", digits = 3) %>%
+  kable_styling(full_width = FALSE)
+
+# Print model fit statistics table
+kable(model_fit_table_step, caption = "Model Fit Statistics - Step Model", format = "pipe", digits = 3) %>%
+  kable_styling(full_width = FALSE)
+
 
 
 par(mfrow=c(2,2), mar = c(2,2,2,2))
