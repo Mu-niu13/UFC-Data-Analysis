@@ -511,6 +511,10 @@ ggplot(data.frame(standardized_residuals), aes(sample = standardized_residuals))
 
 **Appendix 2: Model summaries with AIC score progression (Research Question 2)**
 
+This section presents the progression of the model selection process for Research Question 2, examining the relationship between submission attempts, reach, significant strikes, and fight outcomes. The table includes the Akaike Information Criterion (AIC) values for different iterations of the logistic regression model during stepwise selection. The AIC score, which balances model fit and complexity, is used to determine the optimal combination of predictors for the final model. Lower AIC scores indicate a better-fitting model.
+
+The progression shows how variables were added or removed during the stepwise selection process, highlighting the impact of each predictor on model performance.
+
 ```{r warning=FALSE, message = FALSE, echo = FALSE}
 # Model summary of the initial simple logistic model
 summary(sim_logistic_model)
