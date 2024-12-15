@@ -1,0 +1,204 @@
+---
+title: "UFC Analysis"
+author: "Arko Bhattacharya, Eric Ortega Rodriguez, Mu Niu, Nruta Choudhari"
+date: 2024-12-15
+format: pdf
+editor: visual
+---
+
+### Abstract
+
+### Introduction
+
+### Methods
+
+#### Data Preprocessing
+
+#### Model Fitting and Evaluation
+
+### Results
+
+```{r}
+# loading all the libraries
+library(dplyr)
+library(car)          # For VIF
+library(ggplot2)      # For residual plots
+library(broom)
+library(knitr)
+```
+
+```{r}
+# reading the data
+ufc <- read.csv("ufc-master.csv")
+```
+
+```{r}
+# DATA CLEANING CELL
+# removing the data which has way too many missing values
+
+ufc = subset(ufc, select = -c(BMatchWCRank, RMatchWCRank, RWFlyweightRank, 
+                              RWFeatherweightRank, RWStrawweightRank, RWBantamweightRank, 
+                              RHeavyweightRank, RLightHeavyweightRank, RMiddleweightRank, 
+                              RWelterweightRank, RLightweightRank, RFeatherweightRank, 
+                              RBantamweightRank, RFlyweightRank, RPFPRank, BWFlyweightRank, 
+                              BWFeatherweightRank, BWStrawweightRank, BWBantamweightRank, 
+                              BHeavyweightRank, BLightHeavyweightRank, BMiddleweightRank, 
+                              BWelterweightRank, BLightweightRank, BFeatherweightRank, 
+                              BBantamweightRank, BFlyweightRank, BPFPRank))
+
+# removing all missing value rows from the columns of interest
+ufc_clean <- ufc %>%
+  filter(
+    !is.na(RedAvgSubAtt),
+    !is.na(BlueAvgSubAtt),
+    !is.na(BlueReachCms), 
+    !is.na(RedReachCms), 
+    !is.na(BlueAvgSigStrLanded), 
+    !is.na(RedAvgSigStrLanded),
+    !is.na(TotalFightTimeSecs),
+    !is.na(WeightClass)
+  )
+nrow(ufc_clean)
+```
+
+#### Research Question 1: Fighter Reach vs Total Strikes Landed
+
+```{r}
+filtered_ufc_blue <- ufc_clean[c("BlueReachCms","BlueAvgSigStrLanded","WeightClass", "BlueHeightCms", "BlueCurrentWinStreak")]
+colnames(filtered_ufc_blue) <- c("ReachCms", "AvgSigStrLanded", "WeightClass", "Height", "WinStreak")
+filtered_ufc_red <- ufc_clean[c("RedReachCms","RedAvgSigStrLanded","WeightClass", "RedHeightCms", "RedCurrentWinStreak")]
+colnames(filtered_ufc_red) <- c("ReachCms", "AvgSigStrLanded", "WeightClass", "Height", "WinStreak")
+
+# appending the two data sets
+ufc_q1 <- rbind(filtered_ufc_blue, filtered_ufc_red)
+
+# exclude outlier(one observation with 0 cm reach)
+ufc_q1 <- ufc_q1[ufc_q1$ReachCms > 0,]
+ufc_q1 <- ufc_q1[ufc_q1$AvgSigStrLanded > 0, ]
+```
+
+```{r}
+model_q1 <- lm(AvgSigStrLanded ~ ReachCms + WeightClass*WinStreak + Height, 
+               data = ufc_q1)
+
+cooks_d <- cooks.distance(model_q1)
+influential <- which(cooks_d > (4 / nrow(ufc_q1)))
+ufc_q1_clean <- ufc_q1[-influential, ]
+
+model_q1_clean <- lm(AvgSigStrLanded ~ log(ReachCms) + WinStreak * WeightClass + log(Height), data = ufc_q1_clean)
+summary(model_q1_clean)
+par(mfrow = c(2, 2), mar = c(2,2,2,2))
+plot(model_q1_clean)
+
+vif(model_q1_clean)
+```
+
+#### Research Question 2: Is the fight outcome associated with the number of submission attempts made by a fighter?
+
+```{r}
+ufc_q2 <- ufc_clean %>%
+  mutate(
+    Outcome = ifelse(Winner == "Red", 1, 0),  # Binary outcome: 1 for Red win, 0 for Blue win
+    WeightClass = as.factor(WeightClass),
+    TotalRedSubAttempts = RedAvgSubAtt,        # Red's submission attempts
+    TotalBlueSubAttempts = BlueAvgSubAtt
+  ) %>%
+  mutate(
+    LogRedSubAttempts = log1p(TotalRedSubAttempts),
+    LogBlueSubAttempts = log1p(TotalBlueSubAttempts),
+    LogBlueReach = log1p(BlueReachCms),
+    LogRedReach = log1p(RedReachCms),
+    LogBlueSigStr = log1p(BlueAvgSigStrLanded),
+    LogRedSigStr = log1p(RedAvgSigStrLanded),
+    LogFightTime = log1p(TotalFightTimeSecs)
+  )
+
+# Check dimensions of the cleaned dataset
+dim(ufc_q2)
+```
+
+```{r}
+sim_logistic_model <- glm(
+  Outcome ~ 
+    LogRedSubAttempts + 
+    LogBlueSubAttempts + 
+    LogBlueReach + 
+    LogRedReach + 
+    LogBlueSigStr + 
+    LogRedSigStr + 
+    LogFightTime + 
+    WeightClass,
+  data = ufc_q2, 
+  family = binomial
+)
+
+
+step_model <- step(sim_logistic_model, direction = "both")
+
+# Calculate Cook's distance and leverage
+cooks_distance <- cooks.distance(step_model)
+hat_values <- hatvalues(step_model)
+residuals <- residuals(step_model, type = "deviance")
+
+# Thresholds
+n <- nrow(ufc_q2)
+p <- length(coef(step_model)) - 1
+cooks_threshold <- 4 / n
+leverage_threshold <- 2 * (p + 1) / n
+
+# Identify influential points
+influential_points <- which(cooks_distance > cooks_threshold | 
+                            hat_values > leverage_threshold |
+                            abs(residuals) > 2)
+
+# Remove influential points
+ufc_q2_filtered <- ufc_q2[-influential_points, ]
+
+# Refit the model
+final_model <- glm(formula = Outcome ~ LogRedSubAttempts + LogBlueSubAttempts + 
+    LogBlueReach + LogRedReach + LogBlueSigStr + LogRedSigStr, 
+    family = binomial, data = ufc_q2_filtered)
+
+# Model summary
+summary(final_model)
+
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+
+plot(final_model)
+```
+
+### Appendix
+
+1.  Research Question 1
+
+```{r}
+summary(model_q1)
+# 1. Check Variance Inflation Factor (VIF) for collinearity
+vif_values <- vif(model_q1)
+print("Variance Inflation Factor (VIF):")
+print(vif_values)
+
+# 2. Residuals vs Fitted Plot for Linearity
+par(mfrow = c(2, 2), mar = c(2, 2, 2, 2))  # Set plotting layout
+plot(model_q1)
+
+
+```
+
+2.  Research Question 2
+
+```{r}
+# Model summary of the initial simple logistic model
+summary(sim_logistic_model)
+
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+
+plot(sim_logistic_model)
+
+# Model summary of the step model
+summary(step_model)
+
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+
+plot(step_model)
+```
