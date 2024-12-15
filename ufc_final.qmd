@@ -225,7 +225,11 @@ To assess multicollinearity, we calculated the Generalized Variance Inflation Fa
 
 #### Research Question 2: Is the fight outcome associated with the number of submission attempts made by a fighter?
 
-```{r}
+To explore the relationship between the number of submission attempts and the fight outcome, we first computed summary statistics for key variables: Submission Attempts, Weight Class, Reach, Significant Strikes Landed, and Fight Time. The binary fight outcome is represented as 1 for a Red win and 0 for a Blue win. Continuous variables, including submission attempts, reach, significant strikes landed, and fight time, are transformed using logarithmic transformations to account for skewness. These transformations help in better understanding the distribution and potential association with fight outcomes. Summary statistics for these variables provide the necessary foundation for further modeling.
+
+
+
+```{r warning=FALSE, message = FALSE, echo = FALSE}
 ufc_q2 <- ufc_clean %>%
   mutate(
     Outcome = ifelse(Winner == "Red", 1, 0),  # Binary outcome: 1 for Red win, 0 for Blue win
@@ -244,10 +248,25 @@ ufc_q2 <- ufc_clean %>%
   )
 
 # Check dimensions of the cleaned dataset
-dim(ufc_q2)
+# dim(ufc_q2)
 ```
 
-```{r}
+```{r, echo = FALSE}
+# Summarize the data
+summary_table2 <- ufc_q2 %>%
+  group_by(WeightClass) %>%
+  summarize(
+    N = n(),
+    Avg_SubAttempts = paste0(round(mean(c(LogRedSubAttempts,LogBlueSubAttempts), na.rm = TRUE), 1), " ± ", round(sd(c(LogRedSubAttempts,LogBlueSubAttempts), na.rm = TRUE), 1)),
+    Avg_Reach = paste0(round(mean(c(LogBlueReach, LogRedReach), na.rm = TRUE), 1), " ± ", round(sd(c(LogBlueReach, LogRedReach), na.rm = TRUE), 1)),
+    Avg_SigStr = paste0(round(mean(c(LogBlueSigStr, LogRedSigStr), na.rm = TRUE), 1), " ± ", round(sd(c(LogBlueSigStr, LogRedSigStr), na.rm = TRUE), 1)),
+    Avg_FightTime = paste0(round(mean(LogFightTime, na.rm = TRUE), 1), " ± ", round(sd(LogFightTime, na.rm = TRUE), 1)))
+
+# Render the table
+kable(summary_table2, caption = "Summary Statistics by Weight Class", align = "c")
+```
+
+```{r warning=FALSE, message = FALSE, echo = FALSE}
 sim_logistic_model <- glm(
   Outcome ~ 
     LogRedSubAttempts + 
@@ -290,18 +309,18 @@ final_model <- glm(formula = Outcome ~ LogRedSubAttempts + LogBlueSubAttempts +
     family = binomial, data = ufc_q2_filtered)
 
 # Model summary
-summary(final_model)
-
-par(mfrow=c(2,2), mar = c(2,2,2,2))
-
-plot(final_model)
+# summary(final_model)
+# 
+# par(mfrow=c(2,2), mar = c(2,2,2,2))
+# 
+# plot(final_model)
 ```
 
 We investigated the relationship between submission attempts and fight outcomes using a logistic regression model. The model included both submission attempts (log-transformed for both red and blue fighters), reach, significant strikes, and fight time as predictors of the binary outcome: win (1 for red win, 0 for blue win). We also assessed the potential impact of weight class on the outcome, although it was not a significant predictor in the final model.
 
 The final model (after removing influential points and non-significant variables) provided the following odds ratios (OR) and confidence intervals (CI) for each predictor:
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning=FALSE, message = FALSE}
 # Extract coefficients (log-odds) from the model
 coefficients <- summary(final_model)$coefficients
 
@@ -333,12 +352,13 @@ kable(odds_ratio_table,
       caption = "Odds Ratios and 95% Confidence Intervals for Logistic Regression Model", 
       align = "c", digits = 3, row.names= FALSE)
 ```
+
 The logistic regression model reveals some important findings regarding the factors that influence the outcome of a UFC fight. The odds ratio for Red Submission Attemps (OR = 1.548, p < 0.001) suggests that each additional submission attempt by the red fighter increases the odds of them winning by 54.8%. This indicates that red fighter submission attempts positively influence their likelihood of victory. Conversely, Blue Submission Attempts (OR = 0.709, p < 0.001) show a negative relationship with the outcome, where each additional submission attempt by the blue fighter decreases the odds of blue winning by 29.1%. This suggests that higher submission attempts by the blue fighter may be linked to a decreased likelihood of blue winning, which may indicate that submission attempts do not effectively contribute to blue's success in this context.
 For Blue Reach (OR = 0.121, p = 0.006), an increase in blue's reach reduces the odds of red winning. The odds ratio of 0.121 indicates that each unit increase blue’s reach significantly lowers the likelihood of red winning, highlighting the importance of reach for blue fighters. In contrast, Red Reach (OR = 7.623, p = 0.0063) increases the odds of red winning by a factor of 7.623 for every unit increase in red’s reach, emphasizing the critical role of reach for red fighters in enhancing their chances of victory.
 Regarding significant strikes, LogBlueSigStr (OR = 0.624, p < 0.001) shows that for blue fighters, a higher number of significant strikes landed decreases the odds of red winning. This suggests that effective striking by the blue fighter contributes to their chance of winning by reducing red’s odds. Similarly, LogRedSigStr (OR = 1.588, p < 0.001) indicates that for red fighters, a higher number of significant strikes landed increases the odds of red winning by 58.8%, reinforcing the importance of striking in determining the fight outcome.
 Overall, these findings provide insights into the key factors that influence the fight’s outcome, with submission attempts, reach, and significant strikes being significant contributors to the likelihood of winning.
 
-```{r fig.width=6, fig.height=4}
+```{r message = FALSE, warning = FALSE, echo = FALSE, fig.width=6, fig.height=4}
 # Convert both Red and Blue Submission Attempts back to the original scale
 ufc_q2_filtered$actual_LogRedSubAttempts <- exp(ufc_q2_filtered$LogRedSubAttempts) - 1
 ufc_q2_filtered$actual_LogBlueSubAttempts <- exp(ufc_q2_filtered$LogBlueSubAttempts) - 1
@@ -369,7 +389,7 @@ ggplot(ufc_q2_filtered, aes(x = actual_LogRedSubAttempts, y = predicted_prob)) +
   )
 ```
 
-```{r}
+```{r warning=FALSE, message = FALSE, echo = FALSE}
 vif_results = vif(final_model)
 # Try extracting VIF
 if (length(vif_results) == 0) {
@@ -415,7 +435,7 @@ kable(
 
 1.  Linearity Assumption for the initial model for research question 1
 
-```{r, echo = FALSE}
+```{r, warning=FALSE, message = FALSE, echo = FALSE}
 # Extract residuals from the model
 residuals <- residuals(model_q1)
 
@@ -435,7 +455,7 @@ ggplot(data.frame(standardized_residuals), aes(sample = standardized_residuals))
 
 2.  Research Question 2
 
-```{r}
+```{r warning=FALSE, message = FALSE, echo = FALSE}
 # Model summary of the initial simple logistic model
 summary(sim_logistic_model)
 
