@@ -8,6 +8,12 @@ editor: visual
 
 ## Abstract
 
+Understanding the impact of physical attributes, such as reach, and tactical strategies, such as submission attempts, is critical for improving performance and outcomes in mixed martial arts (MMA). This study examined the relationship between fighter reach and the total number of strikes landed during a fight. Additionally, it investigated the role of submission attempts in predicting fight outcomes, using a dataset of fights from the Ultimate Fighting Championship (UFC), the leading global MMA promotion. The dataset included UFC fights from March 2010 to the most recent event in 2024.
+
+Linear regression with log-transformed variables revealed significant interactions between reach and weight classes, such as Flyweight and Featherweight, highlighting that reach impacts striking performance differently across divisions. Main effects were also observed for weight classes like Flyweight and Women’s Strawweight. Logistic regression revealed that submission attempts significantly influenced fight outcomes, with attempts from the red corner positively impacting red's odds of winning, while attempts from the blue corner negatively affected red's chances of winning. Both predictors had p-values below 0.05. Model diagnostics, including residual analysis and multicollinearity checks, confirmed the validity of the findings.
+
+These results underscore the tactical importance of physical attributes and strategic maneuvers in UFC fights, providing insights to optimize training and fight preparation. Future research could explore additional predictors, such as fighter skill level and strategy, or advanced modeling techniques to deepen understanding of combat sports performance.
+
 ## Introduction
 
 The Ultimate Fighting Championship (UFC) is the world's leading mixed martial arts (MMA) promotion, known for bringing together elite fighters from diverse combat sports backgrounds. Founded in 1993, the UFC has grown into a global phenomenon, hosting events worldwide that showcase athletes competing in disciplines such as boxing, wrestling, Muay Thai, Brazilian Jiujitsu, and judo. UFC fights take place in a distinct eight-sided cage, known as the Octagon, where fighters test their skills in striking, grappling, and overall strategy under a unified set of rules. The sport has evolved significantly over the years, introducing standardized weight classes, safety regulations, and scoring systems to ensure competitive fairness and fighter safety.
@@ -584,14 +590,6 @@ coefficients_table_step <- tidy(step_model) %>%
   ) %>%
   select(Predictor, estimate, std.error, statistic, p.value)  # Reorder columns
 
-# Rename columns for presentation
-coefficients_table_step <- coefficients_table_step %>%
-  rename(
-    #Estimate = estimate,
-    `Std. Error` = std.error,
-    `Z Value` = statistic,
-    `P Value` = p.value
-  )
 
 model_fit_table_step <- glance(step_model) %>%
   select(null.deviance, df.null, deviance, df.residual, AIC) %>%
