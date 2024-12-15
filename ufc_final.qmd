@@ -6,9 +6,9 @@ format: pdf
 editor: visual
 ---
 
-### Abstract
+## Abstract
 
-### Introduction
+## Introduction
 
 The Ultimate Fighting Championship (UFC) is the world's leading mixed martial arts (MMA) promotion, known for bringing together elite fighters from diverse combat sports backgrounds. Founded in 1993, the UFC has grown into a global phenomenon, hosting events worldwide that showcase athletes competing in disciplines such as boxing, wrestling, Muay Thai, Brazilian Jiujitsu, and judo. UFC fights take place in a distinct eight-sided cage, known as the Octagon, where fighters test their skills in striking, grappling, and overall strategy under a unified set of rules. The sport has evolved significantly over the years, introducing standardized weight classes, safety regulations, and scoring systems to ensure competitive fairness and fighter safety.
 
@@ -23,7 +23,7 @@ These questions are worth exploring because they provide a deeper understanding 
 
 The findings from this analysis offer valuable insights for fighters, coaches, and analysts, helping optimize training strategies, improve fight preparation, and enhance understanding of opponents' strengths and weaknesses.
 
-### Methods
+## Methods
 
 #### Data and Preprocessing
 
@@ -43,7 +43,7 @@ For the second research question, a logistic regression model was employed to pr
 
 All the analyses were conducted in R.
 
-### Results
+## Results
 
 ```{r, include = FALSE}
 # loading all the libraries
@@ -92,7 +92,7 @@ nrow(ufc_clean)
 
 #### Research Question 1: How does the reach of the fighter relate to the total number of strikes landed during a fight?
 
-To understand the data distribution, we first computed summary statistics for the key variables: **Reach, Weight Class, Height, Win Streak, and Average Significant Strikes Landed**. Continuous variables are reported as means with standard deviations, and categorical variables are reported as counts and percentages.
+To explore the relationship between a fighter's reach and the number of strikes landed, we began by computing summary statistics for key variables: **Reach, Weight Class, Height, Win Streak, and Average Significant Strikes Landed**. Continuous variables are reported as means with standard deviations, while categorical variables are summarized by counts and percentages. These statistics provide as foundation for understanding the data before modelling.
 
 ```{r, include = FALSE}
 filtered_ufc_blue <- ufc_clean[c("BlueReachCms","BlueAvgSigStrLanded","WeightClass", "BlueHeightCms", "BlueCurrentWinStreak")]
@@ -107,7 +107,8 @@ ufc_q1 <- rbind(filtered_ufc_blue, filtered_ufc_red)
 ufc_q1 <- ufc_q1[ufc_q1$ReachCms > 0,]
 ufc_q1 <- ufc_q1[ufc_q1$AvgSigStrLanded > 0, ]
 ```
-```{r}
+
+```{r, echo = FALSE}
 # Summarize the data
 summary_table <- ufc_q1 %>%
   group_by(WeightClass) %>%
@@ -123,8 +124,7 @@ summary_table <- ufc_q1 %>%
 kable(summary_table, caption = "Summary Statistics by Weight Class", align = "c")
 ```
 
-
-```{r}
+```{r, include = FALSE}
 model_q1 <- lm(AvgSigStrLanded ~ ReachCms + WeightClass*WinStreak + Height, 
                data = ufc_q1)
 
@@ -134,41 +134,52 @@ ufc_q1_clean <- ufc_q1[-influential, ]
 
 model_q1_clean <- lm(AvgSigStrLanded ~ log(ReachCms) + WinStreak * WeightClass + log(Height), data = ufc_q1_clean)
 summary(model_q1_clean)
-par(mfrow = c(2, 2), mar = c(2,2,2,2))
-plot(model_q1_clean)
-
-vif(model_q1_clean)
 
 r_squared <- summary(model_q1_clean)$r.squared
 cat("R-squared:", r_squared, "\n")
 ```
 
-A multiple linear regression (MLR) model was applied to examine the relationship between the average significant strikes landed and predictors including log-transformed Reach, log-transformed Height, Win Streak, and the interaction between Win Streak and Weight Class. Log transformations were performed on Reach and Height to address non-linearity and non-constant variance, as indicated by diagnostic plots in Appendix 1.
+A multiple linear regression (MLR) model was applied to examine the relationship between the average significant strikes landed and key predictors, including log-transformed Reach, log-transformed Height, Win Streak, and the interaction between Win Streak and Weight Class. The log transformations for Reach and Height were performed to address non-linearity and non-constant variance, which were highlighted in diagnostic plots (see Appendix 1).
 
 The adjusted $R^2$ value for the model was **0.068**, suggesting that the predictors explain approximately **6.8%** of the variability in average significant strikes landed.
 
-The analysis revealed several important findings regarding the relationship between fighters' physical attributes and the number of significant strikes landed. The log-transformed Reach variable showed a negative relationship with average strikes landed ($\beta = -52.68, p < 0.001$), indicating that as reach increases, the average number of strikes landed decreases. The Weight Class variable also had significant effects for several divisions. Specifically, the fighters in the Featherweight class had a significantly higher number of strikes landed ($\beta = 3.15, p = 0.001$), while Flyweight fighters landed fewer strikes ($\beta = 5.67, p < 001$). On the other hand, Women's Flyweight fighters had a significant negative relationship with strikes landed ($\beta = -14.95, p < 0.001$). In terms of interaction effects, the model included interaction terms between Win Streak and Weight Class, but most of these were not significant. However, there was a marginally significant positive interaction observed for Women's Strawweight ($\beta = 3.88, p = 0.0008$), suggesting that an increasing win streak slightly positively impacts the number of strikes landed in this weight class. Finally, the logarithm of the height variable showed a weak, marginally significant negative relationship with strikes landed ($\beta = -15.59, p = 0.087$), suggesting that taller fighters might land fewer strikes on average, although the effect is not strong. These findings underscore the complex interplay between a fighter's physical characteristics, weight class, and performance outcomes, with reach and weight class being the most influential factors in predicting the number of strikes landed.
+The analysis revealed several significant relationships between the fighters' physical attributes and the number of significant strikes landed. Notably, log-transformed Reach had a significant negative effect on the number of strikes landed ($\beta = -52.68, p < 0.001$), suggesting that reach increases, the average number of strikes landed decreases. The Weight Class variable also showed significant effects across divisions. Fighters in the Featherweight class landed more strikes landed ($\beta = 3.15, p = 0.001$), while Flyweight fighters landed fewer strikes ($\beta = -5.12, p < 001$). On the other hand, Women's Flyweight fighters had a significant negative relationship with strikes landed ($\beta = -14.95, p < 0.001$). In terms of interaction effects, the model included interaction terms between Win Streak and Weight Class, but most of these were not significant. However, there was a marginally significant positive interaction observed for Women's Strawweight ($\beta = 3.88, p = 0.0008$), suggesting that an increasing win streak slightly positively impacts the number of strikes landed in this weight class. Finally, the logarithm of the height variable showed a weak, marginally significant negative relationship with strikes landed ($\beta = -15.59, p = 0.087$), suggesting that taller fighters might land fewer strikes on average, although the effect is not strong. These findings underscore the complex interplay between a fighter's physical characteristics, weight class, and performance outcomes, with reach and weight class being the most influential factors in predicting the number of strikes landed.
 
-```{r}
-# Plot the relationship between log(Reach) and AvgSigStrLanded
-ggplot(ufc_q1_clean, aes(x = log(ReachCms), y = AvgSigStrLanded)) +
-  geom_point(alpha = 0.4, color = "blue") +
-  geom_smooth(method = "lm", se = TRUE, color = "red") +
-  labs(title = "Effect of Log(Reach) on Avg Significant Strikes Landed",
-       x = "Log(Reach in Cms)", y = "Average Significant Strikes Landed")
+```{r, echo = FALSE}
+# Extract residuals from the model
+residuals <- residuals(model_q1_clean)
 
-# Interaction plot
-ggplot(ufc_q1_clean, aes(x = WinStreak, y = AvgSigStrLanded, color = WeightClass)) +
-  geom_point(alpha = 0.4) +
-  geom_smooth(method = "lm", se = FALSE) +
-  labs(title = "Interaction Between Win Streak and Weight Class",
-       x = "Win Streak", y = "Average Significant Strikes Landed") +
-  theme_minimal()
-interaction.plot(ufc_q1_clean$WeightClass, ufc_q1_clean$WinStreak, 
-                 fitted(model_q1_clean), col = 1:6, lty = 1, 
-                 main = "Predicted Strikes by Weight Class and Win Streak",
-                 xlab = "Weight Class", ylab = "Predicted Strikes")
+# Standardize residuals
+standardized_residuals <- residuals / sd(residuals)
+
+# Create a Q-Q plot using ggplot2
+ggplot(data.frame(standardized_residuals), aes(sample = standardized_residuals)) +
+  stat_qq() +
+  stat_qq_line(color = 'red', linetype = 'dotted') +
+  labs(title = "Q-Q Plot of Standardized Residuals",
+       x = "Theoretical Quantiles",  # x-axis label
+       y = "Standardized Residuals") +  # y-axis label
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12))
 ```
+
+The initial multiple linear regression model violated the linearity assumption, as indicated by the Q-Q plot in Appendix 1. To address this, the outliers and influential values were identified and removed using Cook's distance with the threshold set as $\frac{4}{n}$, where n is the total number of observations. After removing the influential points, the model was re-evaluated, and the variables were log-transformed. This iteration of the model proved to be a significant improvement from the original, as evidenced by improved diagnostics and fit.
+
+```{r, warning=FALSE, message = FALSE, echo = FALSE}
+vif_results = vif(model_q1_clean)
+# Create a data frame from the VIF results
+vif_table <- data.frame(
+  Variable = rownames(vif_results),
+  GVIF = vif_results[, 1],  # Raw GVIF values
+  Df = vif_results[, 2],     # Degrees of freedom
+  GVIF_Adjusted = vif_results[, 1]^(1 / (2 * vif_results[, 2]))  # Adjusted GVIF^(1/(2*Df))
+)
+rownames(vif_table) <- NULL
+# Print the table in a clean format using kable
+kable(vif_table, caption = "Variance Inflation Factor (VIF) and Adjusted GVIF", align = "c", digits = 3)
+```
+
+To assess multicollinearity, we calculated the Generalized Variance Inflation Factor (GVIF) for each predictor, especially considering the inclusion of categorical variables like Weight Class and their interactions with Win Streak. The GVIF was adjusted using $GVIF^{\frac{1}{2 \cdot \text{df}}}$ to account for the degrees of freedom of categorical variables and interaction terms, ensuring a more accurate evaluation of multicollinearity. The results showed that most predictors showed acceptable GVIF values, indicating no significant multicollinearity. Although Weight Class had a high raw GVIF of 1301.45, the adjusted GVIF was 1.35, indicating low multicollinearity. Overall, the analysis confirmed that multicollinearity is not a significant concern, allowing for reliable interpretation of the predictors.
 
 #### Research Question 2: Is the fight outcome associated with the number of submission attempts made by a fighter?
 
@@ -244,7 +255,7 @@ par(mfrow=c(2,2), mar = c(2,2,2,2))
 plot(final_model)
 ```
 
-### Appendix
+## Appendix
 
 1.  Research Question 1
 
