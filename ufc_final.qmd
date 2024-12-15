@@ -345,10 +345,10 @@ ufc_q2_filtered$actual_LogBlueSubAttempts <- exp(ufc_q2_filtered$LogBlueSubAttem
 ufc_q2_filtered$predicted_prob <- predict(final_model, newdata = ufc_q2_filtered, type = "response")
 # Plot both Red and Blue Submission Attempts against the predicted probabilities
 ggplot(ufc_q2_filtered, aes(x = actual_LogRedSubAttempts, y = predicted_prob)) +
-  geom_point(aes(color = "Red Submission Attempts"), alpha = 0.6) +  # Red submissions
-  geom_smooth(aes(color = "Red Submission Attempts"), method = "loess", size = 1) +
-  geom_point(aes(x = actual_LogBlueSubAttempts, color = "Blue Submission Attempts"), alpha = 0.6) +  # Blue submissions
-  geom_smooth(aes(x = actual_LogBlueSubAttempts, color = "Blue Submission Attempts"), method = "loess", size = 1) +
+    geom_point(aes(color = "Red Submission Attempts"), alpha = 0.1, size = 2) +  # Reduce opacity of red dots
+  geom_smooth(aes(color = "Red Submission Attempts"), method = "loess", size = 1.5) +  # Thicker line for red
+  geom_point(aes(x = actual_LogBlueSubAttempts, color = "Blue Submission Attempts"), alpha = 0.1, size = 2) +  # Reduce opacity of blue dots
+  geom_smooth(aes(x = actual_LogBlueSubAttempts, color = "Blue Submission Attempts"), method = "loess", size = 1.5) +  # Thicker line for blue
   labs(
     title = "Predicted Probability of Red Winning vs. Submission Attempts",
     x = "Submission Attempts",
