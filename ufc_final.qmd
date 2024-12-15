@@ -509,7 +509,7 @@ ggplot(data.frame(standardized_residuals), aes(sample = standardized_residuals))
   theme(axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12))
 ```
 
-2.  Research Question 2
+**Appendix 2: Model summaries with AIC score progression (Research Question 2)**
 
 ```{r warning=FALSE, message = FALSE, echo = FALSE}
 # Model summary of the initial simple logistic model
