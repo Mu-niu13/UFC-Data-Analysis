@@ -35,7 +35,7 @@ In UFC, fighters are assigned to either the red corner or the blue corner, which
 
 For the second research question, a new binary variable, Outcome was created to indicate the winner. A value of 1 was assigned if the fighter in the red corner won, and a value of 0 if the fighter in the blue corner won. The model included variables such as submission attempts, significant strikes landed, fight duration, and weight class to account for both physical attributes and performance metrics. These variables ensured a more comprehensive analysis of the factors influencing fight outcomes while addressing potential confounders.
 
-#### Model Fitting and Evaluation			
+#### Model Fitting and Evaluation
 
 To examine the relationship between a fighter’s reach and the total number of strikes landed during a fight, a Multiple Linear Regression (MLR) model was utilized. The model included key predictors such as logarithmic transformation of reach, logarithmic transformation of height, win streak and weight class, with an interaction term between the win streak and weight class to explore potential moderating effects. Outliers and influential points were identified using Cook's distance, and there were removed to improve model robustness. Diagnostics, including residuals vs. fitted plots, were performed to assess linearity and homoscedasticity, while Variance Inflation Factor (VIF) was used to evaluate multicollinearity. Model performance was measured using the R-squared value.
 
@@ -45,22 +45,23 @@ All the analyses were conducted in R.
 
 ### Results
 
-```{r}
+```{r, include = FALSE}
 # loading all the libraries
 library(dplyr)
 library(car)          # For VIF
 library(ggplot2)      # For residual plots
 library(broom)
 library(knitr)
+library(tableone)
 ```
 
-```{r}
+```{r, include = FALSE}
 # reading the data
 ufc <- read.csv("ufc-master.csv")
 dim(ufc)
 ```
 
-```{r}
+```{r, include = FALSE}
 # DATA CLEANING CELL
 # removing the data which has way too many missing values
 
@@ -91,7 +92,9 @@ nrow(ufc_clean)
 
 #### Research Question 1: How does the reach of the fighter relate to the total number of strikes landed during a fight?
 
-```{r}
+To understand the data distribution, we first computed summary statistics for the key variables: **Reach, Weight Class, Height, Win Streak, and Average Significant Strikes Landed**. Continuous variables are reported as means with standard deviations, and categorical variables are reported as counts and percentages.
+
+```{r, include = FALSE}
 filtered_ufc_blue <- ufc_clean[c("BlueReachCms","BlueAvgSigStrLanded","WeightClass", "BlueHeightCms", "BlueCurrentWinStreak")]
 colnames(filtered_ufc_blue) <- c("ReachCms", "AvgSigStrLanded", "WeightClass", "Height", "WinStreak")
 filtered_ufc_red <- ufc_clean[c("RedReachCms","RedAvgSigStrLanded","WeightClass", "RedHeightCms", "RedCurrentWinStreak")]
@@ -104,6 +107,22 @@ ufc_q1 <- rbind(filtered_ufc_blue, filtered_ufc_red)
 ufc_q1 <- ufc_q1[ufc_q1$ReachCms > 0,]
 ufc_q1 <- ufc_q1[ufc_q1$AvgSigStrLanded > 0, ]
 ```
+```{r}
+# Summarize the data
+summary_table <- ufc_q1 %>%
+  group_by(WeightClass) %>%
+  summarize(
+    N = n(),
+    Avg_Reach = paste0(round(mean(ReachCms, na.rm = TRUE), 1), " ± ", round(sd(ReachCms, na.rm = TRUE), 1)),
+    Avg_Height = paste0(round(mean(Height, na.rm = TRUE), 1), " ± ", round(sd(Height, na.rm = TRUE), 1)),
+    Avg_Strikes = paste0(round(mean(AvgSigStrLanded, na.rm = TRUE), 1), " ± ", round(sd(AvgSigStrLanded, na.rm = TRUE), 1)),
+    Median_Streak = paste0(median(WinStreak, na.rm = TRUE), " [", quantile(WinStreak, 0.25, na.rm = TRUE), "-", quantile(WinStreak, 0.75, na.rm = TRUE), "]")
+  )
+
+# Render the table
+kable(summary_table, caption = "Summary Statistics by Weight Class", align = "c")
+```
+
 
 ```{r}
 model_q1 <- lm(AvgSigStrLanded ~ ReachCms + WeightClass*WinStreak + Height, 
@@ -122,6 +141,33 @@ vif(model_q1_clean)
 
 r_squared <- summary(model_q1_clean)$r.squared
 cat("R-squared:", r_squared, "\n")
+```
+
+A multiple linear regression (MLR) model was applied to examine the relationship between the average significant strikes landed and predictors including log-transformed Reach, log-transformed Height, Win Streak, and the interaction between Win Streak and Weight Class. Log transformations were performed on Reach and Height to address non-linearity and non-constant variance, as indicated by diagnostic plots in Appendix 1.
+
+The adjusted $R^2$ value for the model was **0.068**, suggesting that the predictors explain approximately **6.8%** of the variability in average significant strikes landed.
+
+The analysis revealed several important findings regarding the relationship between fighters' physical attributes and the number of significant strikes landed. The log-transformed Reach variable showed a negative relationship with average strikes landed ($\beta = -52.68, p < 0.001$), indicating that as reach increases, the average number of strikes landed decreases. The Weight Class variable also had significant effects for several divisions. Specifically, the fighters in the Featherweight class had a significantly higher number of strikes landed ($\beta = 3.15, p = 0.001$), while Flyweight fighters landed fewer strikes ($\beta = 5.67, p < 001$). On the other hand, Women's Flyweight fighters had a significant negative relationship with strikes landed ($\beta = -14.95, p < 0.001$). In terms of interaction effects, the model included interaction terms between Win Streak and Weight Class, but most of these were not significant. However, there was a marginally significant positive interaction observed for Women's Strawweight ($\beta = 3.88, p = 0.0008$), suggesting that an increasing win streak slightly positively impacts the number of strikes landed in this weight class. Finally, the logarithm of the height variable showed a weak, marginally significant negative relationship with strikes landed ($\beta = -15.59, p = 0.087$), suggesting that taller fighters might land fewer strikes on average, although the effect is not strong. These findings underscore the complex interplay between a fighter's physical characteristics, weight class, and performance outcomes, with reach and weight class being the most influential factors in predicting the number of strikes landed.
+
+```{r}
+# Plot the relationship between log(Reach) and AvgSigStrLanded
+ggplot(ufc_q1_clean, aes(x = log(ReachCms), y = AvgSigStrLanded)) +
+  geom_point(alpha = 0.4, color = "blue") +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(title = "Effect of Log(Reach) on Avg Significant Strikes Landed",
+       x = "Log(Reach in Cms)", y = "Average Significant Strikes Landed")
+
+# Interaction plot
+ggplot(ufc_q1_clean, aes(x = WinStreak, y = AvgSigStrLanded, color = WeightClass)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Interaction Between Win Streak and Weight Class",
+       x = "Win Streak", y = "Average Significant Strikes Landed") +
+  theme_minimal()
+interaction.plot(ufc_q1_clean$WeightClass, ufc_q1_clean$WinStreak, 
+                 fitted(model_q1_clean), col = 1:6, lty = 1, 
+                 main = "Predicted Strikes by Weight Class and Win Streak",
+                 xlab = "Weight Class", ylab = "Predicted Strikes")
 ```
 
 #### Research Question 2: Is the fight outcome associated with the number of submission attempts made by a fighter?
