@@ -1,0 +1,2099 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.555">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>research_question_2</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="research_question_2_files/libs/clipboard/clipboard.min.js"></script>
+<script src="research_question_2_files/libs/quarto-html/quarto.js"></script>
+<script src="research_question_2_files/libs/quarto-html/popper.min.js"></script>
+<script src="research_question_2_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="research_question_2_files/libs/quarto-html/anchor.min.js"></script>
+<link href="research_question_2_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="research_question_2_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="research_question_2_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="research_question_2_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="research_question_2_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">research_question_2</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="research-question-2" class="level2">
+<h2 class="anchored" data-anchor-id="research-question-2">Research question 2:</h2>
+<section id="is-the-fight-outcome-associated-with-the-number-of-submission-attempts-made-by-a-fighter" class="level3">
+<h3 class="anchored" data-anchor-id="is-the-fight-outcome-associated-with-the-number-of-submission-attempts-made-by-a-fighter">Is the fight outcome associated with the number of submission attempts made by a fighter?</h3>
+<ul>
+<li><p>Outcome Variable (include the name/description and type of variable): Fight outcome (binary variable: Win or Loss)</p></li>
+<li><p>Independent Variable: Primary fight style (nominal variable)</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>You can add options to executable code like this</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ufc_data <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">'ufc-master.csv'</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat &lt;- vroom(...)
+  problems(dat)</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># glimpse on variables of interest</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(ufc_data <span class="sc">%&gt;%</span> <span class="fu">select</span>(BlueReachCms, RedReachCms, BlueAvgSigStrLanded, </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                       RedAvgSigStrLanded, WeightClass, Winner, </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                       RedAvgSubAtt, BlueAvgSubAtt,TotalFightTimeSecs))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 6,478
+Columns: 9
+$ BlueReachCms        &lt;dbl&gt; 172.72, 165.10, 205.74, 172.72, 190.50, 187.96, 16…
+$ RedReachCms         &lt;dbl&gt; 177.80, 167.64, 198.12, 170.18, 187.96, 185.42, 17…
+$ BlueAvgSigStrLanded &lt;dbl&gt; 2.72, 3.71, 3.16, 3.70, 3.47, 3.17, 5.38, 7.66, 2.…
+$ RedAvgSigStrLanded  &lt;dbl&gt; 3.99, 5.24, 5.82, 4.04, 5.98, 3.85, 4.06, 5.43, 3.…
+$ WeightClass         &lt;chr&gt; "Flyweight", "Women's Flyweight", "Light Heavyweig…
+$ Winner              &lt;chr&gt; "Red", "Red", "Blue", "Blue", "Blue", "Red", "Red"…
+$ RedAvgSubAtt        &lt;dbl&gt; 0.4, 0.8, 0.0, 0.3, 0.1, 0.8, 0.0, 0.6, 0.6, 0.9, …
+$ BlueAvgSubAtt       &lt;dbl&gt; 0.5, 0.4, 0.4, 0.6, 1.1, 0.3, 0.5, 0.4, 1.5, 0.5, …
+$ TotalFightTimeSecs  &lt;dbl&gt; 1500, 1500, 900, 748, 268, 900, 900, 523, 359, 900…</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)  <span class="co"># For tidy model outputs</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Data Preparation</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Checking the structure of the data</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(ufc_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>spc_tbl_ [6,478 × 118] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+ $ RedFighter                 : chr [1:6478] "Brandon Moreno" "Erin Blanchfield" "Caio Machado" "Ariane da Silva" ...
+ $ BlueFighter                : chr [1:6478] "Amir Albazi" "Rose Namajunas" "Brendson Ribeiro" "Jasmine Jasudavicius" ...
+ $ RedOdds                    : num [1:6478] -180 -155 -192 190 -270 -375 NA NA NA NA ...
+ $ BlueOdds                   : num [1:6478] 150 130 160 -250 220 295 NA NA NA NA ...
+ $ RedExpectedValue           : num [1:6478] 55.6 64.5 52.1 190 37 ...
+ $ BlueExpectedValue          : num [1:6478] 150 130 160 40 220 295 NA NA NA NA ...
+ $ Date                       : Date[1:6478], format: "2024-11-02" "2024-11-02" ...
+ $ Location                   : chr [1:6478] "Edmonton, Alberta, Canada" "Edmonton, Alberta, Canada" "Edmonton, Alberta, Canada" "Edmonton, Alberta, Canada" ...
+ $ Country                    : chr [1:6478] "Canada" "Canada" "Canada" "Canada" ...
+ $ Winner                     : chr [1:6478] "Red" "Red" "Blue" "Blue" ...
+ $ TitleBout                  : logi [1:6478] FALSE FALSE FALSE FALSE FALSE FALSE ...
+ $ WeightClass                : chr [1:6478] "Flyweight" "Women's Flyweight" "Light Heavyweight" "Women's Flyweight" ...
+ $ Gender                     : chr [1:6478] "MALE" "FEMALE" "MALE" "FEMALE" ...
+ $ NumberOfRounds             : num [1:6478] 5 3 3 3 3 3 3 3 3 3 ...
+ $ BlueCurrentLoseStreak      : num [1:6478] 0 0 2 0 1 2 2 0 0 1 ...
+ $ BlueCurrentWinStreak       : num [1:6478] 5 2 0 2 0 0 0 2 2 0 ...
+ $ BlueDraws                  : num [1:6478] 0 0 0 0 0 0 0 0 1 0 ...
+ $ BlueAvgSigStrLanded        : num [1:6478] 2.72 3.71 3.16 3.7 3.47 3.17 5.38 7.66 2.84 3.71 ...
+ $ BlueAvgSigStrPct           : num [1:6478] 0.34 0.42 0.42 0.44 0.44 0.54 0.41 0.53 0.49 0.47 ...
+ $ BlueAvgSubAtt              : num [1:6478] 0.5 0.4 0.4 0.6 1.1 0.3 0.5 0.4 1.5 0.5 ...
+ $ BlueAvgTDLanded            : num [1:6478] 1.39 1.46 1.27 2.5 2.31 1.07 0.48 0.84 2.34 1.02 ...
+ $ BlueAvgTDPct               : num [1:6478] 0.32 0.5 0.5 0.43 0.41 0.5 0.16 0.36 0.35 0.37 ...
+ $ BlueLongestWinStreak       : num [1:6478] 5 3 1 2 1 3 4 2 3 3 ...
+ $ BlueLosses                 : num [1:6478] 0 5 2 2 5 6 9 1 3 2 ...
+ $ BlueTotalRoundsFought      : num [1:6478] 13 52 5 24 17 32 51 14 24 18 ...
+ $ BlueTotalTitleBouts        : num [1:6478] 0 7 0 0 0 0 0 0 0 0 ...
+ $ BlueWinsByDecisionMajority : num [1:6478] 0 0 0 0 0 0 0 0 0 0 ...
+ $ BlueWinsByDecisionSplit    : num [1:6478] 1 2 0 0 0 2 0 1 0 2 ...
+ $ BlueWinsByDecisionUnanimous: num [1:6478] 1 4 0 5 1 2 4 1 3 1 ...
+ $ BlueWinsByKO               : num [1:6478] 1 2 1 0 1 3 3 1 0 0 ...
+ $ BlueWinsBySubmission       : num [1:6478] 2 3 0 1 1 0 3 0 2 2 ...
+ $ BlueWinsByTKODoctorStoppage: num [1:6478] 0 0 0 0 0 0 0 0 0 0 ...
+ $ BlueWins                   : num [1:6478] 5 11 1 6 3 7 10 3 5 5 ...
+ $ BlueStance                 : chr [1:6478] "Orthodox" "Orthodox" "Orthodox" "Orthodox" ...
+ $ BlueHeightCms              : num [1:6478] 165 165 190 170 183 ...
+ $ BlueReachCms               : num [1:6478] 173 165 206 173 190 ...
+ $ BlueWeightLbs              : num [1:6478] 125 125 205 125 185 170 135 135 145 246 ...
+ $ RedCurrentLoseStreak       : num [1:6478] 2 1 2 1 2 1 0 2 1 1 ...
+ $ RedCurrentWinStreak        : num [1:6478] 0 0 0 0 0 0 4 0 0 0 ...
+ $ RedDraws                   : num [1:6478] 2 0 0 0 0 0 0 1 0 0 ...
+ $ RedAvgSigStrLanded         : num [1:6478] 3.99 5.24 5.82 4.04 5.98 3.85 4.06 5.43 3.6 3.78 ...
+ $ RedAvgSigStrPct            : num [1:6478] 0.43 0.44 0.53 0.41 0.47 0.46 0.46 0.48 0.58 0.51 ...
+ $ RedAvgSubAtt               : num [1:6478] 0.4 0.8 0 0.3 0.1 0.8 0 0.6 0.6 0.9 ...
+ $ RedAvgTDLanded             : num [1:6478] 1.59 1.86 0 0.52 0.21 2.27 0.16 0.34 3.22 4.49 ...
+ $ RedAvgTDPct                : num [1:6478] 0.46 0.31 0 0.55 0.25 0.56 0.14 0.21 0.39 0.55 ...
+ $ RedLongestWinStreak        : num [1:6478] 3 6 1 3 2 4 4 2 5 5 ...
+ $ RedLosses                  : num [1:6478] 5 1 2 6 7 1 2 7 2 3 ...
+ $ RedTotalRoundsFought       : num [1:6478] 53 19 9 29 31 8 17 36 20 17 ...
+ $ RedTotalTitleBouts         : num [1:6478] 6 0 0 0 0 0 0 0 0 0 ...
+ $ RedWinsByDecisionMajority  : num [1:6478] 0 0 0 0 0 0 0 0 0 0 ...
+ $ RedWinsByDecisionSplit     : num [1:6478] 1 0 0 1 0 0 0 0 1 1 ...
+ $ RedWinsByDecisionUnanimous : num [1:6478] 2 3 1 3 2 0 3 2 2 1 ...
+ $ RedWinsByKO                : num [1:6478] 3 0 0 0 2 1 2 2 0 1 ...
+ $ RedWinsBySubmission        : num [1:6478] 3 3 0 2 1 3 0 2 3 3 ...
+ $ RedWinsByTKODoctorStoppage : num [1:6478] 0 0 0 0 0 0 0 0 0 0 ...
+ $ RedWins                    : num [1:6478] 9 6 1 6 5 4 5 6 6 6 ...
+ $ RedStance                  : chr [1:6478] "Orthodox" "Orthodox" "Southpaw" "Orthodox" ...
+ $ RedHeightCms               : num [1:6478] 170 163 193 168 185 ...
+ $ RedReachCms                : num [1:6478] 178 168 198 170 188 ...
+ $ RedWeightLbs               : num [1:6478] 125 125 250 125 185 170 135 135 145 262 ...
+ $ RedAge                     : num [1:6478] 30 25 30 30 34 32 36 28 29 33 ...
+ $ BlueAge                    : num [1:6478] 31 32 28 35 32 32 38 37 28 31 ...
+ $ LoseStreakDif              : num [1:6478] -2 -1 0 -1 -1 1 2 -2 -1 0 ...
+ $ WinStreakDif               : num [1:6478] 5 2 0 2 0 0 -4 2 2 0 ...
+ $ LongestWinStreakDif        : num [1:6478] 2 -3 0 -1 -1 -1 0 0 -2 -2 ...
+ $ WinDif                     : num [1:6478] -4 5 0 0 -2 3 5 -3 -1 -1 ...
+ $ LossDif                    : num [1:6478] -5 4 0 -4 -2 5 7 -6 1 -1 ...
+ $ TotalRoundDif              : num [1:6478] -40 33 -4 -5 -14 24 34 -22 4 1 ...
+ $ TotalTitleBoutDif          : num [1:6478] -6 7 0 0 0 0 0 0 0 0 ...
+ $ KODif                      : num [1:6478] -2 2 1 0 -1 2 1 -1 0 -1 ...
+ $ SubDif                     : num [1:6478] -1 0 0 -1 0 -3 3 -2 -1 -1 ...
+ $ HeightDif                  : num [1:6478] -5.08 2.54 -2.54 2.54 -2.54 -2.54 -5.08 -5.08 5.08 0 ...
+ $ ReachDif                   : num [1:6478] -5.08 -2.54 7.62 2.54 2.54 2.54 -7.62 -2.54 2.54 12.7 ...
+ $ AgeDif                     : num [1:6478] 1 7 -2 5 -2 0 2 9 -1 -2 ...
+ $ SigStrDif                  : num [1:6478] -1.27 -1.53 -2.66 -0.34 -2.51 -0.68 1.32 2.23 -0.76 -0.07 ...
+ $ AvgSubAttDif               : num [1:6478] 0.1 -0.4 0.4 0.3 1 -0.5 0.5 -0.2 0.9 -0.4 ...
+ $ AvgTDDif                   : num [1:6478] -0.2 -0.4 1.27 1.98 2.1 -1.2 0.32 0.5 -0.88 -3.47 ...
+ $ EmptyArena                 : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+ $ BMatchWCRank               : num [1:6478] 3 5 NA 14 NA NA NA NA NA 15 ...
+ $ RMatchWCRank               : num [1:6478] 2 3 NA 13 NA NA NA NA NA 13 ...
+ $ RWFlyweightRank            : num [1:6478] NA 3 NA 13 NA NA NA NA NA NA ...
+ $ RWFeatherweightRank        : logi [1:6478] NA NA NA NA NA NA ...
+ $ RWStrawweightRank          : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+ $ RWBantamweightRank         : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+ $ RHeavyweightRank           : num [1:6478] NA NA NA NA NA NA NA NA NA 13 ...
+ $ RLightHeavyweightRank      : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+ $ RMiddleweightRank          : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+ $ RWelterweightRank          : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+ $ RLightweightRank           : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+ $ RFeatherweightRank         : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+ $ RBantamweightRank          : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+ $ RFlyweightRank             : num [1:6478] 2 NA NA NA NA NA NA NA NA NA ...
+ $ RPFPRank                   : num [1:6478] NA 7 NA NA NA NA NA NA NA NA ...
+ $ BWFlyweightRank            : num [1:6478] NA 5 NA 14 NA NA NA NA NA NA ...
+ $ BWFeatherweightRank        : logi [1:6478] NA NA NA NA NA NA ...
+ $ BWStrawweightRank          : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+ $ BWBantamweightRank         : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+ $ BHeavyweightRank           : num [1:6478] NA NA NA NA NA NA NA NA NA 15 ...
+ $ BLightHeavyweightRank      : num [1:6478] NA NA NA NA NA NA NA NA NA NA ...
+  [list output truncated]
+ - attr(*, "spec")=
+  .. cols(
+  ..   RedFighter = col_character(),
+  ..   BlueFighter = col_character(),
+  ..   RedOdds = col_double(),
+  ..   BlueOdds = col_double(),
+  ..   RedExpectedValue = col_double(),
+  ..   BlueExpectedValue = col_double(),
+  ..   Date = col_date(format = ""),
+  ..   Location = col_character(),
+  ..   Country = col_character(),
+  ..   Winner = col_character(),
+  ..   TitleBout = col_logical(),
+  ..   WeightClass = col_character(),
+  ..   Gender = col_character(),
+  ..   NumberOfRounds = col_double(),
+  ..   BlueCurrentLoseStreak = col_double(),
+  ..   BlueCurrentWinStreak = col_double(),
+  ..   BlueDraws = col_double(),
+  ..   BlueAvgSigStrLanded = col_double(),
+  ..   BlueAvgSigStrPct = col_double(),
+  ..   BlueAvgSubAtt = col_double(),
+  ..   BlueAvgTDLanded = col_double(),
+  ..   BlueAvgTDPct = col_double(),
+  ..   BlueLongestWinStreak = col_double(),
+  ..   BlueLosses = col_double(),
+  ..   BlueTotalRoundsFought = col_double(),
+  ..   BlueTotalTitleBouts = col_double(),
+  ..   BlueWinsByDecisionMajority = col_double(),
+  ..   BlueWinsByDecisionSplit = col_double(),
+  ..   BlueWinsByDecisionUnanimous = col_double(),
+  ..   BlueWinsByKO = col_double(),
+  ..   BlueWinsBySubmission = col_double(),
+  ..   BlueWinsByTKODoctorStoppage = col_double(),
+  ..   BlueWins = col_double(),
+  ..   BlueStance = col_character(),
+  ..   BlueHeightCms = col_double(),
+  ..   BlueReachCms = col_double(),
+  ..   BlueWeightLbs = col_double(),
+  ..   RedCurrentLoseStreak = col_double(),
+  ..   RedCurrentWinStreak = col_double(),
+  ..   RedDraws = col_double(),
+  ..   RedAvgSigStrLanded = col_double(),
+  ..   RedAvgSigStrPct = col_double(),
+  ..   RedAvgSubAtt = col_double(),
+  ..   RedAvgTDLanded = col_double(),
+  ..   RedAvgTDPct = col_double(),
+  ..   RedLongestWinStreak = col_double(),
+  ..   RedLosses = col_double(),
+  ..   RedTotalRoundsFought = col_double(),
+  ..   RedTotalTitleBouts = col_double(),
+  ..   RedWinsByDecisionMajority = col_double(),
+  ..   RedWinsByDecisionSplit = col_double(),
+  ..   RedWinsByDecisionUnanimous = col_double(),
+  ..   RedWinsByKO = col_double(),
+  ..   RedWinsBySubmission = col_double(),
+  ..   RedWinsByTKODoctorStoppage = col_double(),
+  ..   RedWins = col_double(),
+  ..   RedStance = col_character(),
+  ..   RedHeightCms = col_double(),
+  ..   RedReachCms = col_double(),
+  ..   RedWeightLbs = col_double(),
+  ..   RedAge = col_double(),
+  ..   BlueAge = col_double(),
+  ..   LoseStreakDif = col_double(),
+  ..   WinStreakDif = col_double(),
+  ..   LongestWinStreakDif = col_double(),
+  ..   WinDif = col_double(),
+  ..   LossDif = col_double(),
+  ..   TotalRoundDif = col_double(),
+  ..   TotalTitleBoutDif = col_double(),
+  ..   KODif = col_double(),
+  ..   SubDif = col_double(),
+  ..   HeightDif = col_double(),
+  ..   ReachDif = col_double(),
+  ..   AgeDif = col_double(),
+  ..   SigStrDif = col_double(),
+  ..   AvgSubAttDif = col_double(),
+  ..   AvgTDDif = col_double(),
+  ..   EmptyArena = col_double(),
+  ..   BMatchWCRank = col_double(),
+  ..   RMatchWCRank = col_double(),
+  ..   RWFlyweightRank = col_double(),
+  ..   RWFeatherweightRank = col_logical(),
+  ..   RWStrawweightRank = col_double(),
+  ..   RWBantamweightRank = col_double(),
+  ..   RHeavyweightRank = col_double(),
+  ..   RLightHeavyweightRank = col_double(),
+  ..   RMiddleweightRank = col_double(),
+  ..   RWelterweightRank = col_double(),
+  ..   RLightweightRank = col_double(),
+  ..   RFeatherweightRank = col_double(),
+  ..   RBantamweightRank = col_double(),
+  ..   RFlyweightRank = col_double(),
+  ..   RPFPRank = col_double(),
+  ..   BWFlyweightRank = col_double(),
+  ..   BWFeatherweightRank = col_logical(),
+  ..   BWStrawweightRank = col_double(),
+  ..   BWBantamweightRank = col_double(),
+  ..   BHeavyweightRank = col_double(),
+  ..   BLightHeavyweightRank = col_double(),
+  ..   BMiddleweightRank = col_double(),
+  ..   BWelterweightRank = col_double(),
+  ..   BLightweightRank = col_double(),
+  ..   BFeatherweightRank = col_double(),
+  ..   BBantamweightRank = col_double(),
+  ..   BFlyweightRank = col_double(),
+  ..   BPFPRank = col_double(),
+  ..   BetterRank = col_character(),
+  ..   Finish = col_character(),
+  ..   FinishDetails = col_character(),
+  ..   FinishRound = col_double(),
+  ..   FinishRoundTime = col_time(format = ""),
+  ..   TotalFightTimeSecs = col_double(),
+  ..   RedDecOdds = col_double(),
+  ..   BlueDecOdds = col_double(),
+  ..   RSubOdds = col_double(),
+  ..   BSubOdds = col_double(),
+  ..   RKOOdds = col_double(),
+  ..   BKOOdds = col_double()
+  .. )
+ - attr(*, "problems")=&lt;externalptr&gt; </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: Exploratory Data Analysis (EDA)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for null values in each column</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>missing_values <span class="ot">&lt;-</span> ufc_data <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span><span class="fu">sum</span>(<span class="fu">is.na</span>(.)))) <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"Variable"</span>, <span class="at">values_to =</span> <span class="st">"Missing_Count"</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Missing values in each column:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Missing values in each column:"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(missing_values)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 118 × 2
+   Variable          Missing_Count
+   &lt;chr&gt;                     &lt;int&gt;
+ 1 RedFighter                    0
+ 2 BlueFighter                   0
+ 3 RedOdds                     219
+ 4 BlueOdds                    219
+ 5 RedExpectedValue            219
+ 6 BlueExpectedValue           219
+ 7 Date                          0
+ 8 Location                      0
+ 9 Country                       0
+10 Winner                        0
+# ℹ 108 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>summary_stats <span class="ot">&lt;-</span> ufc_data <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="fu">list</span>(<span class="at">mean =</span> mean, <span class="at">sd =</span> sd, <span class="at">median =</span> median, <span class="at">min =</span> min, <span class="at">max =</span> max), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">"Variable"</span>, <span class="st">".value"</span>), <span class="at">names_sep =</span> <span class="st">"_"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There was 1 warning in `summarise()`.
+ℹ In argument: `across(...)`.
+Caused by warning:
+! The `...` argument of `across()` is deprecated as of dplyr 1.1.0.
+Supply arguments directly to `.fns` through an anonymous function instead.
+
+  # Previously
+  across(a:b, mean, na.rm = TRUE)
+
+  # Now
+  across(a:b, \(x) mean(x, na.rm = TRUE))</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Summary statistics for numerical variables:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Summary statistics for numerical variables:"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(summary_stats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 101 × 6
+   Variable                   mean      sd  median      min   max
+   &lt;chr&gt;                     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+ 1 RedOdds               -115.     275.    -150    -2100      775
+ 2 BlueOdds                59.9    252.     130    -1200     1300
+ 3 RedExpectedValue        96.5     85.3     66.7      4.76   775
+ 4 BlueExpectedValue      165.     137.     130        8.33  1300
+ 5 NumberOfRounds           3.19     0.578    3        3        5
+ 6 BlueCurrentLoseStreak    0.502    0.795    0        0        6
+ 7 BlueCurrentWinStreak     0.954    1.40     0        0       12
+ 8 BlueDraws                0.0225   0.155    0        0        2
+ 9 BlueAvgSigStrLanded     20.0     20.3     10        0      154
+10 BlueAvgSigStrPct         0.453    0.111    0.46     0        1
+# ℹ 91 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribution of fight outcomes</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ufc_data, <span class="fu">aes</span>(<span class="at">x =</span> Winner, <span class="at">fill =</span> Winner)) <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribution of Fight Outcomes"</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Winner"</span>,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Winner"</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="research_question_2_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Distribution of Total Fight Time</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ufc_data, <span class="fu">aes</span>(<span class="at">x =</span> TotalFightTimeSecs)) <span class="sc">+</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">100</span>, <span class="at">fill =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribution of Total Fight Time"</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Total Fight Time (seconds)"</span>,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Frequency"</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 622 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="research_question_2_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ufc_data <span class="ot">&lt;-</span> ufc_data <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Outcome =</span> <span class="fu">ifelse</span>(Winner <span class="sc">==</span> <span class="st">"Red"</span>, <span class="dv">1</span>, <span class="dv">0</span>),  <span class="co"># Binary outcome: 1 for Red win, 0 for Blue win</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">WeightClass =</span> <span class="fu">as.factor</span>(WeightClass), </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">TotalRedSubAttempts =</span> RedAvgSubAtt,        <span class="co"># Red's submission attempts</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">TotalBlueSubAttempts =</span> BlueAvgSubAtt <span class="co"># Convert WeightClass to a factor for glm()</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(Outcome), </span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(TotalRedSubAttempts), </span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(TotalBlueSubAttempts),</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(BlueReachCms), </span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(RedReachCms), </span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(BlueAvgSigStrLanded), </span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(RedAvgSigStrLanded),</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(TotalFightTimeSecs),</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(WeightClass)  <span class="co"># Remove rows with missing data in new variables</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>ufc_data<span class="sc">$</span>RedBlueSubRatio <span class="ot">&lt;-</span> ufc_data<span class="sc">$</span>TotalRedSubAttempts <span class="sc">/</span> ufc_data<span class="sc">$</span>TotalBlueSubAttempts</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>ufc_data<span class="sc">$</span>ReachRatio <span class="ot">&lt;-</span> ufc_data<span class="sc">$</span>RedReachCms <span class="sc">/</span> ufc_data<span class="sc">$</span>BlueReachCms</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>ufc_data<span class="sc">$</span>SigStrRatio <span class="ot">&lt;-</span> ufc_data<span class="sc">$</span>RedAvgSigStrLanded<span class="sc">/</span> ufc_data<span class="sc">$</span>BlueAvgSigStrLanded</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>ufc_data_clean <span class="ot">&lt;-</span> ufc_data <span class="sc">%&gt;%</span></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(RedBlueSubRatio), <span class="sc">!</span><span class="fu">is.na</span>(ReachRatio), <span class="sc">!</span><span class="fu">is.na</span>(SigStrRatio),</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(TotalFightTimeSecs), <span class="sc">!</span><span class="fu">is.na</span>(WeightClass)</span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.infinite</span>(RedBlueSubRatio), <span class="sc">!</span><span class="fu">is.infinite</span>(ReachRatio), <span class="sc">!</span><span class="fu">is.infinite</span>(SigStrRatio),</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.infinite</span>(TotalFightTimeSecs)</span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(ufc_data_clean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3142  124</code></pre>
+</div>
+</div>
+<p>A logistic regression w/o any feature engineering:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>sim_logistic_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  Outcome <span class="sc">~</span> </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    TotalRedSubAttempts <span class="sc">+</span> </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    TotalBlueSubAttempts <span class="sc">+</span> </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    BlueReachCms <span class="sc">+</span> </span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    RedReachCms <span class="sc">+</span> </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    BlueAvgSigStrLanded <span class="sc">+</span> </span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    RedAvgSigStrLanded <span class="sc">+</span> </span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    TotalFightTimeSecs <span class="sc">+</span> </span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    WeightClass,  <span class="co"># WeightClass as a factor</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> ufc_data_clean, </span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the model summary</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(sim_logistic_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Outcome ~ TotalRedSubAttempts + TotalBlueSubAttempts + 
+    BlueReachCms + RedReachCms + BlueAvgSigStrLanded + RedAvgSigStrLanded + 
+    TotalFightTimeSecs + WeightClass, family = binomial, data = ufc_data_clean)
+
+Coefficients:
+                                   Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)                       0.0818403  1.4699817   0.056 0.955601    
+TotalRedSubAttempts               0.1908949  0.0593050   3.219 0.001287 ** 
+TotalBlueSubAttempts             -0.0688102  0.0544092  -1.265 0.205986    
+BlueReachCms                     -0.0116384  0.0061542  -1.891 0.058607 .  
+RedReachCms                       0.0115374  0.0061029   1.890 0.058692 .  
+BlueAvgSigStrLanded              -0.0087642  0.0025996  -3.371 0.000748 ***
+RedAvgSigStrLanded                0.0099918  0.0025305   3.948 7.87e-05 ***
+TotalFightTimeSecs                0.0002083  0.0000998   2.087 0.036877 *  
+WeightClassCatch Weight           0.1944899  0.3909591   0.497 0.618859    
+WeightClassFeatherweight          0.0468343  0.1579058   0.297 0.766774    
+WeightClassFlyweight             -0.0126584  0.1881904  -0.067 0.946372    
+WeightClassHeavyweight            0.1612291  0.2658624   0.606 0.544224    
+WeightClassLight Heavyweight      0.1176007  0.2419181   0.486 0.626884    
+WeightClassLightweight           -0.0722974  0.1553014  -0.466 0.641552    
+WeightClassMiddleweight          -0.1281720  0.2023801  -0.633 0.526523    
+WeightClassWelterweight          -0.1424324  0.1792641  -0.795 0.426881    
+WeightClassWomen's Bantamweight  -0.1110771  0.2470186  -0.450 0.652948    
+WeightClassWomen's Featherweight  0.8864993  1.1639101   0.762 0.446265    
+WeightClassWomen's Flyweight      0.0016225  0.2219610   0.007 0.994168    
+WeightClassWomen's Strawweight   -0.2259323  0.2277953  -0.992 0.321284    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4305.7  on 3141  degrees of freedom
+Residual deviance: 4260.6  on 3122  degrees of freedom
+AIC: 4300.6
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sim_logistic_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="research_question_2_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A logistic regression with feature engineered ratios:</p>
+<p>summary(logistic_model)</p>
+<p>par(mfrow=c(2,2), mar = c(2,2,2,2))</p>
+<p>plot(logistic_model)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>logistic_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  Outcome <span class="sc">~</span> </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    RedBlueSubRatio <span class="sc">+</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    ReachRatio <span class="sc">+</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    SigStrRatio <span class="sc">+</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    TotalFightTimeSecs <span class="sc">+</span> WeightClass,  <span class="co"># WeightClass is now handled as a factor</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> ufc_data_clean, </span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: Model Summary</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(logistic_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + 
+    TotalFightTimeSecs + WeightClass, family = binomial, data = ufc_data_clean)
+
+Coefficients:
+                                   Estimate Std. Error z value Pr(&gt;|z|)   
+(Intercept)                      -2.174e+00  8.224e-01  -2.643  0.00821 **
+RedBlueSubRatio                   4.725e-02  1.679e-02   2.815  0.00488 **
+ReachRatio                        2.131e+00  8.169e-01   2.608  0.00910 **
+SigStrRatio                       9.957e-02  3.623e-02   2.748  0.00599 **
+TotalFightTimeSecs                2.136e-04  9.857e-05   2.167  0.03024 * 
+WeightClassCatch Weight           1.738e-01  3.867e-01   0.449  0.65316   
+WeightClassFeatherweight          5.422e-02  1.517e-01   0.357  0.72076   
+WeightClassFlyweight              1.117e-02  1.840e-01   0.061  0.95162   
+WeightClassHeavyweight            1.447e-01  1.865e-01   0.776  0.43778   
+WeightClassLight Heavyweight      1.099e-01  1.731e-01   0.635  0.52550   
+WeightClassLightweight           -6.388e-02  1.419e-01  -0.450  0.65259   
+WeightClassMiddleweight          -1.333e-01  1.530e-01  -0.872  0.38346   
+WeightClassWelterweight          -1.419e-01  1.447e-01  -0.980  0.32692   
+WeightClassWomen's Bantamweight  -1.356e-01  2.443e-01  -0.555  0.57888   
+WeightClassWomen's Featherweight  8.886e-01  1.163e+00   0.764  0.44469   
+WeightClassWomen's Flyweight     -1.940e-02  2.141e-01  -0.091  0.92778   
+WeightClassWomen's Strawweight   -2.351e-01  2.011e-01  -1.169  0.24241   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4305.7  on 3141  degrees of freedom
+Residual deviance: 4267.9  on 3125  degrees of freedom
+AIC: 4301.9
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(logistic_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="research_question_2_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: carData</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'car'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:dplyr':
+
+    recode</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    some</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(logistic_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       GVIF Df GVIF^(1/(2*Df))
+RedBlueSubRatio    1.023849  1        1.011854
+ReachRatio         1.012607  1        1.006284
+SigStrRatio        1.018291  1        1.009104
+TotalFightTimeSecs 1.028193  1        1.013998
+WeightClass        1.045489 12        1.001855</code></pre>
+</div>
+</div>
+<p>Adding interaction terms:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>ext_logistic_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  Outcome <span class="sc">~</span> </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    RedBlueSubRatio <span class="sc">+</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    ReachRatio <span class="sc">+</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    SigStrRatio <span class="sc">+</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    TotalFightTimeSecs <span class="sc">+</span> </span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    WeightClass <span class="sc">+</span> </span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>    RedBlueSubRatio<span class="sc">:</span>ReachRatio <span class="sc">+</span>       <span class="co"># Interaction between RedBlueSubRatio and ReachRatio</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>    RedBlueSubRatio<span class="sc">:</span>SigStrRatio <span class="sc">+</span>      <span class="co"># Interaction between RedBlueSubRatio and SigStrRatio</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>    ReachRatio<span class="sc">:</span>SigStrRatio <span class="sc">+</span>           <span class="co"># Interaction between ReachRatio and SigStrRatio</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>    RedBlueSubRatio<span class="sc">:</span>TotalFightTimeSecs <span class="sc">+</span>  <span class="co"># Interaction between RedBlueSubRatio and TotalFightTimeSecs</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>    ReachRatio<span class="sc">:</span>TotalFightTimeSecs <span class="sc">+</span>       <span class="co"># Interaction between ReachRatio and TotalFightTimeSecs</span></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>    SigStrRatio<span class="sc">:</span>TotalFightTimeSecs <span class="sc">+</span>     <span class="co"># Interaction between SigStrRatio and TotalFightTimeSecs</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>    WeightClass<span class="sc">:</span>RedBlueSubRatio <span class="sc">+</span>       <span class="co"># Interaction between WeightClass and RedBlueSubRatio</span></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>    WeightClass<span class="sc">:</span>ReachRatio <span class="sc">+</span>            <span class="co"># Interaction between WeightClass and ReachRatio</span></span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>    WeightClass<span class="sc">:</span>SigStrRatio <span class="sc">+</span>           <span class="co"># Interaction between WeightClass and SigStrRatio</span></span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a>    WeightClass<span class="sc">:</span>TotalFightTimeSecs     <span class="co"># Interaction between WeightClass and TotalFightTimeSecs</span></span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a>  ,</span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> ufc_data_clean, </span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial</span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ext_logistic_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + 
+    TotalFightTimeSecs + WeightClass + RedBlueSubRatio:ReachRatio + 
+    RedBlueSubRatio:SigStrRatio + ReachRatio:SigStrRatio + RedBlueSubRatio:TotalFightTimeSecs + 
+    ReachRatio:TotalFightTimeSecs + SigStrRatio:TotalFightTimeSecs + 
+    WeightClass:RedBlueSubRatio + WeightClass:ReachRatio + WeightClass:SigStrRatio + 
+    WeightClass:TotalFightTimeSecs, family = binomial, data = ufc_data_clean)
+
+Coefficients: (1 not defined because of singularities)
+                                                      Estimate Std. Error
+(Intercept)                                         -1.890e+00  3.187e+00
+RedBlueSubRatio                                      4.337e-01  4.391e-01
+ReachRatio                                           1.709e+00  3.206e+00
+SigStrRatio                                          3.652e-01  1.105e+00
+TotalFightTimeSecs                                   1.572e-03  2.328e-03
+WeightClassCatch Weight                              4.122e+00  1.013e+01
+WeightClassFeatherweight                            -1.485e+00  3.485e+00
+WeightClassFlyweight                                 1.132e+00  4.315e+00
+WeightClassHeavyweight                              -2.774e+00  3.868e+00
+WeightClassLight Heavyweight                        -4.936e+00  3.794e+00
+WeightClassLightweight                              -4.492e+00  3.187e+00
+WeightClassMiddleweight                             -3.300e-01  3.399e+00
+WeightClassWelterweight                             -2.900e+00  3.146e+00
+WeightClassWomen's Bantamweight                     -9.937e+00  6.200e+00
+WeightClassWomen's Featherweight                    -2.377e+02  8.798e+03
+WeightClassWomen's Flyweight                         2.994e+00  4.794e+00
+WeightClassWomen's Strawweight                      -2.376e-01  4.658e+00
+RedBlueSubRatio:ReachRatio                          -3.980e-01  4.348e-01
+RedBlueSubRatio:SigStrRatio                          1.198e-01  3.872e-02
+ReachRatio:SigStrRatio                              -3.883e-01  1.086e+00
+RedBlueSubRatio:TotalFightTimeSecs                  -8.921e-05  5.106e-05
+ReachRatio:TotalFightTimeSecs                       -1.498e-03  2.311e-03
+SigStrRatio:TotalFightTimeSecs                       3.785e-04  1.270e-04
+RedBlueSubRatio:WeightClassCatch Weight              3.755e-01  3.130e-01
+RedBlueSubRatio:WeightClassFeatherweight            -5.716e-02  8.667e-02
+RedBlueSubRatio:WeightClassFlyweight                 1.006e-01  1.136e-01
+RedBlueSubRatio:WeightClassHeavyweight              -1.545e-01  1.023e-01
+RedBlueSubRatio:WeightClassLight Heavyweight        -6.800e-02  7.743e-02
+RedBlueSubRatio:WeightClassLightweight              -5.294e-02  8.106e-02
+RedBlueSubRatio:WeightClassMiddleweight             -1.729e-02  7.828e-02
+RedBlueSubRatio:WeightClassWelterweight             -1.058e-01  8.625e-02
+RedBlueSubRatio:WeightClassWomen's Bantamweight      3.551e-02  1.478e-01
+RedBlueSubRatio:WeightClassWomen's Featherweight     9.868e+00  3.653e+02
+RedBlueSubRatio:WeightClassWomen's Flyweight        -1.378e-01  1.341e-01
+RedBlueSubRatio:WeightClassWomen's Strawweight       7.438e-02  8.998e-02
+ReachRatio:WeightClassCatch Weight                  -5.161e+00  1.007e+01
+ReachRatio:WeightClassFeatherweight                  1.885e+00  3.487e+00
+ReachRatio:WeightClassFlyweight                     -2.657e-01  4.314e+00
+ReachRatio:WeightClassHeavyweight                    3.080e+00  3.862e+00
+ReachRatio:WeightClassLight Heavyweight              5.849e+00  3.803e+00
+ReachRatio:WeightClassLightweight                    4.904e+00  3.195e+00
+ReachRatio:WeightClassMiddleweight                   4.057e-01  3.400e+00
+ReachRatio:WeightClassWelterweight                   3.266e+00  3.160e+00
+ReachRatio:WeightClassWomen's Bantamweight           1.038e+01  6.297e+00
+ReachRatio:WeightClassWomen's Featherweight          1.832e+02  8.523e+03
+ReachRatio:WeightClassWomen's Flyweight             -2.624e+00  4.804e+00
+ReachRatio:WeightClassWomen's Strawweight           -4.991e-01  4.601e+00
+SigStrRatio:WeightClassCatch Weight                  4.955e-01  8.849e-01
+SigStrRatio:WeightClassFeatherweight                -3.610e-01  1.469e-01
+SigStrRatio:WeightClassFlyweight                    -3.904e-01  2.418e-01
+SigStrRatio:WeightClassHeavyweight                   2.858e-02  2.579e-01
+SigStrRatio:WeightClassLight Heavyweight            -3.287e-01  2.264e-01
+SigStrRatio:WeightClassLightweight                  -1.708e-01  1.570e-01
+SigStrRatio:WeightClassMiddleweight                  4.355e-02  1.879e-01
+SigStrRatio:WeightClassWelterweight                 -1.437e-01  1.746e-01
+SigStrRatio:WeightClassWomen's Bantamweight         -1.598e-01  4.416e-01
+SigStrRatio:WeightClassWomen's Featherweight         5.768e+01  1.705e+03
+SigStrRatio:WeightClassWomen's Flyweight             2.142e-01  3.902e-01
+SigStrRatio:WeightClassWomen's Strawweight           1.246e-01  2.104e-01
+TotalFightTimeSecs:WeightClassCatch Weight           3.027e-04  1.046e-03
+TotalFightTimeSecs:WeightClassFeatherweight          2.424e-04  4.232e-04
+TotalFightTimeSecs:WeightClassFlyweight             -7.170e-04  5.096e-04
+TotalFightTimeSecs:WeightClassHeavyweight            4.146e-05  4.967e-04
+TotalFightTimeSecs:WeightClassLight Heavyweight     -5.322e-04  4.507e-04
+TotalFightTimeSecs:WeightClassLightweight           -2.593e-04  3.993e-04
+TotalFightTimeSecs:WeightClassMiddleweight          -3.620e-04  4.252e-04
+TotalFightTimeSecs:WeightClassWelterweight          -2.956e-04  3.993e-04
+TotalFightTimeSecs:WeightClassWomen's Bantamweight  -4.853e-04  6.882e-04
+TotalFightTimeSecs:WeightClassWomen's Featherweight         NA         NA
+TotalFightTimeSecs:WeightClassWomen's Flyweight     -6.011e-04  6.513e-04
+TotalFightTimeSecs:WeightClassWomen's Strawweight    3.154e-04  6.178e-04
+                                                    z value Pr(&gt;|z|)   
+(Intercept)                                          -0.593  0.55311   
+RedBlueSubRatio                                       0.988  0.32329   
+ReachRatio                                            0.533  0.59393   
+SigStrRatio                                           0.331  0.74095   
+TotalFightTimeSecs                                    0.675  0.49941   
+WeightClassCatch Weight                               0.407  0.68400   
+WeightClassFeatherweight                             -0.426  0.67009   
+WeightClassFlyweight                                  0.262  0.79305   
+WeightClassHeavyweight                               -0.717  0.47335   
+WeightClassLight Heavyweight                         -1.301  0.19322   
+WeightClassLightweight                               -1.409  0.15877   
+WeightClassMiddleweight                              -0.097  0.92267   
+WeightClassWelterweight                              -0.922  0.35664   
+WeightClassWomen's Bantamweight                      -1.603  0.10902   
+WeightClassWomen's Featherweight                     -0.027  0.97844   
+WeightClassWomen's Flyweight                          0.625  0.53224   
+WeightClassWomen's Strawweight                       -0.051  0.95932   
+RedBlueSubRatio:ReachRatio                           -0.915  0.36000   
+RedBlueSubRatio:SigStrRatio                           3.094  0.00198 **
+ReachRatio:SigStrRatio                               -0.358  0.72065   
+RedBlueSubRatio:TotalFightTimeSecs                   -1.747  0.08065 . 
+ReachRatio:TotalFightTimeSecs                        -0.648  0.51669   
+SigStrRatio:TotalFightTimeSecs                        2.979  0.00289 **
+RedBlueSubRatio:WeightClassCatch Weight               1.200  0.23024   
+RedBlueSubRatio:WeightClassFeatherweight             -0.660  0.50957   
+RedBlueSubRatio:WeightClassFlyweight                  0.885  0.37603   
+RedBlueSubRatio:WeightClassHeavyweight               -1.509  0.13122   
+RedBlueSubRatio:WeightClassLight Heavyweight         -0.878  0.37982   
+RedBlueSubRatio:WeightClassLightweight               -0.653  0.51369   
+RedBlueSubRatio:WeightClassMiddleweight              -0.221  0.82522   
+RedBlueSubRatio:WeightClassWelterweight              -1.226  0.22009   
+RedBlueSubRatio:WeightClassWomen's Bantamweight       0.240  0.81010   
+RedBlueSubRatio:WeightClassWomen's Featherweight      0.027  0.97845   
+RedBlueSubRatio:WeightClassWomen's Flyweight         -1.028  0.30395   
+RedBlueSubRatio:WeightClassWomen's Strawweight        0.827  0.40844   
+ReachRatio:WeightClassCatch Weight                   -0.512  0.60836   
+ReachRatio:WeightClassFeatherweight                   0.540  0.58887   
+ReachRatio:WeightClassFlyweight                      -0.062  0.95088   
+ReachRatio:WeightClassHeavyweight                     0.797  0.42522   
+ReachRatio:WeightClassLight Heavyweight               1.538  0.12404   
+ReachRatio:WeightClassLightweight                     1.535  0.12490   
+ReachRatio:WeightClassMiddleweight                    0.119  0.90501   
+ReachRatio:WeightClassWelterweight                    1.034  0.30135   
+ReachRatio:WeightClassWomen's Bantamweight            1.648  0.09940 . 
+ReachRatio:WeightClassWomen's Featherweight           0.021  0.98285   
+ReachRatio:WeightClassWomen's Flyweight              -0.546  0.58485   
+ReachRatio:WeightClassWomen's Strawweight            -0.108  0.91363   
+SigStrRatio:WeightClassCatch Weight                   0.560  0.57553   
+SigStrRatio:WeightClassFeatherweight                 -2.457  0.01400 * 
+SigStrRatio:WeightClassFlyweight                     -1.615  0.10637   
+SigStrRatio:WeightClassHeavyweight                    0.111  0.91176   
+SigStrRatio:WeightClassLight Heavyweight             -1.452  0.14655   
+SigStrRatio:WeightClassLightweight                   -1.087  0.27683   
+SigStrRatio:WeightClassMiddleweight                   0.232  0.81677   
+SigStrRatio:WeightClassWelterweight                  -0.823  0.41062   
+SigStrRatio:WeightClassWomen's Bantamweight          -0.362  0.71748   
+SigStrRatio:WeightClassWomen's Featherweight          0.034  0.97302   
+SigStrRatio:WeightClassWomen's Flyweight              0.549  0.58295   
+SigStrRatio:WeightClassWomen's Strawweight            0.592  0.55372   
+TotalFightTimeSecs:WeightClassCatch Weight            0.289  0.77233   
+TotalFightTimeSecs:WeightClassFeatherweight           0.573  0.56676   
+TotalFightTimeSecs:WeightClassFlyweight              -1.407  0.15947   
+TotalFightTimeSecs:WeightClassHeavyweight             0.083  0.93348   
+TotalFightTimeSecs:WeightClassLight Heavyweight      -1.181  0.23772   
+TotalFightTimeSecs:WeightClassLightweight            -0.650  0.51598   
+TotalFightTimeSecs:WeightClassMiddleweight           -0.851  0.39455   
+TotalFightTimeSecs:WeightClassWelterweight           -0.740  0.45909   
+TotalFightTimeSecs:WeightClassWomen's Bantamweight   -0.705  0.48068   
+TotalFightTimeSecs:WeightClassWomen's Featherweight      NA       NA   
+TotalFightTimeSecs:WeightClassWomen's Flyweight      -0.923  0.35606   
+TotalFightTimeSecs:WeightClassWomen's Strawweight     0.511  0.60962   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4305.7  on 3141  degrees of freedom
+Residual deviance: 4190.7  on 3072  degrees of freedom
+AIC: 4330.7
+
+Number of Fisher Scoring iterations: 12</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ext_logistic_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: not plotting observations with leverage one:
+  723, 820, 977, 1209</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="research_question_2_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>step_model <span class="ot">&lt;-</span> <span class="fu">step</span>(ext_logistic_model, <span class="at">direction =</span> <span class="st">"both"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Start:  AIC=4330.66
+Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + TotalFightTimeSecs + 
+    WeightClass + RedBlueSubRatio:ReachRatio + RedBlueSubRatio:SigStrRatio + 
+    ReachRatio:SigStrRatio + RedBlueSubRatio:TotalFightTimeSecs + 
+    ReachRatio:TotalFightTimeSecs + SigStrRatio:TotalFightTimeSecs + 
+    WeightClass:RedBlueSubRatio + WeightClass:ReachRatio + WeightClass:SigStrRatio + 
+    WeightClass:TotalFightTimeSecs
+
+                                     Df Deviance    AIC
+- TotalFightTimeSecs:WeightClass     11   4199.0 4317.0
+- ReachRatio:WeightClass             11   4200.6 4318.6
+- RedBlueSubRatio:WeightClass        11   4204.9 4322.9
+- ReachRatio:SigStrRatio              1   4190.8 4328.8
+- ReachRatio:TotalFightTimeSecs       1   4191.1 4329.1
+- RedBlueSubRatio:ReachRatio          1   4191.5 4329.5
+&lt;none&gt;                                    4190.7 4330.7
+- RedBlueSubRatio:TotalFightTimeSecs  1   4193.8 4331.8
+- SigStrRatio:WeightClass            11   4213.8 4331.8
+- SigStrRatio:TotalFightTimeSecs      1   4200.4 4338.4
+- RedBlueSubRatio:SigStrRatio         1   4201.0 4339.0
+
+Step:  AIC=4316.99
+Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + TotalFightTimeSecs + 
+    WeightClass + RedBlueSubRatio:ReachRatio + RedBlueSubRatio:SigStrRatio + 
+    ReachRatio:SigStrRatio + RedBlueSubRatio:TotalFightTimeSecs + 
+    ReachRatio:TotalFightTimeSecs + SigStrRatio:TotalFightTimeSecs + 
+    RedBlueSubRatio:WeightClass + ReachRatio:WeightClass + SigStrRatio:WeightClass</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                     Df Deviance    AIC
+- ReachRatio:WeightClass             12   4208.8 4302.8
+- RedBlueSubRatio:WeightClass        12   4213.2 4307.2
+- ReachRatio:SigStrRatio              1   4199.2 4315.2
+- ReachRatio:TotalFightTimeSecs       1   4199.5 4315.5
+- SigStrRatio:WeightClass            12   4221.9 4315.9
+- RedBlueSubRatio:ReachRatio          1   4200.0 4316.0
+&lt;none&gt;                                    4199.0 4317.0
+- RedBlueSubRatio:TotalFightTimeSecs  1   4201.8 4317.8
+- SigStrRatio:TotalFightTimeSecs      1   4209.2 4325.2
+- RedBlueSubRatio:SigStrRatio         1   4209.6 4325.6
++ TotalFightTimeSecs:WeightClass     11   4190.7 4330.7</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Step:  AIC=4302.79
+Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + TotalFightTimeSecs + 
+    WeightClass + RedBlueSubRatio:ReachRatio + RedBlueSubRatio:SigStrRatio + 
+    ReachRatio:SigStrRatio + RedBlueSubRatio:TotalFightTimeSecs + 
+    ReachRatio:TotalFightTimeSecs + SigStrRatio:TotalFightTimeSecs + 
+    RedBlueSubRatio:WeightClass + SigStrRatio:WeightClass</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                     Df Deviance    AIC
+- RedBlueSubRatio:WeightClass        12   4222.4 4292.4
+- ReachRatio:SigStrRatio              1   4209.0 4301.0
+- ReachRatio:TotalFightTimeSecs       1   4209.4 4301.4
+- RedBlueSubRatio:ReachRatio          1   4209.9 4301.9
+&lt;none&gt;                                    4208.8 4302.8
+- RedBlueSubRatio:TotalFightTimeSecs  1   4211.2 4303.2
+- SigStrRatio:WeightClass            12   4233.9 4303.9
+- SigStrRatio:TotalFightTimeSecs      1   4219.1 4311.1
+- RedBlueSubRatio:SigStrRatio         1   4219.6 4311.6
++ ReachRatio:WeightClass             12   4199.0 4317.0
++ TotalFightTimeSecs:WeightClass     12   4200.6 4318.6</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Step:  AIC=4292.45
+Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + TotalFightTimeSecs + 
+    WeightClass + RedBlueSubRatio:ReachRatio + RedBlueSubRatio:SigStrRatio + 
+    ReachRatio:SigStrRatio + RedBlueSubRatio:TotalFightTimeSecs + 
+    ReachRatio:TotalFightTimeSecs + SigStrRatio:TotalFightTimeSecs + 
+    SigStrRatio:WeightClass</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                     Df Deviance    AIC
+- ReachRatio:SigStrRatio              1   4222.6 4290.6
+- ReachRatio:TotalFightTimeSecs       1   4223.2 4291.2
+- RedBlueSubRatio:ReachRatio          1   4223.3 4291.3
+- RedBlueSubRatio:TotalFightTimeSecs  1   4223.6 4291.6
+&lt;none&gt;                                    4222.4 4292.4
+- SigStrRatio:WeightClass            12   4249.1 4295.1
+- RedBlueSubRatio:SigStrRatio         1   4230.5 4298.5
+- SigStrRatio:TotalFightTimeSecs      1   4232.9 4300.9
++ RedBlueSubRatio:WeightClass        12   4208.8 4302.8
++ ReachRatio:WeightClass             12   4213.2 4307.2
++ TotalFightTimeSecs:WeightClass     12   4214.4 4308.4</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Step:  AIC=4290.56
+Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + TotalFightTimeSecs + 
+    WeightClass + RedBlueSubRatio:ReachRatio + RedBlueSubRatio:SigStrRatio + 
+    RedBlueSubRatio:TotalFightTimeSecs + ReachRatio:TotalFightTimeSecs + 
+    SigStrRatio:TotalFightTimeSecs + SigStrRatio:WeightClass</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                     Df Deviance    AIC
+- ReachRatio:TotalFightTimeSecs       1   4223.3 4289.3
+- RedBlueSubRatio:ReachRatio          1   4223.3 4289.3
+- RedBlueSubRatio:TotalFightTimeSecs  1   4223.7 4289.7
+&lt;none&gt;                                    4222.6 4290.6
++ ReachRatio:SigStrRatio              1   4222.4 4292.4
+- SigStrRatio:WeightClass            12   4249.3 4293.3
+- RedBlueSubRatio:SigStrRatio         1   4230.5 4296.5
+- SigStrRatio:TotalFightTimeSecs      1   4233.1 4299.1
++ RedBlueSubRatio:WeightClass        12   4209.0 4301.0
++ ReachRatio:WeightClass             12   4213.3 4305.3
++ TotalFightTimeSecs:WeightClass     12   4214.5 4306.5</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Step:  AIC=4289.28
+Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + TotalFightTimeSecs + 
+    WeightClass + RedBlueSubRatio:ReachRatio + RedBlueSubRatio:SigStrRatio + 
+    RedBlueSubRatio:TotalFightTimeSecs + SigStrRatio:TotalFightTimeSecs + 
+    SigStrRatio:WeightClass</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                     Df Deviance    AIC
+- RedBlueSubRatio:ReachRatio          1   4224.0 4288.0
+- RedBlueSubRatio:TotalFightTimeSecs  1   4224.5 4288.5
+&lt;none&gt;                                    4223.3 4289.3
++ ReachRatio:TotalFightTimeSecs       1   4222.6 4290.6
++ ReachRatio:SigStrRatio              1   4223.2 4291.2
+- SigStrRatio:WeightClass            12   4249.9 4291.9
+- RedBlueSubRatio:SigStrRatio         1   4231.3 4295.3
+- SigStrRatio:TotalFightTimeSecs      1   4233.8 4297.8
++ RedBlueSubRatio:WeightClass        12   4209.6 4299.6
++ ReachRatio:WeightClass             12   4214.1 4304.1
++ TotalFightTimeSecs:WeightClass     12   4215.1 4305.1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Step:  AIC=4287.97
+Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + TotalFightTimeSecs + 
+    WeightClass + RedBlueSubRatio:SigStrRatio + RedBlueSubRatio:TotalFightTimeSecs + 
+    SigStrRatio:TotalFightTimeSecs + SigStrRatio:WeightClass</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                     Df Deviance    AIC
+- RedBlueSubRatio:TotalFightTimeSecs  1   4225.4 4287.4
+&lt;none&gt;                                    4224.0 4288.0
++ RedBlueSubRatio:ReachRatio          1   4223.3 4289.3
++ ReachRatio:TotalFightTimeSecs       1   4223.3 4289.3
++ ReachRatio:SigStrRatio              1   4223.9 4289.9
+- SigStrRatio:WeightClass            12   4250.8 4290.8
+- ReachRatio                          1   4229.6 4291.6
+- RedBlueSubRatio:SigStrRatio         1   4231.9 4293.9
+- SigStrRatio:TotalFightTimeSecs      1   4234.5 4296.5
++ RedBlueSubRatio:WeightClass        12   4210.5 4298.5
++ ReachRatio:WeightClass             12   4214.6 4302.6
++ TotalFightTimeSecs:WeightClass     12   4215.6 4303.6</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Step:  AIC=4287.42
+Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + TotalFightTimeSecs + 
+    WeightClass + RedBlueSubRatio:SigStrRatio + SigStrRatio:TotalFightTimeSecs + 
+    SigStrRatio:WeightClass</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                     Df Deviance    AIC
+&lt;none&gt;                                    4225.4 4287.4
++ RedBlueSubRatio:TotalFightTimeSecs  1   4224.0 4288.0
++ RedBlueSubRatio:ReachRatio          1   4224.5 4288.5
++ ReachRatio:TotalFightTimeSecs       1   4224.7 4288.7
++ ReachRatio:SigStrRatio              1   4225.4 4289.4
+- SigStrRatio:WeightClass            12   4252.9 4290.9
+- ReachRatio                          1   4231.1 4291.1
+- RedBlueSubRatio:SigStrRatio         1   4233.5 4293.5
+- SigStrRatio:TotalFightTimeSecs      1   4237.4 4297.4
++ RedBlueSubRatio:WeightClass        12   4213.2 4299.2
++ ReachRatio:WeightClass             12   4216.1 4302.1
++ TotalFightTimeSecs:WeightClass     12   4217.3 4303.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(step_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + 
+    TotalFightTimeSecs + WeightClass + RedBlueSubRatio:SigStrRatio + 
+    SigStrRatio:TotalFightTimeSecs + SigStrRatio:WeightClass, 
+    family = binomial, data = ufc_data_clean)
+
+Coefficients:
+                                               Estimate Std. Error z value
+(Intercept)                                  -1.854e+00  8.463e-01  -2.191
+RedBlueSubRatio                              -3.469e-02  3.258e-02  -1.065
+ReachRatio                                    1.966e+00  8.251e-01   2.383
+SigStrRatio                                  -4.958e-02  1.450e-01  -0.342
+TotalFightTimeSecs                           -2.873e-04  1.801e-04  -1.595
+WeightClassCatch Weight                      -2.464e-02  9.673e-01  -0.025
+WeightClassFeatherweight                      4.871e-01  2.308e-01   2.111
+WeightClassFlyweight                          5.437e-01  3.376e-01   1.610
+WeightClassHeavyweight                        5.728e-02  3.530e-01   0.162
+WeightClassLight Heavyweight                  4.659e-01  3.244e-01   1.437
+WeightClassLightweight                        1.322e-01  2.339e-01   0.565
+WeightClassMiddleweight                      -1.931e-01  2.706e-01  -0.714
+WeightClassWelterweight                      -1.702e-02  2.531e-01  -0.067
+WeightClassWomen's Bantamweight               6.342e-02  5.169e-01   0.123
+WeightClassWomen's Featherweight             -3.355e+02  5.330e+03  -0.063
+WeightClassWomen's Flyweight                 -3.215e-01  4.959e-01  -0.648
+WeightClassWomen's Strawweight               -2.816e-01  3.077e-01  -0.915
+RedBlueSubRatio:SigStrRatio                   9.986e-02  3.607e-02   2.769
+SigStrRatio:TotalFightTimeSecs                4.132e-04  1.241e-04   3.329
+SigStrRatio:WeightClassCatch Weight           2.038e-01  8.311e-01   0.245
+SigStrRatio:WeightClassFeatherweight         -3.510e-01  1.419e-01  -2.474
+SigStrRatio:WeightClassFlyweight             -4.433e-01  2.363e-01  -1.876
+SigStrRatio:WeightClassHeavyweight            7.756e-02  2.525e-01   0.307
+SigStrRatio:WeightClassLight Heavyweight     -3.021e-01  2.220e-01  -1.361
+SigStrRatio:WeightClassLightweight           -1.478e-01  1.519e-01  -0.973
+SigStrRatio:WeightClassMiddleweight           4.634e-02  1.849e-01   0.251
+SigStrRatio:WeightClassWelterweight          -1.016e-01  1.713e-01  -0.593
+SigStrRatio:WeightClassWomen's Bantamweight  -1.514e-01  4.303e-01  -0.352
+SigStrRatio:WeightClassWomen's Featherweight  3.632e+02  5.745e+03   0.063
+SigStrRatio:WeightClassWomen's Flyweight      2.630e-01  3.807e-01   0.691
+SigStrRatio:WeightClassWomen's Strawweight    5.477e-02  1.865e-01   0.294
+                                             Pr(&gt;|z|)    
+(Intercept)                                  0.028455 *  
+RedBlueSubRatio                              0.287025    
+ReachRatio                                   0.017153 *  
+SigStrRatio                                  0.732446    
+TotalFightTimeSecs                           0.110656    
+WeightClassCatch Weight                      0.979678    
+WeightClassFeatherweight                     0.034811 *  
+WeightClassFlyweight                         0.107316    
+WeightClassHeavyweight                       0.871107    
+WeightClassLight Heavyweight                 0.150854    
+WeightClassLightweight                       0.572047    
+WeightClassMiddleweight                      0.475410    
+WeightClassWelterweight                      0.946387    
+WeightClassWomen's Bantamweight              0.902350    
+WeightClassWomen's Featherweight             0.949820    
+WeightClassWomen's Flyweight                 0.516746    
+WeightClassWomen's Strawweight               0.360007    
+RedBlueSubRatio:SigStrRatio                  0.005628 ** 
+SigStrRatio:TotalFightTimeSecs               0.000873 ***
+SigStrRatio:WeightClassCatch Weight          0.806266    
+SigStrRatio:WeightClassFeatherweight         0.013356 *  
+SigStrRatio:WeightClassFlyweight             0.060690 .  
+SigStrRatio:WeightClassHeavyweight           0.758694    
+SigStrRatio:WeightClassLight Heavyweight     0.173592    
+SigStrRatio:WeightClassLightweight           0.330424    
+SigStrRatio:WeightClassMiddleweight          0.802082    
+SigStrRatio:WeightClassWelterweight          0.553032    
+SigStrRatio:WeightClassWomen's Bantamweight  0.724927    
+SigStrRatio:WeightClassWomen's Featherweight 0.949590    
+SigStrRatio:WeightClassWomen's Flyweight     0.489742    
+SigStrRatio:WeightClassWomen's Strawweight   0.769058    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 4305.7  on 3141  degrees of freedom
+Residual deviance: 4225.4  on 3111  degrees of freedom
+AIC: 4287.4
+
+Number of Fisher Scoring iterations: 14</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(step_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>there are higher-order terms (interactions) in this model
+consider setting type = 'predictor'; see ?vif</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                       GVIF Df GVIF^(1/(2*Df))
+RedBlueSubRatio                4.622859e+00  1        2.150084
+ReachRatio                     1.017236e+00  1        1.008581
+SigStrRatio                    2.542497e+01  1        5.042317
+TotalFightTimeSecs             3.388570e+00  1        1.840807
+WeightClass                    7.578151e+08 12        2.344131
+RedBlueSubRatio:SigStrRatio    4.625970e+00  1        2.150807
+SigStrRatio:TotalFightTimeSecs 1.436949e+01  1        3.790711
+SigStrRatio:WeightClass        8.403589e+09 12        2.591310</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(step_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in sqrt(crit * p * (1 - hh)/hh): NaNs produced
+Warning in sqrt(crit * p * (1 - hh)/hh): NaNs produced</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="research_question_2_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Robust regression:<br>
+</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Trim the data</span></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate influence measures</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>influence <span class="ot">&lt;-</span> <span class="fu">influence.measures</span>(step_model)</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Get Cook's Distance</span></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>cooks_distance <span class="ot">&lt;-</span> <span class="fu">cooks.distance</span>(step_model)</span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Get Leverage (Hat values)</span></span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>hat_values <span class="ot">&lt;-</span> <span class="fu">hatvalues</span>(step_model)</span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Find large residuals</span></span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>residuals <span class="ot">&lt;-</span> <span class="fu">residuals</span>(step_model, <span class="at">type =</span> <span class="st">"deviance"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Thresholds</span></span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(ufc_data_clean)  <span class="co"># Number of rows</span></span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">coef</span>(step_model)) <span class="sc">-</span> <span class="dv">1</span>  <span class="co"># Number of predictors</span></span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>cooks_threshold <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">/</span> n</span>
+<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a>leverage_threshold <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (p <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> n</span>
+<span id="cb79-6"><a href="#cb79-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Find influential points</span></span>
+<span id="cb79-8"><a href="#cb79-8" aria-hidden="true" tabindex="-1"></a>influential_points <span class="ot">&lt;-</span> <span class="fu">which</span>(cooks_distance <span class="sc">&gt;</span> cooks_threshold <span class="sc">|</span> </span>
+<span id="cb79-9"><a href="#cb79-9" aria-hidden="true" tabindex="-1"></a>                            hat_values <span class="sc">&gt;</span> leverage_threshold <span class="sc">|</span></span>
+<span id="cb79-10"><a href="#cb79-10" aria-hidden="true" tabindex="-1"></a>                            <span class="fu">abs</span>(residuals) <span class="sc">&gt;</span> <span class="dv">2</span>)</span>
+<span id="cb79-11"><a href="#cb79-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-12"><a href="#cb79-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the indices of influential points</span></span>
+<span id="cb79-13"><a href="#cb79-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(influential_points)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  19   28   42   83  111  123  134  199  251  267  278  301  311  319  325  338 
+  19   28   42   83  111  123  134  199  251  267  278  301  311  319  325  338 
+ 340  341  344  377  405  415  430  431  438  451  454  461  488  497  498  500 
+ 340  341  344  377  405  415  430  431  438  451  454  461  488  497  498  500 
+ 517  518  540  551  561  574  578  585  606  609  623  633  636  637  666  681 
+ 517  518  540  551  561  574  578  585  606  609  623  633  636  637  666  681 
+ 692  710  718  719  720  743  749  761  794  820  831  842  868  875  913  921 
+ 692  710  718  719  720  743  749  761  794  820  831  842  868  875  913  921 
+ 929  932  937  949  997 1048 1051 1064 1066 1068 1069 1073 1112 1116 1126 1128 
+ 929  932  937  949  997 1048 1051 1064 1066 1068 1069 1073 1112 1116 1126 1128 
+1145 1153 1173 1177 1179 1196 1201 1204 1208 1209 1219 1233 1239 1261 1271 1310 
+1145 1153 1173 1177 1179 1196 1201 1204 1208 1209 1219 1233 1239 1261 1271 1310 
+1340 1348 1358 1363 1369 1372 1391 1394 1407 1429 1436 1474 1479 1481 1489 1496 
+1340 1348 1358 1363 1369 1372 1391 1394 1407 1429 1436 1474 1479 1481 1489 1496 
+1505 1537 1541 1547 1551 1557 1563 1586 1588 1601 1606 1621 1626 1650 1690 1696 
+1505 1537 1541 1547 1551 1557 1563 1586 1588 1601 1606 1621 1626 1650 1690 1696 
+1715 1719 1723 1766 1777 1779 1783 1795 1801 1813 1830 1831 1856 1880 1888 1914 
+1715 1719 1723 1766 1777 1779 1783 1795 1801 1813 1830 1831 1856 1880 1888 1914 
+1916 1919 1931 1934 1940 1957 1962 1979 1983 1988 1996 2050 2052 2067 2085 2113 
+1916 1919 1931 1934 1940 1957 1962 1979 1983 1988 1996 2050 2052 2067 2085 2113 
+2116 2117 2118 2123 2124 2138 2158 2162 2213 2265 2311 2315 2333 2341 2342 2352 
+2116 2117 2118 2123 2124 2138 2158 2162 2213 2265 2311 2315 2333 2341 2342 2352 
+2358 2402 2421 2466 2479 2483 2486 2495 2502 2518 2532 2553 2564 2574 2585 2614 
+2358 2402 2421 2466 2479 2483 2486 2495 2502 2518 2532 2553 2564 2574 2585 2614 
+2616 2631 2632 2633 2640 2645 2658 2694 2721 2771 2783 2790 2814 2818 2833 2837 
+2616 2631 2632 2633 2640 2645 2658 2694 2721 2771 2783 2790 2814 2818 2833 2837 
+2890 2896 2905 2917 2920 2935 2939 2963 2998 3016 3019 3043 3051 3058 3071 3083 
+2890 2896 2905 2917 2920 2935 2939 2963 2998 3016 3019 3043 3051 3058 3071 3083 
+3089 3095 3099 3129 3138 
+3089 3095 3099 3129 3138 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View the rows with extreme points</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>ufc_data_clean[influential_points, ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 229 × 124
+   RedFighter    BlueFighter RedOdds BlueOdds RedExpectedValue BlueExpectedValue
+   &lt;chr&gt;         &lt;chr&gt;         &lt;dbl&gt;    &lt;dbl&gt;            &lt;dbl&gt;             &lt;dbl&gt;
+ 1 Mateusz Rebe… Myktybek O…     215     -265            215               37.7 
+ 2 Joselyne Edw… Tamires Vi…    -258      210             38.8            210   
+ 3 Ketlen Vieira Kayla Harr…     700    -1100            700                9.09
+ 4 Casey O'Neill Luana Sant…     124     -160            124               62.5 
+ 5 Miranda Mave… Dione Barb…      NA       NA             NA               NA   
+ 6 Dan Ige       Diego Lopes     240     -298            240               33.6 
+ 7 Shara Magome… Antonio Tr…    -810      500             12.3            500   
+ 8 Holly Holm    Kayla Harr…     350     -455            350               22.0 
+ 9 Alex Perez    Muhammad M…     320     -410            320               24.4 
+10 Zhang Mingya… Brendson R…    -110     -110             90.9             90.9 
+# ℹ 219 more rows
+# ℹ 118 more variables: Date &lt;date&gt;, Location &lt;chr&gt;, Country &lt;chr&gt;,
+#   Winner &lt;chr&gt;, TitleBout &lt;lgl&gt;, WeightClass &lt;fct&gt;, Gender &lt;chr&gt;,
+#   NumberOfRounds &lt;dbl&gt;, BlueCurrentLoseStreak &lt;dbl&gt;,
+#   BlueCurrentWinStreak &lt;dbl&gt;, BlueDraws &lt;dbl&gt;, BlueAvgSigStrLanded &lt;dbl&gt;,
+#   BlueAvgSigStrPct &lt;dbl&gt;, BlueAvgSubAtt &lt;dbl&gt;, BlueAvgTDLanded &lt;dbl&gt;,
+#   BlueAvgTDPct &lt;dbl&gt;, BlueLongestWinStreak &lt;dbl&gt;, BlueLosses &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove influential points</span></span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>ufc_data_clean_filtered <span class="ot">&lt;-</span> ufc_data_clean[<span class="sc">-</span>influential_points, ]</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Refit the model</span></span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>final_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> Outcome <span class="sc">~</span> RedBlueSubRatio <span class="sc">+</span> ReachRatio <span class="sc">+</span> SigStrRatio <span class="sc">+</span> </span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a>             TotalFightTimeSecs <span class="sc">+</span> WeightClass <span class="sc">+</span> RedBlueSubRatio<span class="sc">:</span>SigStrRatio <span class="sc">+</span> </span>
+<span id="cb83-8"><a href="#cb83-8" aria-hidden="true" tabindex="-1"></a>             SigStrRatio<span class="sc">:</span>TotalFightTimeSecs <span class="sc">+</span> SigStrRatio<span class="sc">:</span>WeightClass,</span>
+<span id="cb83-9"><a href="#cb83-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb83-10"><a href="#cb83-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> ufc_data_clean_filtered</span>
+<span id="cb83-11"><a href="#cb83-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the refitted model</span></span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(final_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + 
+    TotalFightTimeSecs + WeightClass + RedBlueSubRatio:SigStrRatio + 
+    SigStrRatio:TotalFightTimeSecs + SigStrRatio:WeightClass, 
+    family = binomial, data = ufc_data_clean_filtered)
+
+Coefficients:
+                                               Estimate Std. Error z value
+(Intercept)                                  -2.943e+00  9.225e-01  -3.191
+RedBlueSubRatio                              -3.810e-02  5.566e-02  -0.685
+ReachRatio                                    2.408e+00  8.692e-01   2.770
+SigStrRatio                                   5.423e-01  2.727e-01   1.988
+TotalFightTimeSecs                           -4.462e-04  2.367e-04  -1.885
+WeightClassFeatherweight                      8.429e-01  3.481e-01   2.421
+WeightClassFlyweight                          1.378e+00  4.578e-01   3.009
+WeightClassHeavyweight                        8.157e-01  4.661e-01   1.750
+WeightClassLight Heavyweight                  9.473e-01  4.384e-01   2.161
+WeightClassLightweight                        6.646e-01  3.329e-01   1.997
+WeightClassMiddleweight                       3.571e-01  3.684e-01   0.969
+WeightClassWelterweight                       5.084e-01  3.413e-01   1.489
+WeightClassWomen's Bantamweight               4.638e-01  1.257e+00   0.369
+WeightClassWomen's Featherweight              1.323e+01  2.595e+03   0.005
+WeightClassWomen's Flyweight                 -6.588e-02  9.180e-01  -0.072
+WeightClassWomen's Strawweight                3.551e-01  5.107e-01   0.695
+RedBlueSubRatio:SigStrRatio                   1.411e-01  5.736e-02   2.460
+SigStrRatio:TotalFightTimeSecs                5.795e-04  1.883e-04   3.078
+SigStrRatio:WeightClassFeatherweight         -7.769e-01  2.790e-01  -2.785
+SigStrRatio:WeightClassFlyweight             -1.282e+00  3.947e-01  -3.249
+SigStrRatio:WeightClassHeavyweight           -5.926e-01  3.904e-01  -1.518
+SigStrRatio:WeightClassLight Heavyweight     -7.996e-01  3.616e-01  -2.211
+SigStrRatio:WeightClassLightweight           -6.875e-01  2.742e-01  -2.507
+SigStrRatio:WeightClassMiddleweight          -4.866e-01  3.073e-01  -1.583
+SigStrRatio:WeightClassWelterweight          -6.000e-01  2.836e-01  -2.116
+SigStrRatio:WeightClassWomen's Bantamweight  -6.313e-01  1.256e+00  -0.503
+SigStrRatio:WeightClassWomen's Featherweight -7.745e-01  2.145e+03   0.000
+SigStrRatio:WeightClassWomen's Flyweight      7.394e-03  7.872e-01   0.009
+SigStrRatio:WeightClassWomen's Strawweight   -5.762e-01  4.246e-01  -1.357
+                                             Pr(&gt;|z|)   
+(Intercept)                                   0.00142 **
+RedBlueSubRatio                               0.49361   
+ReachRatio                                    0.00560 **
+SigStrRatio                                   0.04676 * 
+TotalFightTimeSecs                            0.05941 . 
+WeightClassFeatherweight                      0.01546 * 
+WeightClassFlyweight                          0.00262 **
+WeightClassHeavyweight                        0.08008 . 
+WeightClassLight Heavyweight                  0.03072 * 
+WeightClassLightweight                        0.04587 * 
+WeightClassMiddleweight                       0.33233   
+WeightClassWelterweight                       0.13636   
+WeightClassWomen's Bantamweight               0.71214   
+WeightClassWomen's Featherweight              0.99593   
+WeightClassWomen's Flyweight                  0.94279   
+WeightClassWomen's Strawweight                0.48683   
+RedBlueSubRatio:SigStrRatio                   0.01390 * 
+SigStrRatio:TotalFightTimeSecs                0.00208 **
+SigStrRatio:WeightClassFeatherweight          0.00536 **
+SigStrRatio:WeightClassFlyweight              0.00116 **
+SigStrRatio:WeightClassHeavyweight            0.12904   
+SigStrRatio:WeightClassLight Heavyweight      0.02704 * 
+SigStrRatio:WeightClassLightweight            0.01218 * 
+SigStrRatio:WeightClassMiddleweight           0.11331   
+SigStrRatio:WeightClassWelterweight           0.03437 * 
+SigStrRatio:WeightClassWomen's Bantamweight   0.61531   
+SigStrRatio:WeightClassWomen's Featherweight  0.99971   
+SigStrRatio:WeightClassWomen's Flyweight      0.99251   
+SigStrRatio:WeightClassWomen's Strawweight    0.17478   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 3990.4  on 2912  degrees of freedom
+Residual deviance: 3879.3  on 2884  degrees of freedom
+AIC: 3937.3
+
+Number of Fisher Scoring iterations: 11</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(final_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: not plotting observations with leverage one:
+  670, 909</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="research_question_2_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate leverage and Cook's distance</span></span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>influence <span class="ot">&lt;-</span> <span class="fu">influence.measures</span>(final_model)</span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>cooks_distance <span class="ot">&lt;-</span> <span class="fu">cooks.distance</span>(final_model)</span>
+<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a>leverage <span class="ot">&lt;-</span> <span class="fu">hatvalues</span>(final_model)</span>
+<span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a threshold for Cook's distance</span></span>
+<span id="cb89-7"><a href="#cb89-7" aria-hidden="true" tabindex="-1"></a>cooks_threshold <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">/</span> <span class="fu">nrow</span>(ufc_data_clean_filtered)</span>
+<span id="cb89-8"><a href="#cb89-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-9"><a href="#cb89-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect influential Cook's distance values</span></span>
+<span id="cb89-10"><a href="#cb89-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cooks_distance, <span class="at">main =</span> <span class="st">"Cook's Distance"</span>, <span class="at">ylab =</span> <span class="st">"Cook's Distance"</span>)</span>
+<span id="cb89-11"><a href="#cb89-11" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> cooks_threshold, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="research_question_2_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check points above the threshold</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>influential_cooks <span class="ot">&lt;-</span> <span class="fu">which</span>(cooks_distance <span class="sc">&gt;</span> cooks_threshold)</span>
+<span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(influential_cooks)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  37   55   85  143  152  182  201  223  239  291  367  475  508  525  547  549 
+  37   55   85  143  152  182  201  223  239  291  367  475  508  525  547  549 
+ 575  665  695  785  801  826  847  874  903  913  997 1004 1019 1041 1052 1065 
+ 575  665  695  785  801  826  847  874  903  913  997 1004 1019 1041 1052 1065 
+1097 1161 1182 1186 1276 1353 1358 1384 1397 1420 1470 1488 1501 1516 1526 1555 
+1097 1161 1182 1186 1276 1353 1358 1384 1397 1420 1470 1488 1501 1516 1526 1555 
+1565 1594 1611 1621 1661 1672 1685 1704 1732 1800 1813 1828 1899 1959 1966 1979 
+1565 1594 1611 1621 1661 1672 1685 1704 1732 1800 1813 1828 1899 1959 1966 1979 
+1983 2005 2011 2016 2027 2031 2073 2078 2117 2144 2171 2269 2304 2340 2359 2370 
+1983 2005 2011 2016 2027 2031 2073 2078 2117 2144 2171 2269 2304 2340 2359 2370 
+2399 2404 2414 2452 2461 2492 2542 2618 2628 2664 2841 2863 
+2399 2404 2414 2452 2461 2492 2542 2618 2628 2664 2841 2863 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define weights based on Cook's distance</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>weights <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(cooks_distance <span class="sc">&lt;</span> cooks_threshold, <span class="dv">1</span>, cooks_threshold <span class="sc">/</span> cooks_distance)</span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Add weights to the dataset</span></span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>ufc_data_clean_filtered<span class="sc">$</span>weights <span class="ot">&lt;-</span> weights</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the weighted logistic regression model</span></span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>final_model_weighted <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> Outcome <span class="sc">~</span> RedBlueSubRatio <span class="sc">+</span> ReachRatio <span class="sc">+</span> SigStrRatio <span class="sc">+</span> </span>
+<span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a>             TotalFightTimeSecs <span class="sc">+</span> WeightClass <span class="sc">+</span> RedBlueSubRatio<span class="sc">:</span>SigStrRatio <span class="sc">+</span> </span>
+<span id="cb93-5"><a href="#cb93-5" aria-hidden="true" tabindex="-1"></a>             SigStrRatio<span class="sc">:</span>TotalFightTimeSecs <span class="sc">+</span> SigStrRatio<span class="sc">:</span>WeightClass,</span>
+<span id="cb93-6"><a href="#cb93-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb93-7"><a href="#cb93-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> ufc_data_clean_filtered,</span>
+<span id="cb93-8"><a href="#cb93-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> weights</span>
+<span id="cb93-9"><a href="#cb93-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in eval(family$initialize): non-integer #successes in a binomial glm!</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the weighted model</span></span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(final_model_weighted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + 
+    TotalFightTimeSecs + WeightClass + RedBlueSubRatio:SigStrRatio + 
+    SigStrRatio:TotalFightTimeSecs + SigStrRatio:WeightClass, 
+    family = binomial, data = ufc_data_clean_filtered, weights = weights)
+
+Coefficients:
+                                              Estimate Std. Error z value
+(Intercept)                                 -3.0730390  0.9349731  -3.287
+RedBlueSubRatio                             -0.0080746  0.0580215  -0.139
+ReachRatio                                   2.4984300  0.8787903   2.843
+SigStrRatio                                  0.5746565  0.2850248   2.016
+TotalFightTimeSecs                          -0.0005602  0.0002432  -2.304
+WeightClassFeatherweight                     0.4544441  0.3737944   1.216
+WeightClassFlyweight                         1.4447140  0.4648410   3.108
+WeightClassHeavyweight                       0.8594622  0.4727287   1.818
+WeightClassLight Heavyweight                 1.0008654  0.4443354   2.252
+WeightClassLightweight                       0.6837993  0.3407960   2.006
+WeightClassMiddleweight                      0.3682895  0.3763608   0.979
+WeightClassWelterweight                      0.5409232  0.3488856   1.550
+WeightClassWomen's Bantamweight             -0.1206667  1.5226405  -0.079
+WeightClassWomen's Flyweight                -1.0044935  1.0293994  -0.976
+WeightClassWomen's Strawweight               0.3231548  0.5248827   0.616
+RedBlueSubRatio:SigStrRatio                  0.1246902  0.0600701   2.076
+SigStrRatio:TotalFightTimeSecs               0.0006937  0.0001968   3.525
+SigStrRatio:WeightClassFeatherweight        -0.4398104  0.3092736  -1.422
+SigStrRatio:WeightClassFlyweight            -1.3582135  0.4047346  -3.356
+SigStrRatio:WeightClassHeavyweight          -0.6314003  0.4000255  -1.578
+SigStrRatio:WeightClassLight Heavyweight    -0.8629724  0.3698917  -2.333
+SigStrRatio:WeightClassLightweight          -0.7108995  0.2853786  -2.491
+SigStrRatio:WeightClassMiddleweight         -0.5048003  0.3185176  -1.585
+SigStrRatio:WeightClassWelterweight         -0.6380086  0.2942178  -2.168
+SigStrRatio:WeightClassWomen's Bantamweight  0.0177472  1.5472681   0.011
+SigStrRatio:WeightClassWomen's Flyweight     0.9233830  0.9100858   1.015
+SigStrRatio:WeightClassWomen's Strawweight  -0.5593141  0.4432301  -1.262
+                                            Pr(&gt;|z|)    
+(Intercept)                                 0.001013 ** 
+RedBlueSubRatio                             0.889319    
+ReachRatio                                  0.004469 ** 
+SigStrRatio                                 0.043783 *  
+TotalFightTimeSecs                          0.021247 *  
+WeightClassFeatherweight                    0.224077    
+WeightClassFlyweight                        0.001884 ** 
+WeightClassHeavyweight                      0.069051 .  
+WeightClassLight Heavyweight                0.024291 *  
+WeightClassLightweight                      0.044805 *  
+WeightClassMiddleweight                     0.327800    
+WeightClassWelterweight                     0.121038    
+WeightClassWomen's Bantamweight             0.936835    
+WeightClassWomen's Flyweight                0.329161    
+WeightClassWomen's Strawweight              0.538112    
+RedBlueSubRatio:SigStrRatio                 0.037918 *  
+SigStrRatio:TotalFightTimeSecs              0.000424 ***
+SigStrRatio:WeightClassFeatherweight        0.155004    
+SigStrRatio:WeightClassFlyweight            0.000791 ***
+SigStrRatio:WeightClassHeavyweight          0.114474    
+SigStrRatio:WeightClassLight Heavyweight    0.019646 *  
+SigStrRatio:WeightClassLightweight          0.012736 *  
+SigStrRatio:WeightClassMiddleweight         0.113002    
+SigStrRatio:WeightClassWelterweight         0.030121 *  
+SigStrRatio:WeightClassWomen's Bantamweight 0.990848    
+SigStrRatio:WeightClassWomen's Flyweight    0.310291    
+SigStrRatio:WeightClassWomen's Strawweight  0.206983    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 3943.3  on 2910  degrees of freedom
+Residual deviance: 3803.3  on 2884  degrees of freedom
+  (2 observations deleted due to missingness)
+AIC: 3879.5
+
+Number of Fisher Scoring iterations: 6</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate diagnostic plots</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))  <span class="co"># 2x2 layout</span></span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(final_model_weighted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="research_question_2_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for remaining influential points</span></span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>cooks_distance_weighted <span class="ot">&lt;-</span> <span class="fu">cooks.distance</span>(final_model_weighted)</span>
+<span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cooks_distance_weighted, <span class="at">main =</span> <span class="st">"Cook's Distance (Weighted Model)"</span>, <span class="at">ylab =</span> <span class="st">"Cook's Distance"</span>)</span>
+<span id="cb99-4"><a href="#cb99-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> cooks_threshold, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="research_question_2_files/figure-html/unnamed-chunk-23-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(final_model_weighted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>there are higher-order terms (interactions) in this model
+consider setting type = 'predictor'; see ?vif</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                       GVIF Df GVIF^(1/(2*Df))
+RedBlueSubRatio                6.531233e+00  1        2.555628
+ReachRatio                     1.018858e+00  1        1.009385
+SigStrRatio                    1.708964e+01  1        4.133962
+TotalFightTimeSecs             5.532271e+00  1        2.352078
+WeightClass                    2.570675e+08 10        2.633312
+RedBlueSubRatio:SigStrRatio    6.370291e+00  1        2.523944
+SigStrRatio:TotalFightTimeSecs 8.334568e+00  1        2.886965
+SigStrRatio:WeightClass        8.208838e+08 10        2.790706</code></pre>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -91,11 +91,6 @@ ggplot(ufc_data, aes(x = TotalFightTimeSecs)) +
 ```
 
 ```{r}
-library(dplyr)
-library(broom)  # For tidy model outputs
-library(ggplot2)
-
-# Step 1: Data Cleaning and Transformation
 ufc_data <- ufc_data %>%
   mutate(
     Outcome = ifelse(Winner == "Red", 1, 0),  # Binary outcome: 1 for Red win, 0 for Blue win
@@ -114,207 +109,258 @@ ufc_data <- ufc_data %>%
     !is.na(TotalFightTimeSecs),
     !is.na(WeightClass)  # Remove rows with missing data in new variables
   )
+ufc_data$RedBlueSubRatio <- ufc_data$TotalRedSubAttempts / ufc_data$TotalBlueSubAttempts
+ufc_data$ReachRatio <- ufc_data$RedReachCms / ufc_data$BlueReachCms
+ufc_data$SigStrRatio <- ufc_data$RedAvgSigStrLanded/ ufc_data$BlueAvgSigStrLanded
 
-dim(ufc_data)
+ufc_data_clean <- ufc_data %>%
+  filter(
+    !is.na(RedBlueSubRatio), !is.na(ReachRatio), !is.na(SigStrRatio),
+    !is.na(TotalFightTimeSecs), !is.na(WeightClass)
+  ) %>%
+  filter(
+    !is.infinite(RedBlueSubRatio), !is.infinite(ReachRatio), !is.infinite(SigStrRatio),
+    !is.infinite(TotalFightTimeSecs)
+  )
 
-# Step 2: Extended Logistic Regression Model
+dim(ufc_data_clean)
+
+```
+
+A logistic regression w/o any feature engineering:
+
+```{r}
+sim_logistic_model <- glm(
+  Outcome ~ 
+    TotalRedSubAttempts + 
+    TotalBlueSubAttempts + 
+    BlueReachCms + 
+    RedReachCms + 
+    BlueAvgSigStrLanded + 
+    RedAvgSigStrLanded + 
+    TotalFightTimeSecs + 
+    WeightClass,  # WeightClass as a factor
+  data = ufc_data_clean, 
+  family = binomial
+)
+
+# Show the model summary
+summary(sim_logistic_model)
+
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+
+
+plot(sim_logistic_model)
+```
+
+A logistic regression with feature engineered ratios:
+
+summary(logistic_model)
+
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+
+plot(logistic_model)
+
+```{r}
+
 logistic_model <- glm(
   Outcome ~ 
-    TotalRedSubAttempts + TotalBlueSubAttempts +
-    BlueReachCms + RedReachCms +
-    BlueAvgSigStrLanded + RedAvgSigStrLanded +
+    RedBlueSubRatio +
+    ReachRatio +
+    SigStrRatio +
     TotalFightTimeSecs + WeightClass,  # WeightClass is now handled as a factor
-  data = ufc_data, 
+  data = ufc_data_clean, 
   family = binomial
 )
 
 # Step 3: Model Summary
 summary(logistic_model)
 
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+
+
+plot(logistic_model)
+
 
 
 
 ```
 
 ```{r}
-deviance_residuals <- residuals(logistic_model, type = "deviance")
-# Plot deviance residuals
-plot(deviance_residuals, 
-     main = "Deviance Residuals for Logistic Regression", 
-     ylab = "Deviance Residuals", 
-     xlab = "Index", 
-     pch = 16, 
-     col = "blue")
-
-
+library(car)
+vif(logistic_model)
 ```
+
+Adding interaction terms:
 
 ```{r}
 ext_logistic_model <- glm(
   Outcome ~ 
-    TotalRedSubAttempts + TotalBlueSubAttempts +
-    BlueReachCms + RedReachCms +
-    BlueAvgSigStrLanded + RedAvgSigStrLanded +
-    TotalFightTimeSecs + WeightClass +
-    TotalRedSubAttempts * TotalBlueSubAttempts +
-    BlueReachCms * RedReachCms +
-    BlueAvgSigStrLanded * RedAvgSigStrLanded +
-    TotalFightTimeSecs * WeightClass,
-  data = ufc_data, 
+    RedBlueSubRatio +
+    ReachRatio +
+    SigStrRatio +
+    TotalFightTimeSecs + 
+    WeightClass + 
+    RedBlueSubRatio:ReachRatio +       # Interaction between RedBlueSubRatio and ReachRatio
+    RedBlueSubRatio:SigStrRatio +      # Interaction between RedBlueSubRatio and SigStrRatio
+    ReachRatio:SigStrRatio +           # Interaction between ReachRatio and SigStrRatio
+    RedBlueSubRatio:TotalFightTimeSecs +  # Interaction between RedBlueSubRatio and TotalFightTimeSecs
+    ReachRatio:TotalFightTimeSecs +       # Interaction between ReachRatio and TotalFightTimeSecs
+    SigStrRatio:TotalFightTimeSecs +     # Interaction between SigStrRatio and TotalFightTimeSecs
+    WeightClass:RedBlueSubRatio +       # Interaction between WeightClass and RedBlueSubRatio
+    WeightClass:ReachRatio +            # Interaction between WeightClass and ReachRatio
+    WeightClass:SigStrRatio +           # Interaction between WeightClass and SigStrRatio
+    WeightClass:TotalFightTimeSecs     # Interaction between WeightClass and TotalFightTimeSecs
+  ,
+  data = ufc_data_clean, 
   family = binomial
 )
 
-summary(ext_logistic_model)
-
-deviance_residuals <- residuals(ext_logistic_model, type = "deviance")
-# Plot deviance residuals
-plot(deviance_residuals, 
-     main = "Deviance Residuals for Logistic Regression", 
-     ylab = "Deviance Residuals", 
-     xlab = "Index", 
-     pch = 16, 
-     col = "blue")
 ```
 
 ```{r}
-# Load required libraries
-library(mgcv)
-library(ggplot2)
+summary(ext_logistic_model)
 
-# Step 1: Fit the GAM model
-gam_model <- gam(Outcome ~ s(TotalRedSubAttempts) + s(TotalBlueSubAttempts) +
-                 s(BlueReachCms) + s(RedReachCms) +
-                 s(BlueAvgSigStrLanded) + s(RedAvgSigStrLanded) +
-                 TotalFightTimeSecs + WeightClass,
-                 family = binomial, data = ufc_data)
+par(mfrow=c(2,2), mar = c(2,2,2,2))
 
-# Step 2: Extract residuals (deviance residuals)
-deviance_residuals <- residuals(gam_model, type = "deviance")
-# Plot deviance residuals
-plot(deviance_residuals, 
-     main = "Deviance Residuals for Logistic Regression", 
-     ylab = "Deviance Residuals", 
-     xlab = "Index", 
-     pch = 16, 
-     col = "blue")
+
+plot(ext_logistic_model)
+```
+
+```{r}
+step_model <- step(ext_logistic_model, direction = "both")
+summary(step_model)
+```
+
+```{r}
+vif(step_model)
+```
+
+```{r}
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+
+plot(step_model)
+```
+
+Robust regression:\
+
+```{r}
+# Trim the data
+# Calculate influence measures
+influence <- influence.measures(step_model)
+
+# Get Cook's Distance
+cooks_distance <- cooks.distance(step_model)
+
+# Get Leverage (Hat values)
+hat_values <- hatvalues(step_model)
+
+# Find large residuals
+residuals <- residuals(step_model, type = "deviance")
 
 
 ```
 
-### 
+```{r}
+# Thresholds
+n <- nrow(ufc_data_clean)  # Number of rows
+p <- length(coef(step_model)) - 1  # Number of predictors
+cooks_threshold <- 4 / n
+leverage_threshold <- 2 * (p + 1) / n
 
-The results of the logistic regression model (no interaction terms) indicate the following about the predictors and their relationship with the outcome variable (whether the "Red" corner wins):
+# Find influential points
+influential_points <- which(cooks_distance > cooks_threshold | 
+                            hat_values > leverage_threshold |
+                            abs(residuals) > 2)
 
-### **Model Interpretation:**
+# Print the indices of influential points
+print(influential_points)
 
-1.  **Intercept**:
+# View the rows with extreme points
+ufc_data_clean[influential_points, ]
 
-    -   The intercept represents the log-odds of a "Red" win when all predictors are at their baseline (zero).
+```
 
-    -   Here, the intercept (0.3069) is not statistically significant (p = 0.56195), meaning it doesn't meaningfully contribute to predicting the outcome in this context.
+```{r}
+# Remove influential points
+ufc_data_clean_filtered <- ufc_data_clean[-influential_points, ]
 
-2.  **Predictors**:
+# Refit the model
+final_model <- glm(
+  formula = Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + 
+             TotalFightTimeSecs + WeightClass + RedBlueSubRatio:SigStrRatio + 
+             SigStrRatio:TotalFightTimeSecs + SigStrRatio:WeightClass,
+  family = binomial,
+  data = ufc_data_clean_filtered
+)
 
-    -   **TotalRedSubAttempts**:
+# Summary of the refitted model
+summary(final_model)
 
-        -   Coefficient: 0.1711
+```
 
-        -   Interpretation: A one-unit increase in Red's average submission attempts increases the log-odds of a Red win by 0.171.
+```{r}
+par(mfrow=c(2,2), mar = c(2,2,2,2))
 
-        -   p=0.000229p = 0.000229p=0.000229: Highly significant (**p \< 0.001**), so this is a strong predictor.
+plot(final_model)
+```
 
-    -   **TotalBlueSubAttempts**:
+```{r}
+# Calculate leverage and Cook's distance
+influence <- influence.measures(final_model)
+cooks_distance <- cooks.distance(final_model)
+leverage <- hatvalues(final_model)
 
-        -   Coefficient: -0.1265
+# Define a threshold for Cook's distance
+cooks_threshold <- 4 / nrow(ufc_data_clean_filtered)
 
-        -   Interpretation: A one-unit increase in Blue's average submission attempts decreases the log-odds of a Red win by 0.127.
+# Inspect influential Cook's distance values
+plot(cooks_distance, main = "Cook's Distance", ylab = "Cook's Distance")
+abline(h = cooks_threshold, col = "red", lty = 2)
 
-        -   p=0.00451p = 0.00451p=0.00451: Significant (**p \< 0.01**), indicating it's a meaningful predictor.
+# Check points above the threshold
+influential_cooks <- which(cooks_distance > cooks_threshold)
+print(influential_cooks)
 
-    -   **BlueReachCms**:
+```
 
-        -   Coefficient: -0.0117
+```{r}
+# Define weights based on Cook's distance
+weights <- ifelse(cooks_distance < cooks_threshold, 1, cooks_threshold / cooks_distance)
 
-        -   Interpretation: A one-centimeter increase in Blue's reach decreases the log-odds of a Red win by 0.0117.
+# Add weights to the dataset
+ufc_data_clean_filtered$weights <- weights
 
-        -   p=0.00202p = 0.00202p=0.00202: Significant (**p \< 0.01**).
+```
 
-    -   **RedReachCms**:
+```{r}
+# Fit the weighted logistic regression model
+final_model_weighted <- glm(
+  formula = Outcome ~ RedBlueSubRatio + ReachRatio + SigStrRatio + 
+             TotalFightTimeSecs + WeightClass + RedBlueSubRatio:SigStrRatio + 
+             SigStrRatio:TotalFightTimeSecs + SigStrRatio:WeightClass,
+  family = binomial,
+  data = ufc_data_clean_filtered,
+  weights = weights
+)
 
-        -   Coefficient: 0.0116
+# Summary of the weighted model
+summary(final_model_weighted)
 
-        -   Interpretation: A one-centimeter increase in Red's reach increases the log-odds of a Red win by 0.0116.
+```
 
-        -   p=0.00207p = 0.00207p=0.00207: Significant (**p \< 0.01**).
+```{r}
+# Generate diagnostic plots
+par(mfrow = c(2, 2))  # 2x2 layout
+plot(final_model_weighted)
 
-    -   **BlueAvgSigStrLanded**:
+# Check for remaining influential points
+cooks_distance_weighted <- cooks.distance(final_model_weighted)
+plot(cooks_distance_weighted, main = "Cook's Distance (Weighted Model)", ylab = "Cook's Distance")
+abline(h = cooks_threshold, col = "red", lty = 2)
 
-        -   Coefficient: -0.0079
+```
 
-        -   Interpretation: Each additional significant strike landed by Blue decreases the log-odds of a Red win by 0.0079.
-
-        -   p=1.19×10−5p = 1.19 \times 10^{-5}p=1.19×10−5: Highly significant (**p \< 0.001**).
-
-    -   **RedAvgSigStrLanded**:
-
-        -   Coefficient: 0.0081
-
-        -   Interpretation: Each additional significant strike landed by Red increases the log-odds of a Red win by 0.0081.
-
-        -   p=2.67×10−5p = 2.67 \times 10^{-5}p=2.67×10−5: Highly significant (**p \< 0.001**).
-
-### **Model Fit:**
-
--   **Null Deviance**: 6674.5
-
-    -   Indicates how well the outcome is predicted by a model with only the intercept.
-
--   **Residual Deviance**: 6621.4
-
-    -   Represents how well the model fits with all predictors included. A lower deviance indicates better fit.
-
--   **AIC**: 6635.4
-
-    -   Used to compare this model to others. Lower AIC values indicate better model performance.
-
-The decrease in deviance from the null model to the full model suggests the predictors improve the model significantly.
-
-The results directly address the research question by demonstrating an **association between fight outcomes and the number of submission attempts made by fighters**. Here's how the findings contribute to answering the question:
-
-### **Outcome Variable**
-
--   **Fight Outcome (Outcome)**:
-
-    -   Binary variable coded as `1` (Red wins) and `0` (Blue wins).
-
-    -   The logistic regression model predicts the probability of a "Red win" based on various predictors, including the number of submission attempts.
-
-### **Key Findings Relevant to the Research Question**
-
-1.  **Association with Red's Submission Attempts**:
-
-    -   **Estimate**: 0.17110.17110.1711
-
-    -   **p-value**: 0.0002290.0002290.000229 (**p \< 0.001**)
-
-    -   **Interpretation**: For each additional submission attempt made by the Red fighter, the log-odds of a Red win increase significantly by 0.17110.17110.1711. This is a positive and statistically significant relationship.
-
-2.  **Association with Blue's Submission Attempts**:
-
-    -   **Estimate**: −0.1265-0.1265−0.1265
-
-    -   **p-value**: 0.004510.004510.00451 (**p \< 0.01**)
-
-    -   **Interpretation**: For each additional submission attempt made by the Blue fighter, the log-odds of a Red win decrease significantly by 0.12650.12650.1265. This is a negative and statistically significant relationship, reflecting the competitive nature of the sport where Blue's success reduces Red's chances.
-
-### **Conclusion for the Research Question**:
-
--   **Yes**, fight outcomes are significantly associated with the number of submission attempts made by a fighter.
-
--   Submission attempts **by the Red fighter** positively influence their chances of winning, while **submission attempts by the Blue fighter** negatively impact Red's chances (i.e., they improve Blue's chances).
-
-### **Implications for Research**:
-
--   Submission attempts are a critical factor in predicting fight outcomes, suggesting they are a meaningful metric to include in future studies on fighter performance.
-
--   Further investigation could explore whether the **success rate of submission attempts** or specific submission techniques provide additional predictive power.
+```{r}
+vif(final_model_weighted)
+```

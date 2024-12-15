@@ -1,0 +1,216 @@
+---
+title: "research_question_2"
+format: html
+editor: visual
+---
+
+## Research question 2:
+
+### Is the fight outcome associated with the number of submission attempts made by a fighter?
+
+-   **Outcome Variable:** Fight outcome (binary variable: Win or Loss)
+-   **Independent Variable:** Primary fight style (nominal variable)
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(broom)
+library(car)  # For VIF calculation
+```
+
+### Step 1: Data Loading and Preparation
+
+```{r}
+# Load dataset
+ufc_data <- read_csv('ufc-master.csv', show_col_types = FALSE)
+
+# Glimpse of data structure
+glimpse(ufc_data %>% select(BlueReachCms, RedReachCms, BlueAvgSigStrLanded, 
+                            RedAvgSigStrLanded, WeightClass, Winner, 
+                            RedAvgSubAtt, BlueAvgSubAtt, TotalFightTimeSecs))
+
+# Check for missing values
+missing_values <- ufc_data %>%
+  summarise(across(everything(), ~sum(is.na(.)))) %>%
+  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Missing_Count")
+
+print("Missing values in each column:")
+print(missing_values)
+
+# Data cleaning
+ufc_data <- ufc_data %>%
+  mutate(
+    Outcome = ifelse(Winner == "Red", 1, 0),  # Binary outcome: 1 for Red win, 0 for Blue win
+    WeightClass = as.factor(WeightClass),
+    TotalRedSubAttempts = RedAvgSubAtt,        # Red's submission attempts
+    TotalBlueSubAttempts = BlueAvgSubAtt
+  ) %>%
+  filter(
+    !is.na(Outcome), 
+    !is.na(TotalRedSubAttempts), 
+    !is.na(TotalBlueSubAttempts),
+    !is.na(BlueReachCms), 
+    !is.na(RedReachCms), 
+    !is.na(BlueAvgSigStrLanded), 
+    !is.na(RedAvgSigStrLanded),
+    !is.na(TotalFightTimeSecs),
+    !is.na(WeightClass)
+  ) %>%
+  mutate(
+    LogRedSubAttempts = log1p(TotalRedSubAttempts),
+    LogBlueSubAttempts = log1p(TotalBlueSubAttempts),
+    LogBlueReach = log1p(BlueReachCms),
+    LogRedReach = log1p(RedReachCms),
+    LogBlueSigStr = log1p(BlueAvgSigStrLanded),
+    LogRedSigStr = log1p(RedAvgSigStrLanded),
+    LogFightTime = log1p(TotalFightTimeSecs)
+  )
+
+# Check dimensions of the cleaned dataset
+dim(ufc_data)
+```
+
+### Step 2: Exploratory Data Analysis (EDA)
+
+```{r}
+# Summary statistics for numerical variables
+summary_stats <- ufc_data %>%
+  summarise(across(where(is.numeric), list(mean = mean, sd = sd, median = median, 
+                                           min = min, max = max), na.rm = TRUE)) %>%
+  pivot_longer(cols = everything(), names_to = c("Variable", ".value"), names_sep = "_")
+
+print("Summary statistics for numerical variables:")
+print(summary_stats)
+
+# Plot distributions of key numeric variables
+ggplot(ufc_data, aes(x = TotalRedSubAttempts)) + 
+  geom_histogram(binwidth = 1, fill = 'blue', color = 'black') +
+  labs(title = "Distribution of Total Red Submission Attempts", x = "Red Submission Attempts", y = "Frequency")
+
+ggplot(ufc_data, aes(x = TotalBlueSubAttempts)) + 
+  geom_histogram(binwidth = 1, fill = 'red', color = 'black') +
+  labs(title = "Distribution of Total Blue Submission Attempts", x = "Blue Submission Attempts", y = "Frequency")
+
+# Relationship between submission attempts and fight outcome
+ggplot(ufc_data, aes(x = TotalRedSubAttempts, y = Outcome, color = as.factor(Outcome))) +
+  geom_point() + 
+  labs(title = "Red Submission Attempts vs Fight Outcome", x = "Red Submission Attempts", y = "Fight Outcome (0 = Loss, 1 = Win)")
+
+ggplot(ufc_data, aes(x = TotalBlueSubAttempts, y = Outcome, color = as.factor(Outcome))) +
+  geom_point() + 
+  labs(title = "Blue Submission Attempts vs Fight Outcome", x = "Blue Submission Attempts", y = "Fight Outcome (0 = Loss, 1 = Win)")
+
+```
+
+### Step 3: Logistic Regression Models
+
+#### Initial Logistic Regression
+
+```{r}
+sim_logistic_model <- glm(
+  Outcome ~ 
+    LogRedSubAttempts + 
+    LogBlueSubAttempts + 
+    LogBlueReach + 
+    LogRedReach + 
+    LogBlueSigStr + 
+    LogRedSigStr + 
+    LogFightTime + 
+    WeightClass,
+  data = ufc_data, 
+  family = binomial
+)
+
+# Model summary
+summary(sim_logistic_model)
+
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+
+plot(sim_logistic_model)
+```
+
+#### Logistic Regression with Interaction Terms
+
+```{r}
+ext_logistic_model <- glm(
+  Outcome ~ 
+    LogRedSubAttempts +
+    LogBlueSubAttempts +
+    LogBlueReach +
+    LogRedReach +
+    LogBlueSigStr +
+    LogRedSigStr +
+    LogFightTime + 
+    WeightClass + 
+    LogRedSubAttempts*LogBlueSubAttempts +
+    LogRedSubAttempts*LogBlueReach +
+    LogBlueSubAttempts*LogRedReach +
+    LogBlueSigStr*LogRedSigStr +
+    LogRedSubAttempts*LogFightTime +
+    LogBlueSubAttempts*LogFightTime +
+    WeightClass*LogRedSubAttempts +
+    WeightClass*LogBlueSubAttempts,
+  data = ufc_data, 
+  family = binomial
+)
+
+# Model summary
+summary(ext_logistic_model)
+
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+
+plot(ext_logistic_model)
+```
+
+### Step 4: Model Refinement
+
+#### Stepwise Selection: Backward and Forward
+
+```{r}
+# Stepwise backward selection
+step_model <- step(ext_logistic_model, direction = "both")
+
+
+summary(step_model)
+```
+
+```{r}
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+
+plot(step_model)
+```
+
+#### Removing Influential Points
+
+```{r}
+# Calculate Cook's distance and leverage
+cooks_distance <- cooks.distance(step_model)
+hat_values <- hatvalues(step_model)
+residuals <- residuals(step_model, type = "deviance")
+
+# Thresholds
+n <- nrow(ufc_data)
+p <- length(coef(backward_model)) - 1
+cooks_threshold <- 4 / n
+leverage_threshold <- 2 * (p + 1) / n
+
+# Identify influential points
+influential_points <- which(cooks_distance > cooks_threshold | 
+                            hat_values > leverage_threshold |
+                            abs(residuals) > 2)
+
+# Remove influential points
+ufc_data_filtered <- ufc_data[-influential_points, ]
+
+# Refit the model
+final_model <- glm(formula = Outcome ~ LogRedSubAttempts + LogBlueSubAttempts + 
+    LogBlueReach + LogRedReach + LogBlueSigStr + LogRedSigStr, 
+    family = binomial, data = ufc_data_filtered)
+
+# Model summary
+summary(final_model)
+
+par(mfrow=c(2,2), mar = c(2,2,2,2))
+
+plot(final_model)
+```
