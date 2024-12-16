@@ -1,6 +1,7 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/294ffa26-161d-4deb-bc8a-df7948146efb" alt="UFC Analysis Logo">
+  <img src="https://github.com/user-attachments/assets/294ffa26-161d-4deb-bc8a-df7948146efb" alt="UFC Analysis Logo" style="width:50%; height:auto;">
 </div>
+
 
 # UFC Data Analysis - IDS 702 Final Project
 
