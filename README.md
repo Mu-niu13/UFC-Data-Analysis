@@ -1,16 +1,21 @@
 # UFC Data Analysis - IDS 702 Final Project
+
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/294ffa26-161d-4deb-bc8a-df7948146efb" alt="image">
+  <img src="https://github.com/user-attachments/assets/294ffa26-161d-4deb-bc8a-df7948146efb" alt="UFC Data Analysis" style="width:70%; border-radius:10px;">
 </div>
+
+---
+
 ### Contributors:
-- Arko Bhattacharya
-- Eric Ortega Rodriguez
-- Mu Niu
-- Nruta Choudhari
+- **Arko Bhattacharya**
+- **Eric Ortega Rodriguez**
+- **Mu Niu**
+- **Nruta Choudhari**
 
-## Overview
+---
 
-This project explores performance dynamics in the Ultimate Fighting Championship (UFC), focusing on how physical attributes and tactical strategies impact fight outcomes. The analysis leverages data from 2010 to November 2024, including metrics like reach, strikes landed, and submission attempts.
+This project analyzes UFC data to uncover insights into how physical attributes and tactical strategies impact fight outcomes. Using data spanning over a decade (2010-2024), the team examined relationships such as the impact of fighter reach on strikes landed and the role of submission attempts in predicting fight results. Dive in to explore data-driven insights into the world of mixed martial arts (MMA).
+
 
 ### Key Research Questions:
 1. How does fighter reach affect the total number of strikes landed during a fight?
